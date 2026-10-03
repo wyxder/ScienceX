@@ -11,6 +11,7 @@ import '../styles/landing-sections.css';
 
 import { LandingHero } from './landing/LandingHero';
 import { LandingMarquee } from './landing/LandingMarquee';
+import { LandingDemo } from './landing/LandingDemo';
 import { LandingRadar } from './landing/LandingRadar';
 import { LandingPersonas } from './landing/LandingPersonas';
 import { LandingCompare } from './landing/LandingCompare';
@@ -151,6 +152,7 @@ export default function Landing() {
       <main>
         <LandingHero onExploreFeatures={() => scrollTo('personas')} />
         <LandingMarquee />
+        <LandingDemo />
         <LandingPersonas />
         <LandingCompare />
         <LandingRadar />
