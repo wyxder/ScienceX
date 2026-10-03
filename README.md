@@ -2,13 +2,13 @@
 
 ![React](https://img.shields.io/badge/React-18.3-61DAFB?style=flat-square&logo=react&logoColor=black) ![TypeScript](https://img.shields.io/badge/TypeScript-5.5-3178C6?style=flat-square&logo=typescript&logoColor=white) ![Vite](https://img.shields.io/badge/Vite-5.4-646CFF?style=flat-square&logo=vite&logoColor=white) ![Node.js](https://img.shields.io/badge/Node.js-18%2B-339933?style=flat-square&logo=node.js&logoColor=white) ![Express](https://img.shields.io/badge/Express-4.19-000000?style=flat-square&logo=express&logoColor=white) ![SSE](https://img.shields.io/badge/Stream-SSE-FF6B6B?style=flat-square) ![OpenAI](https://img.shields.io/badge/LLM-OpenAI_Compatible-412991?style=flat-square&logo=openai&logoColor=white) ![Zod](https://img.shields.io/badge/Validation-Zod-3E67B1?style=flat-square) ![MCP](https://img.shields.io/badge/Tools-MCP_SDK-8A2BE2?style=flat-square) ![Test](https://img.shields.io/badge/Tests-Node--test%20%C2%B7%20c8-CC3F34?style=flat-square) ![CI](https://img.shields.io/badge/CI-GitHub_Actions-2088FF?style=flat-square&logo=githubactions&logoColor=white) ![Deploy](https://img.shields.io/badge/Deploy-Vercel%20%C2%B7%20Docker-000000?style=flat-square&logo=vercel&logoColor=white) ![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
 
-> 本文档基于对仓库代码、配置与工程化设施的实际扫描分析生成，覆盖 **项目简介 / 技术栈 / 目录结构 / 核心功能与工作流程 / 部署指南 / API 接口 / 综合评估 / 参赛评分自评 / 总结与展望** 九大章节，所有数据均来自真实文件（`package.json`、`server.js`、路由源码、CI 工作流等），非目标架构宣传。
-
 ---
 
 ## 📋 一、项目简介
+<img width="2549" height="1346" alt="image" src="https://github.com/user-attachments/assets/101fa715-2ba2-4381-91c2-66a70f611d68" />
+<img width="2542" height="1346" alt="image" src="https://github.com/user-attachments/assets/19763201-c5d4-446f-942e-ddef4cd7d4fc" />
 
-**ScienceX（科研 AI 工作台）** 是一站式覆盖「选题 ➔ 文献 ➔ 复现 ➔ 实验 ➔ 分析 ➔ 写作 ➔ 投稿 ➔ 协作」科研全生命周期的 AI 原生生产力中枢。它以 **智能体对话中枢** 为骨架，将 7 大科研工具与 2 大特色机制（组会汇报、多智能体专家评审团）咬合为数据自沉淀、上下文可追溯的科研闭环。
+**ScienceX（科研 AI 工作台）** 是一站式覆盖「选题 ➔ 文献 ➔ 复现 ➔ 实验 ➔ 分析 ➔ 写作 ➔ 投稿 ➔ 协作」科研全生命周期的 Agent工作台。它以 **智能体对话中枢** 为骨架，将 7 大科研工具与 2 大特色机制（组会汇报、多智能体专家评审团）咬合为数据自沉淀、上下文可追溯的科研闭环。
 
 ### 🌟 核心价值主张
 
