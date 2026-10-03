@@ -3,8 +3,13 @@ const { z } = require('zod');
 const text = z.string().max(100000);
 const short = z.string().trim().min(1).max(200);
 const id = z.string().min(1).max(128).regex(/^[\w-]+$/);
-const email = z.string().trim().email().max(254);
+const email = z.string().trim().email('邮箱格式不正确，请填写完整的学术邮箱，例如 you@university.edu.cn').max(254, '邮箱长度不能超过 254 个字符');
 const tags = z.array(short).max(50);
+// 认证表单专用契约：带中文提示，前端可直接展示 message 指导用户改正。
+// 密码下限 6 位与演示账号（123456）保持一致，避免答辩/评审现场注册被拦。
+const loginPassword = z.string().min(1, '请输入登录密码').max(128, '密码长度不能超过 128 位');
+const registerPassword = z.string().min(6, '密码长度至少 6 位，请重新设置').max(128, '密码长度不能超过 128 位');
+const scholarName = z.string().trim().min(1, '请填写学者姓名或称谓').max(200, '昵称长度不能超过 200 个字符');
 const obj = (shape = {}) => z.object(shape); // 自动剔除未声明字段，防止批量赋值。
 const optionalId = id.nullish();
 const fields = { project_id: optionalId, model: short.optional() };
@@ -19,8 +24,8 @@ const contracts = {};
 function body(method, path, schema) { contracts[method + ' ' + path] = { body: schema }; }
 function query(path, schema) { contracts['get ' + path] = { query: schema }; }
 
-body('post', '/auth/login', obj({ email, password: z.string().min(1).max(128) }));
-body('post', '/auth/register', obj({ email, password: z.string().min(8).max(128), name: short }));
+body('post', '/auth/login', obj({ email, password: loginPassword }));
+body('post', '/auth/register', obj({ email, password: registerPassword, name: scholarName }));
 body('post', '/auth/refresh', obj({ refresh_token: z.string().min(1).max(4096) }));
 body('put', '/user/profile', obj({ name: short.optional(), title: text.optional(), avatar: z.string().max(500000).optional(), research_tags: tags.optional(), lang: z.enum(['zh', 'en']).optional() }));
 body('post', '/models', obj({ name: short.optional(), base_url: z.string().url().max(2048), model_name: short, provider: z.enum(['openai', 'deepseek', 'custom', 'anthropic', 'gemini', 'ollama']).optional(), api_key: z.string().max(4096).optional(), priority: z.number().int().min(1).max(100).optional() }));

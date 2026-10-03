@@ -422,6 +422,101 @@
   background: #d1fae5;
 }
 
+/* 任务进度托盘（上传解析 / 提示词增强）：真实百分比 + 渐变流动条 */
+.chat-task-tray {
+  margin: 4px 0 6px;
+  padding: 8px 11px 10px;
+  border-radius: 12px;
+  border: 1px solid #d7f0e4;
+  background: linear-gradient(180deg, #f6fdfa 0%, #ffffff 100%);
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.06);
+  animation: chatTrayIn 0.18s ease-out;
+}
+@keyframes chatTrayIn {
+  from { opacity: 0; transform: translateY(-3px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.chat-task-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 7px;
+  min-width: 0;
+}
+.chat-task-title {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #0f172a;
+  max-width: 40%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.chat-task-stage {
+  font-size: 11.5px;
+  color: #047857;
+  background: rgba(16, 185, 129, 0.1);
+  padding: 1px 7px;
+  border-radius: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.chat-task-percent {
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 700;
+  color: #059669;
+  font-variant-numeric: tabular-nums;
+  flex: none;
+}
+.chat-progress-bar {
+  position: relative;
+  height: 6px;
+  border-radius: 999px;
+  background: #e6f5ef;
+  overflow: hidden;
+}
+.chat-progress-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #34d399 0%, #10b981 45%, #059669 100%);
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.45);
+  transition: width 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+  position: relative;
+  overflow: hidden;
+}
+.chat-progress-fill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+  transform: translateX(-100%);
+  animation: chatProgressShimmer 1.25s infinite;
+}
+@keyframes chatProgressShimmer {
+  to { transform: translateX(100%); }
+}
+.chat-progress-bar.violet {
+  background: #efe9fe;
+}
+.chat-progress-bar.violet .chat-progress-fill {
+  background: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 45%, #7c3aed 100%);
+  box-shadow: 0 0 10px rgba(124, 58, 237, 0.4);
+}
+.chat-task-tray:has(.chat-progress-bar.violet) {
+  border-color: #e4d9fb;
+  background: linear-gradient(180deg, #faf7ff 0%, #ffffff 100%);
+}
+.chat-task-tray:has(.chat-progress-bar.violet) .chat-task-stage {
+  color: #6d28d9;
+  background: rgba(124, 58, 237, 0.1);
+}
+.chat-task-tray:has(.chat-progress-bar.violet) .chat-task-percent {
+  color: #7c3aed;
+}
+
 .chat-dock-right-tools {
   display: flex;
   align-items: center;
@@ -448,8 +543,86 @@
   min-width: 260px;
 }
 
+/* 模型下拉：加宽保证「名称 + 定位标签 + 连接状态」同行完整展示，不折行 */
 .chat-dock-model-menu {
-  min-width: 230px;
+  min-width: min(560px, calc(100vw - 40px));
+  max-height: min(380px, 60vh);
+}
+
+.chat-model-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #1e293b;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+.chat-model-row.active {
+  background: rgba(16, 185, 129, 0.1);
+  color: #047857;
+}
+.chat-model-name {
+  font-weight: 600;
+  flex: none;
+}
+.chat-model-row.active .chat-model-name {
+  font-weight: 700;
+}
+.chat-model-tag {
+  margin-left: auto;
+  font-size: 11px;
+  color: #64748b;
+  background: rgba(15, 23, 42, 0.05);
+  padding: 1px 7px;
+  border-radius: 6px;
+  white-space: nowrap;
+  flex: none;
+}
+.chat-model-row.active .chat-model-tag {
+  color: #059669;
+  background: rgba(16, 185, 129, 0.12);
+}
+.chat-model-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  white-space: nowrap;
+  flex: none;
+}
+.chat-model-state.ok {
+  color: #059669;
+}
+.chat-model-state.idle {
+  color: #94a3b8;
+}
+.chat-model-state .dot {
+  width: 6px;
+  height: 6px;
+}
+
+/* 下拉底部「添加自定义模型」入口 */
+.chat-dock-menu-footer {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 4px;
+  padding: 9px 10px;
+  border-radius: 9px;
+  border-top: 1px dashed #e2e8f0;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #059669;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+.chat-dock-menu-footer:hover {
+  background: #ecfdf5;
 }
 
 /* 模型选择器药丸按钮 */

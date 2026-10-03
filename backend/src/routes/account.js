@@ -60,11 +60,19 @@ function auth(req, res, next) {
   continueAuthenticated(req, res, next);
 }
 
-/* ---------- 认证 REQ-USER-05 ---------- */
+/* ---------- 认证 REQ-USER-05 ----------
+   邮箱统一 trim + 小写归一化：注册写入与登录查询使用同一形式，
+   避免大小写或尾部空格导致「刚注册的账号登不进去」。 */
+const MIN_PASSWORD_LEN = 6;
+const normalizeEmail = (value) => String(value || '').trim().toLowerCase();
+const isEmailLike = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+
 router.post('/auth/login', (req, res) => {
   const { email, password } = req.body || {};
+  const mail = normalizeEmail(email);
+  if (!mail || !password) return errors.param(res, '请输入邮箱与密码');
   // 演示账号在所有环境可用（现场演示/评审要求）；如需关闭，删除 store 中的演示用户即可。
-  const user = store.users.find((u) => u.email === email && verifyPassword(password, u.password));
+  const user = store.users.find((u) => normalizeEmail(u.email) === mail && verifyPassword(password, u.password));
   if (!user) return errors.param(res, '邮箱或密码错误（演示账号 demo@sciencex.cn / 123456）');
   const { token, refreshToken } = issueSession(user);
   const { password: _p, ...profile } = user;
@@ -73,9 +81,13 @@ router.post('/auth/login', (req, res) => {
 
 router.post('/auth/register', (req, res) => {
   const { email, password, name } = req.body || {};
-  if (!email || !password || !name) return errors.param(res, '邮箱、密码、昵称为必填项');
-  if (store.users.some((u) => u.email === email)) return errors.param(res, '该邮箱已注册');
-  const user = { id: store.id('u'), email, password: hashPassword(password), name, title: '研究者', avatar: '', research_tags: [], lang: 'zh', plan: 'free', created_at: store.now() };
+  const mail = normalizeEmail(email);
+  const nickname = String(name || '').trim();
+  if (!mail || !password || !nickname) return errors.param(res, '邮箱、密码、昵称为必填项');
+  if (!isEmailLike(mail)) return errors.param(res, '邮箱格式不正确，请填写完整的学术邮箱');
+  if (String(password).length < MIN_PASSWORD_LEN) return errors.param(res, `密码长度至少 ${MIN_PASSWORD_LEN} 位`);
+  if (store.users.some((u) => normalizeEmail(u.email) === mail)) return errors.param(res, '该邮箱已注册，请直接登录');
+  const user = { id: store.id('u'), email: mail, password: hashPassword(password), name: nickname, title: '研究者', avatar: '', research_tags: [], lang: 'zh', plan: 'free', created_at: store.now() };
   store.users.push(user);
   const { token, refreshToken } = issueSession(user);
   const { password: _p, ...profile } = user;

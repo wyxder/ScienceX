@@ -50,6 +50,45 @@ test('登录缺少字段返回 40011 参数校验失败并携带字段明细', a
   assert.ok(Array.isArray(body.data.details) && body.data.details.some((d) => d.field.includes('email')));
 });
 
+test('注册校验失败返回中文可读提示（不再只剩“参数校验失败”）', async () => {
+  const short = await request('/auth/register', {
+    method: 'POST', body: JSON.stringify({ email: `weak-${Date.now()}@example.com`, password: '12345', name: '短密码用户' }),
+  });
+  assert.equal(short.response.status, 400);
+  assert.equal(short.body.code, 40011);
+  assert.match(short.body.message, /密码长度至少 6 位/);
+
+  const blankName = await request('/auth/register', {
+    method: 'POST', body: JSON.stringify({ email: `name-${Date.now()}@example.com`, password: 'abc123', name: '   ' }),
+  });
+  assert.equal(blankName.body.code, 40011);
+  assert.match(blankName.body.message, /学者姓名|必填/);
+});
+
+test('注册→登录闭环可用（6 位密码、邮箱大小写归一）', async () => {
+  const mail = `Cycle-${Date.now()}@Example.COM`;
+  const registered = await request('/auth/register', {
+    method: 'POST', body: JSON.stringify({ email: mail, password: '123456', name: ' 闭环测试学者 ' }),
+  });
+  assert.equal(registered.body.code, 0);
+  assert.equal(registered.body.data.user.email, mail.toLowerCase());
+  assert.equal(registered.body.data.user.name, '闭环测试学者');
+
+  // 小写形式登录应命中同一账号（归一化以前因精确匹配而登不进去）
+  const relogin = await request('/auth/login', {
+    method: 'POST', body: JSON.stringify({ email: mail.toLowerCase(), password: '123456' }),
+  });
+  assert.equal(relogin.body.code, 0);
+  assert.equal(relogin.body.data.user.id, registered.body.data.user.id);
+
+  // 重复注册（仅大小写不同）给出可行动的提示
+  const dup = await request('/auth/register', {
+    method: 'POST', body: JSON.stringify({ email: mail.toUpperCase(), password: '123456', name: '重复邮箱' }),
+  });
+  assert.equal(dup.body.code, 40011);
+  assert.match(dup.body.message, /该邮箱已注册/);
+});
+
 test('未声明字段被契约白名单剔除（防批量赋值）', async () => {
   const { body } = await request('/projects', { method: 'POST', body: JSON.stringify({ name: `契约测试项目-${Date.now()}`, role: 'admin', is_deleted: false }) });
   assert.equal(body.code, 0);
