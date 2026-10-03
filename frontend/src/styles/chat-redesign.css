@@ -545,7 +545,7 @@
 
 /* 模型下拉：加宽保证「名称 + 定位标签 + 连接状态」同行完整展示，不折行 */
 .chat-dock-model-menu {
-  min-width: min(560px, calc(100vw - 40px));
+  min-width: min(420px, calc(100vw - 40px));
   max-height: min(380px, 60vh);
 }
 
@@ -572,8 +572,9 @@
 .chat-model-row.active .chat-model-name {
   font-weight: 700;
 }
+/* 定位标签紧跟模型名，不推向行尾（避免名称与标签间出现大片空白） */
 .chat-model-tag {
-  margin-left: auto;
+  margin-left: 2px;
   font-size: 11px;
   color: #64748b;
   background: rgba(15, 23, 42, 0.05);
