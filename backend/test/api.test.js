@@ -116,6 +116,15 @@ test('新用户只能看到自己的资源', { concurrency: false }, async () =>
   assert.deepEqual(orders.body.data, []);
   assert.deepEqual(advice.body.data.items, []);
 
+  // 新注册用户尚无任何课题：看板需返回空摘要而不是 404，否则工作台首屏会弹“项目不存在”并打断整批加载
+  const emptyDashboard = await request('/dashboard/summary', { headers });
+  assert.equal(emptyDashboard.response.status, 200);
+  assert.equal(emptyDashboard.body.code, 0);
+  assert.equal(emptyDashboard.body.data.project, null);
+  // 显式请求不属于自己的课题仍需 404（不得越权回退到他人看板）
+  const foreignDashboard = await request('/dashboard/summary?project_id=p1', { headers });
+  assert.equal(foreignDashboard.response.status, 404);
+
   const createdProject = await request('/projects', {
     method: 'POST',
     headers,

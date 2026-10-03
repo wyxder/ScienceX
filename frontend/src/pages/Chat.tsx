@@ -91,7 +91,7 @@ export default function Chat() {
       const [c, m, d, s, mem] = await Promise.all([
         api<{ items: Conversation[] } | Conversation[]>('/conversations'),
         api<{ builtin: any[]; custom: any[] }>('/models'),
-        api<any>('/dashboard/summary'),
+        api<any>('/dashboard/summary').catch(() => null), // 看板缺数据不应阻断整个工作台首屏
         api<{ items: SkillItem[] } | SkillItem[]>('/skills'),
         api<{ total: number }>('/chat/memories').catch(() => ({ total: 4 })),
       ]);

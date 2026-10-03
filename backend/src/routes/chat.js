@@ -98,8 +98,12 @@ router.delete('/conversations/:id', auth, (req, res) => {
 
 /* ---------- 顶部看板 REQ-CHAT-04 ---------- */
 router.get('/dashboard/summary', auth, (req, res) => {
-  const project = store.projects.find((p) => p.id === (req.query.project_id || 'p1') && canAccess(p, req.user.id)) || store.projects.find((p) => canAccess(p, req.user.id));
-  if (!project) return errors.notFound(res, '项目不存在');
+  const mine = store.projects.filter((p) => canAccess(p, req.user.id));
+  const requested = req.query.project_id;
+  // 显式指定课题但不存在/无权限时仍抱 404；新注册用户没有任何课题时返回空看板（project: null），
+  // 否则工作台首屏会因为一次 404 中断整批并发请求，会话/模型/技能全部空并弹出“项目不存在”。
+  if (requested && !mine.some((p) => p.id === requested)) return errors.notFound(res, '项目不存在');
+  const project = mine.find((p) => p.id === (requested || 'p1')) || mine[0] || null;
   const isDemoUser = req.user.id === 'u1';
   const today = store.now().slice(0, 10);
   const usage = store.usageRecords
@@ -110,7 +114,7 @@ router.get('/dashboard/summary', auth, (req, res) => {
       cost: summary.cost + record.cost,
     }), { tokens: 0, calls: 0, cost: 0 });
   ok(res, {
-    project: { id: project.id, name: project.name, progress: project.progress },
+    project: project ? { id: project.id, name: project.name, progress: project.progress } : null,
     recent_outputs: isDemoUser ? store.recentOutputs : [],
     papers_daily: isDemoUser ? store.papersDaily.at(-1) : { date: today, items: [] },
     today_usage: { ...usage, cost: +usage.cost.toFixed(2) },
