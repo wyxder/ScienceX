@@ -44,6 +44,73 @@ const AGENT_MODES: Array<{ mode: AgentMode; label: string; icon: any; desc: stri
   { mode: 'structured', label: '结构化产出', icon: 'grid', desc: 'LaTeX 三线表 · 审稿矩阵' },
 ];
 
+/** 模型厂商品牌 logo（内联 SVG，无需外网；未知厂商回退为钥匙图标） */
+function ModelBrandLogo({ model, color }: { model: any; color: string }) {
+  const key = `${model.id || ''} ${model.name || ''} ${model.vendor || ''}`.toLowerCase();
+  const size = { width: 16, height: 16, flexShrink: 0 } as const;
+
+  if (key.includes('gpt') || key.includes('openai')) {
+    // OpenAI 花结：黑色圆底 + 六瓣白色花环
+    return (
+      <svg {...size} viewBox="0 0 24 24" aria-hidden>
+        <circle cx="12" cy="12" r="11" fill="#0f172a" />
+        <g fill="none" stroke="#fff" strokeWidth="1.6">
+          {[0, 60, 120, 180, 240, 300].map((deg) => (
+            <ellipse key={deg} cx="12" cy="7.2" rx="2.1" ry="3.4" transform={`rotate(${deg} 12 12)`} />
+          ))}
+        </g>
+      </svg>
+    );
+  }
+  if (key.includes('claude') || key.includes('anthropic')) {
+    // Anthropic 星芒：浅橙圆底 + 橙色四芒
+    return (
+      <svg {...size} viewBox="0 0 24 24" aria-hidden>
+        <circle cx="12" cy="12" r="11" fill="#f5eee9" />
+        <path d="M12 3.5 L13.6 10.4 L20.5 12 L13.6 13.6 L12 20.5 L10.4 13.6 L3.5 12 L10.4 10.4 Z" fill="#D97757" />
+      </svg>
+    );
+  }
+  if (key.includes('gemini') || key.includes('google')) {
+    // Gemini 四角星：蓝紫渐变
+    return (
+      <svg {...size} viewBox="0 0 24 24" aria-hidden>
+        <defs>
+          <linearGradient id="mbl-gemini" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#4285F4" />
+            <stop offset="50%" stopColor="#9B72CB" />
+            <stop offset="100%" stopColor="#D96570" />
+          </linearGradient>
+        </defs>
+        <path d="M12 2 C13.1 8 16 10.9 22 12 C16 13.1 13.1 16 12 22 C10.9 16 8 13.1 2 12 C8 10.9 10.9 8 12 2 Z" fill="url(#mbl-gemini)" />
+      </svg>
+    );
+  }
+  if (key.includes('deepseek')) {
+    // DeepSeek 鲸鱼：品牌蓝紫圆底 + 白色鲸影曲线
+    return (
+      <svg {...size} viewBox="0 0 24 24" aria-hidden>
+        <circle cx="12" cy="12" r="11" fill="#4D6BFE" />
+        <path
+          d="M5.5 14.2 C7.5 9.8 12.5 8.2 16.2 10.4 C17 10.9 17.8 10.8 18.5 10.2 C18.2 11.4 17.5 12 16.6 12.3 C16.9 15.5 14.4 18 11.2 18.2 C12.4 17.2 13 16.1 13.1 14.9 C10.6 15.6 7.9 15.4 5.5 14.2 Z"
+          fill="#fff"
+        />
+      </svg>
+    );
+  }
+  if (key.includes('kimi') || key.includes('moonshot')) {
+    // Kimi / Moonshot：黑圆 + 白色 K
+    return (
+      <svg {...size} viewBox="0 0 24 24" aria-hidden>
+        <circle cx="12" cy="12" r="11" fill="#111827" />
+        <path d="M8 5.5 H10.2 V10.8 L15 5.5 H17.8 L12.6 11.4 L18 18.5 H15.2 L10.2 12.2 V18.5 H8 Z" fill="#fff" />
+      </svg>
+    );
+  }
+  // 自定义 / 未知厂商：钥匙图标
+  return <Icon name="key" size={13} style={{ color, flexShrink: 0 }} />;
+}
+
 /* 上传各阶段的人读提示 */
 const UPLOAD_STAGE_LABEL: Record<string, string> = {
   reading: '本地读取编码',
@@ -277,12 +344,11 @@ export const ChatCommandDock: React.FC<ChatCommandDockProps> = ({
                           setActiveMenu(null);
                         }}
                       >
-                        <Icon name="cpu" size={13} style={{ color: isSelected ? '#059669' : '#64748b', flexShrink: 0 }} />
+                        <ModelBrandLogo model={m} color={isSelected ? '#059669' : '#64748b'} />
                         <span className="chat-model-name">{m.name}</span>
                         {m.tag && <span className="chat-model-tag">{m.tag}</span>}
                         <span className={`chat-model-state ${m.status === 'connected' ? 'ok' : 'idle'}`}>
                           <span className={`dot dot-${m.status === 'connected' ? 'green' : 'gray'}`} />
-                          {m.status === 'connected' ? '已连接' : '未连通'}
                         </span>
                         {isSelected && <Icon name="check" size={13} style={{ color: '#059669' }} />}
                       </div>
@@ -302,12 +368,11 @@ export const ChatCommandDock: React.FC<ChatCommandDockProps> = ({
                           setActiveMenu(null);
                         }}
                       >
-                        <Icon name="key" size={13} style={{ color: '#10b981', flexShrink: 0 }} />
+                        <ModelBrandLogo model={m} color="#10b981" />
                         <span className="chat-model-name">{m.name}</span>
                         <span className="chat-model-tag">自定义</span>
                         <span className={`chat-model-state ${m.status === 'connected' ? 'ok' : 'idle'}`}>
                           <span className={`dot dot-${m.status === 'connected' ? 'green' : 'gray'}`} />
-                          {m.status === 'connected' ? '已连接' : '未连通'}
                         </span>
                         {isSelected && <Icon name="check" size={13} style={{ color: '#059669' }} />}
                       </div>

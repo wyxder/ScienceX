@@ -232,10 +232,31 @@
 .chat-hero-title {
   font-size: 26px;
   font-weight: 800;
-  color: #0f172a;
   letter-spacing: -0.5px;
   margin-bottom: 6px;
   font-family: var(--font-sans);
+  /* 动态渐变文字：墨绿 → 天蓝 → 紫 → 墨绿 循环流动 */
+  background: linear-gradient(90deg, #059669, #0ea5e9, #8b5cf6, #059669);
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: chatHeroGradient 6s linear infinite;
+}
+
+@keyframes chatHeroGradient {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 300% 50%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chat-hero-title {
+    animation: none;
+    background: linear-gradient(90deg, #059669, #0ea5e9, #8b5cf6);
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
 }
 
 .chat-hero-subtitle {
