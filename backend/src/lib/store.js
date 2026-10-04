@@ -4,6 +4,7 @@
  */
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
 
 const now = () => new Date().toISOString();
 const daysAgo = (n) => new Date(Date.now() - n * 86400000).toISOString();
@@ -876,7 +877,23 @@ const tasks = new Map();
 const id = (prefix) => `${prefix}_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
 
 /* 开发环境 JSON 持久化：替代生产环境的 PostgreSQL/Redis，避免演示数据因重启丢失。 */
-const dataDir = path.resolve(process.env.SCIENCEX_DATA_DIR || path.join(__dirname, '../../.data'));
+// 解析可写数据目录：优先环境变量/项目内 .data；若为只读文件系统（如 Vercel/AWS Lambda 的
+// /var/task），自动回退到可写的系统临时目录，保证写入不报错。
+function resolveDataDir() {
+  const primary = path.resolve(process.env.SCIENCEX_DATA_DIR || path.join(__dirname, '../../.data'));
+  try {
+    fs.mkdirSync(primary, { recursive: true });
+    const probe = path.join(primary, `.writetest.${process.pid}`);
+    fs.writeFileSync(probe, '1');
+    fs.unlinkSync(probe);
+    return primary;
+  } catch {
+    const fallback = path.join(os.tmpdir(), 'sciencex-data');
+    try { fs.mkdirSync(fallback, { recursive: true }); } catch {}
+    return fallback;
+  }
+}
+const dataDir = resolveDataDir();
 const dataFile = path.join(dataDir, 'store.json');
 const persistedCollections = {
   users, customModels, conversations, documents, projects, teams, knowledgeBases,
