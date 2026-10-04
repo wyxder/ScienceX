@@ -9,6 +9,7 @@ import { ModelsSection } from './account/ModelsSection';
 import { ProfileSection } from './account/ProfileSection';
 import { SecuritySection } from './account/SecuritySection';
 import { TeamSection } from './account/TeamSection';
+import { AddModelModal } from './chat/AddModelModal';
 import { UsageSection } from './account/UsageSection';
 
 export default function Account() {
@@ -24,7 +25,6 @@ export default function Account() {
   /* 模型 */
   const [models, setModels] = useState<{ builtin: any[]; custom: any[] }>({ builtin: [], custom: [] });
   const [addOpen, setAddOpen] = useState(false);
-  const [mForm, setMForm] = useState({ name: '', base_url: '', model_name: '', api_key: '', priority: 1 });
   const [testing, setTesting] = useState<string | null>(null);
   const [delTarget, setDelTarget] = useState<any>(null);
 
@@ -103,21 +103,25 @@ export default function Account() {
     setTagInput('');
   };
 
-  /* ===== 模型管理 ===== */
-  const addModel = async () => {
-    if (!mForm.base_url || !mForm.model_name) return toast('BaseURL 与模型名为必填项', 'info');
-    const m = await api<any>('/models', { method: 'POST', body: mForm });
-    setModels((x) => ({ ...x, custom: [...x.custom, m] }));
-    setAddOpen(false);
-    setMForm({ name: '', base_url: '', model_name: '', api_key: '', priority: 1 });
-    toast('自定义模型已添加');
-  };
-
+  /* ===== 模型管理（添加走共享弹窗：先测连通后保存）===== */
   const testModel = async (id: string) => {
     setTesting(id);
     try {
-      const r = await api<any>(`/models/${id}/test`);
+      const r = await api<any>(`/models/${id}/test`, { method: 'POST' });
+      if (!r.success) {
+        setModels((x) => ({
+          builtin: x.builtin.map((m) => (m.id === id ? { ...m, status: 'untested' } : m)),
+          custom: x.custom.map((m) => (m.id === id ? { ...m, status: 'untested' } : m)),
+        }));
+        return toast(r.sample || '模型未配置或连通失败', 'err');
+      }
+      setModels((x) => ({
+        builtin: x.builtin.map((m) => (m.id === id ? { ...m, status: 'connected' } : m)),
+        custom: x.custom.map((m) => (m.id === id ? { ...m, status: 'connected' } : m)),
+      }));
       toast(`连通正常 · ${r.latency_ms}ms`);
+    } catch (err: any) {
+      toast(err?.message || '模型连通测试失败', 'err');
     } finally {
       setTesting(null);
     }
@@ -155,7 +159,7 @@ export default function Account() {
   };
 
   return (
-    <div className="page" style={{ gap: 14 }}>
+    <div className="page" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       <div className="card card-pad" style={{ flex: 'none' }}>
         <div className="row g-3 wrap">
           <div className="avatar" style={{ width: 52, height: 52, fontSize: 20 }}>
@@ -241,34 +245,12 @@ export default function Account() {
         />
       )}
 
-      {/* ===== 添加模型模态 ===== */}
-      <Modal
+      {/* ===== 添加模型模态（与 AI 工作台共用：测试连通通过才保存）===== */}
+      <AddModelModal
         open={addOpen}
         onClose={() => setAddOpen(false)}
-        title={<><Icon name="cpu" size={15} /> 添加自定义模型</>}
-        footer={
-          <>
-            <button className="btn btn-ghost" onClick={() => setAddOpen(false)}>取消</button>
-            <button className="btn btn-primary" onClick={addModel}>添加</button>
-          </>
-        }
-      >
-        <div className="field-label">显示名称</div>
-        <input className="input mb-2" value={mForm.name} onChange={(e) => setMForm({ ...mForm, name: e.target.value })} placeholder="例：DeepSeek-V3" />
-        <div className="field-label">Base URL *</div>
-        <input className="input mb-2" value={mForm.base_url} onChange={(e) => setMForm({ ...mForm, base_url: e.target.value })} placeholder="https://api.example.com/v1" />
-        <div className="field-label">模型名 *</div>
-        <input className="input mb-2" value={mForm.model_name} onChange={(e) => setMForm({ ...mForm, model_name: e.target.value })} placeholder="例：deepseek-chat" />
-        <div className="field-label">API Key</div>
-        <input className="input mb-2" type="password" value={mForm.api_key} onChange={(e) => setMForm({ ...mForm, api_key: e.target.value })} placeholder="sk-…" />
-        <div className="field-label">调用优先级</div>
-        <div className="row g-1">
-          {[1, 2, 3].map((p) => (
-            <button key={p} className={`tag ${mForm.priority === p ? 'tag-green' : 'tag-outline'}`} style={{ cursor: 'pointer', border: 'none' }}
-              onClick={() => setMForm({ ...mForm, priority: p })}>{p}</button>
-          ))}
-        </div>
-      </Modal>
+        onAdded={(m) => setModels((x) => ({ ...x, custom: [...x.custom, m] }))}
+      />
 
       {/* ===== 支付模拟模态 ===== */}
       <Modal

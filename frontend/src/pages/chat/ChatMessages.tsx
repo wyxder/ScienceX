@@ -36,9 +36,15 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
 
           return (
             <div key={m.id} className="chat-ai-row">
-              {/* AI 头像标识 */}
-              <div className="chat-ai-avatar" title={`${m.model || 'ScienceX AI'} · 灵犀科研引擎`}>
+              {/* AI 头像标识（加载失败时回退为烧瓶图标） */}
+              <div className="chat-ai-avatar" title={`${m.model || 'ScienceX AI'} · 灵犀科研引擎`} style={{ position: 'relative', overflow: 'hidden' }}>
                 <Icon name="flask" size={18} />
+                <img
+                  src="https://img2.baidu.com/it/u=761297799,2109548536&fm=253&fmt=auto&app=120&f=JPEG?w=500&h=500"
+                  alt="ScienceX AI"
+                  style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                />
               </div>
 
               {/* AI 消息卡片 */}

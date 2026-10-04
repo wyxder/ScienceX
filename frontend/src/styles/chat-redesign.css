@@ -232,10 +232,31 @@
 .chat-hero-title {
   font-size: 26px;
   font-weight: 800;
-  color: #0f172a;
   letter-spacing: -0.5px;
   margin-bottom: 6px;
   font-family: var(--font-sans);
+  /* 动态渐变文字：墨绿 → 天蓝 → 紫 → 墨绿 循环流动 */
+  background: linear-gradient(90deg, #059669, #0ea5e9, #8b5cf6, #059669);
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: chatHeroGradient 6s linear infinite;
+}
+
+@keyframes chatHeroGradient {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 300% 50%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chat-hero-title {
+    animation: none;
+    background: linear-gradient(90deg, #059669, #0ea5e9, #8b5cf6);
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
 }
 
 .chat-hero-subtitle {
@@ -261,8 +282,38 @@
 }
 
 .chat-command-dock:focus-within {
-  border-color: #10b981;
-  box-shadow: 0 14px 38px -8px rgba(16, 185, 129, 0.16), 0 0 0 3px rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.55);
+  box-shadow: 0 14px 38px -8px rgba(16, 185, 129, 0.16), 0 0 0 3px rgba(16, 185, 129, 0.12), 0 0 28px rgba(16, 185, 129, 0.25);
+}
+
+/* 聚焦光效：输入时边框呈现流转渐变光环 */
+.chat-command-dock::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 21px;
+  padding: 1.5px;
+  background: linear-gradient(120deg, #10b981, #6ee7b7, #38bdf8, #a78bfa, #10b981);
+  background-size: 280% 280%;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.chat-command-dock:focus-within::before {
+  opacity: 1;
+  animation: dockGlowFlow 4.5s linear infinite;
+}
+
+@keyframes dockGlowFlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 .chat-dock-main {
@@ -281,6 +332,7 @@
   line-height: 1.6;
   color: #0f172a;
   font-family: inherit;
+  caret-color: #10b981;
 }
 
 .chat-dock-textarea::placeholder {
@@ -298,7 +350,8 @@
 .chat-dock-left-tools {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
+  flex-wrap: wrap;
 }
 
 .chat-tool-btn {
@@ -390,10 +443,208 @@
   background: #d1fae5;
 }
 
+/* 任务进度托盘（上传解析 / 提示词增强）：真实百分比 + 渐变流动条 */
+.chat-task-tray {
+  margin: 4px 0 6px;
+  padding: 8px 11px 10px;
+  border-radius: 12px;
+  border: 1px solid #d7f0e4;
+  background: linear-gradient(180deg, #f6fdfa 0%, #ffffff 100%);
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.06);
+  animation: chatTrayIn 0.18s ease-out;
+}
+@keyframes chatTrayIn {
+  from { opacity: 0; transform: translateY(-3px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.chat-task-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 7px;
+  min-width: 0;
+}
+.chat-task-title {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #0f172a;
+  max-width: 40%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.chat-task-stage {
+  font-size: 11.5px;
+  color: #047857;
+  background: rgba(16, 185, 129, 0.1);
+  padding: 1px 7px;
+  border-radius: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.chat-task-percent {
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 700;
+  color: #059669;
+  font-variant-numeric: tabular-nums;
+  flex: none;
+}
+.chat-progress-bar {
+  position: relative;
+  height: 6px;
+  border-radius: 999px;
+  background: #e6f5ef;
+  overflow: hidden;
+}
+.chat-progress-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #34d399 0%, #10b981 45%, #059669 100%);
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.45);
+  transition: width 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+  position: relative;
+  overflow: hidden;
+}
+.chat-progress-fill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+  transform: translateX(-100%);
+  animation: chatProgressShimmer 1.25s infinite;
+}
+@keyframes chatProgressShimmer {
+  to { transform: translateX(100%); }
+}
+.chat-progress-bar.violet {
+  background: #efe9fe;
+}
+.chat-progress-bar.violet .chat-progress-fill {
+  background: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 45%, #7c3aed 100%);
+  box-shadow: 0 0 10px rgba(124, 58, 237, 0.4);
+}
+.chat-task-tray:has(.chat-progress-bar.violet) {
+  border-color: #e4d9fb;
+  background: linear-gradient(180deg, #faf7ff 0%, #ffffff 100%);
+}
+.chat-task-tray:has(.chat-progress-bar.violet) .chat-task-stage {
+  color: #6d28d9;
+  background: rgba(124, 58, 237, 0.1);
+}
+.chat-task-tray:has(.chat-progress-bar.violet) .chat-task-percent {
+  color: #7c3aed;
+}
+
 .chat-dock-right-tools {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+/* 输入坞下拉浮层（Agent 模式 / 模型选择）：自内联样式收归统一类 */
+.chat-dock-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 1500;
+  max-width: calc(100vw - 32px);
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  box-shadow: 0 16px 40px -8px rgba(15, 23, 42, 0.22), 0 4px 12px rgba(0, 0, 0, 0.08);
+  padding: 6px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.chat-dock-mode-menu {
+  min-width: 260px;
+}
+
+/* 模型下拉：加宽保证「名称 + 定位标签 + 连接状态」同行完整展示，不折行 */
+.chat-dock-model-menu {
+  min-width: min(420px, calc(100vw - 40px));
+  max-height: min(380px, 60vh);
+}
+
+.chat-model-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #1e293b;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+.chat-model-row.active {
+  background: rgba(16, 185, 129, 0.1);
+  color: #047857;
+}
+.chat-model-name {
+  font-weight: 600;
+  flex: none;
+}
+.chat-model-row.active .chat-model-name {
+  font-weight: 700;
+}
+/* 定位标签紧跟模型名，不推向行尾（避免名称与标签间出现大片空白） */
+.chat-model-tag {
+  margin-left: 2px;
+  font-size: 11px;
+  color: #64748b;
+  background: rgba(15, 23, 42, 0.05);
+  padding: 1px 7px;
+  border-radius: 6px;
+  white-space: nowrap;
+  flex: none;
+}
+.chat-model-row.active .chat-model-tag {
+  color: #059669;
+  background: rgba(16, 185, 129, 0.12);
+}
+.chat-model-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  white-space: nowrap;
+  flex: none;
+}
+.chat-model-state.ok {
+  color: #059669;
+}
+.chat-model-state.idle {
+  color: #94a3b8;
+}
+.chat-model-state .dot {
+  width: 6px;
+  height: 6px;
+}
+
+/* 下拉底部「添加自定义模型」入口 */
+.chat-dock-menu-footer {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 4px;
+  padding: 9px 10px;
+  border-radius: 9px;
+  border-top: 1px dashed #e2e8f0;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #059669;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+.chat-dock-menu-footer:hover {
+  background: #ecfdf5;
 }
 
 /* 模型选择器药丸按钮 */
@@ -685,16 +936,19 @@
     max-width: 100%;
   }
 
-  /* 顶部状态栏：允许换行，标题 ellipsis 截断，次要信息配合 .desktop-only 隐藏 */
+  /* 顶部状态栏：强制单行不换行，隐藏冗余在线状态药丸，标题 ellipsis 截断 */
   .chat-stage-header {
-    flex-wrap: wrap;
-    gap: 6px 10px;
+    flex-wrap: nowrap;
+    gap: 8px;
     padding: 10px 12px;
   }
   .chat-stage-header > div:first-child {
     flex: 1;
     min-width: 0;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+  }
+  .chat-stage-header .chat-header-pill {
+    display: none;
   }
   .chat-stage-title-group {
     flex: 1;
@@ -708,8 +962,9 @@
     white-space: nowrap;
   }
   .chat-stage-header-actions {
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 8px;
+    flex-shrink: 0;
   }
 
   /* 空状态 Hero 与快捷推荐指令 */
@@ -732,7 +987,7 @@
     font-size: 12.5px;
   }
 
-  /* 悬浮指令中枢：宽度自适应 100%，按钮组可换行 */
+  /* 悬浮指令中枢：工具栏强制单行不换行，左侧工具窄屏时横向滑动（隐藏滚动条） */
   .chat-command-dock {
     max-width: 100%;
   }
@@ -744,12 +999,47 @@
     font-size: 14px;
   }
   .chat-dock-actions {
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 8px;
   }
   .chat-dock-left-tools {
     flex: 1 1 auto;
     min-width: 0;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .chat-dock-left-tools::-webkit-scrollbar {
+    display: none;
+  }
+  .chat-dock-left-tools > * {
+    flex-shrink: 0;
+  }
+  /* 菜单展开时解除滚动容器裁剪，避免下拉浮层被截断 */
+  .chat-dock-left-tools.menu-open {
+    overflow: visible;
+  }
+  .chat-dock-right-tools {
+    flex-shrink: 0;
+  }
+  /* 紧凑药丸：模型名过长时 ellipsis 截断，保障单行能容纳全部工具 */
+  .chat-tray-pill,
+  .chat-model-pill {
+    padding: 5px 9px;
+    font-size: 11.5px;
+  }
+  .chat-pill-label {
+    max-width: 112px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  /* 底部空间有限：下拉菜单改为向上展开 */
+  .chat-dock-menu {
+    top: auto;
+    bottom: calc(100% + 8px);
+    max-height: min(320px, 52vh);
   }
   .chat-dock-sticky-container {
     padding: 10px 8px 14px;

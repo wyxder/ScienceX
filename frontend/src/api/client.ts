@@ -3,6 +3,21 @@
    支持：类型泛型、静默 Token 续期、SSE 容错解析、断线断点重连、Abort 中断与 401 路由广播
    ============================================================ */
 
+import type {
+  ChatCompletionPayload,
+  ChatMessage,
+  DocChatMessage,
+  PlanFlowData,
+  SSEDonePayload,
+  SSEErrorPayload,
+  SSEProgressPayload,
+  SSEReferencePayload,
+  SSEStartPayload,
+  SSEStepPayload,
+  SSEToolPayload,
+  ThoughtStep,
+} from '../types';
+
 const BASE = import.meta.env.VITE_API_BASE || '/api/v1';
 
 export class ApiError extends Error {
@@ -264,37 +279,32 @@ export async function api<T = any>(path: string, opts: RequestOptions = {}): Pro
   throw new ApiError(50001, '响应内容格式错误，非有效 JSON 格式');
 }
 
-/* ---------- SSE 流式事件定义 (TSD §5.4 标准协议) ---------- */
+/* ---------- SSE 流式事件定义 (TSD §5.4 标准协议，载荷类型见 types/index.ts F2 判别联合) ---------- */
 export interface SSEHandlers {
-  onStart?: (d: any) => void;
+  onStart?: (d: SSEStartPayload) => void;
   onDelta?: (text: string) => void;
   /** progress 载荷：DreamPaper 流水线额外携带 design_log（Design Log 流式增量）与 diagnosis（故障诊断卡） */
-  onProgress?: (d: {
-    percent: number;
-    stage: string;
-    message?: string;
-    design_log?: { step: string; label: string; status: string; content: string };
-    diagnosis?: Record<string, any>;
-  }) => void;
-  onReference?: (d: any) => void;
-  onTool?: (d: any) => void;
-  onDone?: (d: any) => void;
-  onError?: (msg: string) => void;
+  onProgress?: (d: SSEProgressPayload) => void;
+  onReference?: (d: SSEReferencePayload) => void;
+  onTool?: (d: SSEToolPayload) => void;
+  onDone?: (d: SSEDonePayload) => void;
+  onError?: (msg: string, details?: SSEErrorPayload) => void;
+  onFallback?: (details: SSEErrorPayload) => void;
   /* LingXiAgent 多智能体扩展事件 */
-  onPlan?: (data: any) => void;
-  onStepStart?: (data: any) => void;
-  onStepUpdate?: (data: any) => void;
-  onThought?: (data: any) => void;
-  onToolCall?: (data: any) => void;
-  onToolResult?: (data: any) => void;
-  onMemoryInjected?: (data: any) => void;
+  onPlan?: (data: PlanFlowData) => void;
+  onStepStart?: (data: SSEStepPayload) => void;
+  onStepUpdate?: (data: SSEStepPayload) => void;
+  onThought?: (data: ThoughtStep) => void;
+  onToolCall?: (data: SSEToolPayload) => void;
+  onToolResult?: (data: SSEToolPayload) => void;
+  onMemoryInjected?: (data: NonNullable<ChatMessage['memory_injected']>) => void;
 }
 
 /* ---------- SSE：对话流式 (支持 AbortSignal 中断与 Last-Event-ID 记录) ---------- */
 // 每条流单独保存游标，避免对话流的事件序号污染文献问答或任务流。
 const lastReceivedEventIds = new Map<string, string>();
 
-export async function chatStream(payload: any, handlers: SSEHandlers, signal?: AbortSignal): Promise<void> {
+export async function chatStream(payload: ChatCompletionPayload, handlers: SSEHandlers, signal?: AbortSignal): Promise<void> {
   const token = getToken();
   const streamKey = `chat:${payload?.conversation_id || 'default'}`;
   try {
@@ -324,7 +334,7 @@ export async function chatStream(payload: any, handlers: SSEHandlers, signal?: A
   }
 }
 
-export async function docChatStream(docId: string, messages: any[], handlers: SSEHandlers, signal?: AbortSignal): Promise<void> {
+export async function docChatStream(docId: string, messages: DocChatMessage[], handlers: SSEHandlers, signal?: AbortSignal): Promise<void> {
   const token = getToken();
   try {
     const res = await fetchWithAuth(`${BASE}/documents/${docId}/chat`, {
@@ -429,6 +439,132 @@ export function taskStream(taskId: string, handlers: SSEHandlers): () => void {
   };
 }
 
+/* ---------- 文献上传：三段式真实进度（本地读取 → 网络上传 → 服务端版面解析） ----------
+   后端 /documents/upload 采用 JSON + Base64 提交，故用 XMLHttpRequest.upload.onprogress
+   取真实字节进度；解析阶段服务端为同步耗时，以时间衰减缓动逼近 99%，响应返回后置 100%。 */
+export type UploadStage = 'reading' | 'uploading' | 'parsing' | 'done';
+export interface UploadProgress {
+  stage: UploadStage;
+  percent: number;
+  fileName: string;
+}
+export interface UploadHandle {
+  promise: Promise<any>;
+  abort: () => void;
+}
+
+const MAX_UPLOAD_BYTES = 50 * 1024 * 1024; // 与后端 upload.MAX_FILE_BYTES 对齐
+
+function readFileAsBase64(file: File, onFraction: (f: number) => void): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onprogress = (e) => {
+      if (e.lengthComputable) onFraction(e.loaded / (e.total || file.size));
+    };
+    reader.onerror = () => reject(new ApiError(40012, `读取本地文件失败：${reader.error?.message || '未知错误'}`));
+    reader.onload = () => {
+      const result = String(reader.result || '');
+      const comma = result.indexOf(',');
+      if (comma < 0) reject(new ApiError(40012, '文件编码失败'));
+      else resolve(result.slice(comma + 1));
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+export function uploadDocument(file: File, opts: { onProgress: (p: UploadProgress) => void; projectId?: string }): UploadHandle {
+  const { onProgress, projectId = 'p1' } = opts;
+  let xhr: XMLHttpRequest | null = null;
+  let decayTimer: ReturnType<typeof setInterval> | null = null;
+  let aborted = false;
+  let percent = 0;
+
+  const emit = (stage: UploadStage, target: number, force?: boolean) => {
+    // 衰减缓动：解析等无字节反馈阶段逐步逼近上限，避免出现「卡住不动」的假死观感
+    percent = force ? target : Math.max(percent, Math.min(target, percent + (target - percent) * 0.35));
+    onProgress({ stage, percent: Math.round(percent), fileName: file.name });
+  };
+
+  const startParseDecay = () => {
+    emit('parsing', 78, true);
+    percent = 78;
+    decayTimer = setInterval(() => {
+      if (aborted) return;
+      percent = Math.min(97, percent + Math.max(0.4, (97 - percent) * 0.05));
+      onProgress({ stage: 'parsing', percent: Math.round(percent), fileName: file.name });
+    }, 260);
+  };
+
+  const stopTimers = () => {
+    if (decayTimer) clearInterval(decayTimer);
+    decayTimer = null;
+  };
+
+  const promise = (async () => {
+    if (file.size > MAX_UPLOAD_BYTES) throw new ApiError(40011, '单文件不能超过 50MB');
+    emit('reading', 1, true);
+    const base64 = await readFileAsBase64(file, (f) => emit('reading', 1 + 24 * f));
+    if (aborted) throw Object.assign(new Error('已取消上传'), { name: 'AbortError' });
+    const bodyOf = (token: string) => new Promise<any>((resolve, reject) => {
+        const req = new XMLHttpRequest();
+        xhr = req;
+        req.open('POST', `${BASE}/documents/upload`);
+        req.setRequestHeader('Content-Type', 'application/json');
+        if (token) req.setRequestHeader('Authorization', `Bearer ${token}`);
+        req.upload.onprogress = (e) => {
+          if (!e.lengthComputable) return;
+          const ratio = e.loaded / (e.total || 1);
+          if (ratio >= 1) startParseDecay();
+          else emit('uploading', 25 + 50 * ratio, true);
+        };
+        req.onerror = () => reject(new ApiError(50003, '上传连接异常，请检查后端服务是否在运行'));
+        req.onabort = () => reject(Object.assign(new Error('已取消上传'), { name: 'AbortError' }));
+        req.onload = () => {
+          stopTimers();
+          let json: any = null;
+          try {
+            json = JSON.parse(req.responseText);
+          } catch {
+            reject(new ApiError(50001, `解析响应失败 (HTTP ${req.status})`));
+            return;
+          }
+          if (req.status === 401) {
+            reject(Object.assign(new Error('unauthorized'), { name: 'UnauthorizedError' }));
+            return;
+          }
+          if (!json || json.code !== 0) {
+            reject(new ApiError(json?.code || req.status * 100, json?.message || `上传失败 (HTTP ${req.status})`));
+            return;
+          }
+          emit('done', 100, true);
+          resolve(json.data);
+        };
+        req.send(JSON.stringify({ file_name: file.name, file_content: base64, mime: file.type || '', project_id: projectId }));
+      });
+    try {
+      return await bodyOf(getToken());
+    } catch (err: any) {
+      if (err?.name === 'UnauthorizedError' && getRefreshToken()) {
+        const newToken = await refreshAccessToken();
+        if (newToken) return bodyOf(newToken);
+        handleAuthExpired();
+      }
+      throw err;
+    } finally {
+      stopTimers();
+    }
+  })();
+
+  return {
+    promise,
+    abort: () => {
+      aborted = true;
+      stopTimers();
+      xhr?.abort();
+    },
+  };
+}
+
 /* ---------- 通用 SSE 缓冲区解析器（带 Last-Event-ID 记录与 JSON 容错） ---------- */
 async function readSSE(stream: ReadableStream<Uint8Array>, handlers: SSEHandlers, streamKey: string): Promise<void> {
   const reader = stream.getReader();
@@ -484,8 +620,11 @@ async function readSSE(stream: ReadableStream<Uint8Array>, handlers: SSEHandlers
       case 'memory_injected':
         handlers.onMemoryInjected?.(data);
         break;
+      case 'fallback':
+        handlers.onFallback?.(data);
+        break;
       case 'error':
-        handlers.onError?.(data.message || '模型生成遇到异常');
+        handlers.onError?.(data.message || '模型生成遇到异常', data);
         break;
       case 'done':
         handlers.onDone?.(data);

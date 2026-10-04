@@ -21,10 +21,13 @@ function isPrivateAddress(address) {
   return false;
 }
 
+function trustedLocal(url) {
+  return (process.env.OLLAMA_ALLOWED_BASE_URLS || '').split(',').some((value) => value.trim() && value.trim().replace(/\/$/, '') === url.toString().replace(/\/$/, ''));
+}
 function parseModelBaseUrl(value) {
   let url;
   try { url = new URL(String(value)); } catch { throw new Error('模型 Base URL 格式无效'); }
-  const devLoopback = process.env.NODE_ENV !== 'production' && ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname);
+  const devLoopback = trustedLocal(url) || (process.env.NODE_ENV !== 'production' && ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname));
   if (url.protocol !== 'https:' && !(devLoopback && url.protocol === 'http:')) throw new Error('模型 Base URL 必须使用 HTTPS');
   if (url.username || url.password || url.search || url.hash) throw new Error('模型 Base URL 不得包含凭据、查询参数或片段');
   const host = url.hostname.toLowerCase();
@@ -35,6 +38,7 @@ function parseModelBaseUrl(value) {
 }
 
 async function validatePublicModelHost(url) {
+  if (trustedLocal(url)) return;
   const hostname = url.hostname.replace(/^\[|\]$/g, '');
   if (net.isIP(hostname)) {
     if (isPrivateAddress(hostname) && !(process.env.NODE_ENV !== 'production' && ['127.0.0.1', '::1'].includes(hostname))) {
@@ -42,6 +46,7 @@ async function validatePublicModelHost(url) {
     }
     return;
   }
+  if (process.env.NODE_ENV !== 'production' && hostname === 'localhost') return;
   const addresses = await dns.lookup(hostname, { all: true, verbatim: true });
   if (!addresses.length || addresses.some(({ address }) => isPrivateAddress(address))) {
     throw new Error('模型 Base URL 解析到本地或内网地址');
@@ -54,7 +59,7 @@ function resolveModel(modelId, userId) {
   if (modelId !== undefined && modelId !== null && String(modelId).trim() !== '') {
     return all.find((model) => model.id === modelId || model.model_name === modelId || model.name === modelId) || null;
   }
-  return custom.find((model) => model.enabled) || null;
+  return custom.find((model) => model.enabled && (model.api_key_encrypted || model.provider === 'ollama')) || null;
 }
 
 function gatewayConfig(modelId, userId) {
@@ -63,7 +68,8 @@ function gatewayConfig(modelId, userId) {
   // Never reinterpret an unknown or unauthorized explicit model as the global default.
   if (explicitModel && !model) return { model: null, baseUrl: '', apiKey: '', modelName: '' };
 
-  const isDeepSeek = model?.provider === 'deepseek' || model?.id === 'm-deepseek-flash' || model?.id === 'm-deepseek' || model?.model_name === 'DeepSeek-Flash';
+  // 内置模型可自带 base_url + api_key_env（如 OpenAI Next 统一网关），否则回退全局 DeepSeek/OpenAI 配置
+  const isDeepSeek = model?.provider === 'deepseek' || model?.id === 'm-deepseek-flash' || model?.model_name === 'DeepSeek-Flash';
   const defaultBaseUrl = isDeepSeek
     ? (process.env.DEEPSEEK_BASE_URL || process.env.OPENAI_BASE_URL || 'https://www.sophnet.com/api/open-apis/v1')
     : (process.env.OPENAI_BASE_URL || process.env.DEEPSEEK_BASE_URL || 'https://www.sophnet.com/api/open-apis/v1');
@@ -74,7 +80,7 @@ function gatewayConfig(modelId, userId) {
 
   const baseUrl = model?.base_url || defaultBaseUrl;
   const apiKey = model?.builtin
-    ? defaultApiKey
+    ? (model.api_key_env ? (process.env[model.api_key_env] || '') : defaultApiKey)
     : model
       ? (model.api_key_encrypted ? decryptSecret(model.api_key_encrypted) : '')
       : defaultApiKey;
@@ -83,41 +89,27 @@ function gatewayConfig(modelId, userId) {
 }
 
 function enabled(modelId, userId) {
-  const { baseUrl, apiKey, modelName } = gatewayConfig(modelId, userId);
-  return Boolean(baseUrl && apiKey && modelName);
+  const { baseUrl, apiKey, modelName, model } = gatewayConfig(modelId, userId);
+  return Boolean(baseUrl && (apiKey || model?.provider === 'ollama') && modelName);
 }
 
-async function complete(messages, { model, temperature = 0.2, signal, userId } = {}) {
+async function createClient(model, userId) {
   const config = gatewayConfig(model, userId);
   if (model && !config.model) throw new Error('模型不存在或无权访问');
-  if (config.model && !config.model.builtin && !config.apiKey) throw new Error('该自定义模型尚未配置 API Key');
   if (!enabled(model, userId)) return null;
   const baseUrl = parseModelBaseUrl(config.baseUrl);
   await validatePublicModelHost(baseUrl);
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), Number(process.env.OPENAI_TIMEOUT_MS || 30000));
-  const abortFromCaller = () => controller.abort();
-  if (signal) {
-    if (signal.aborted) controller.abort();
-    else signal.addEventListener('abort', abortFromCaller, { once: true });
-  }
-  try {
-    const response = await fetch(new URL('chat/completions', `${baseUrl.toString().replace(/\/$/, '')}/`), {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${config.apiKey}` },
-      body: JSON.stringify({ model: config.modelName, messages, temperature, stream: false }),
-      signal: controller.signal,
-      redirect: 'error',
-    });
-    if (!response.ok) throw new Error(`模型网关响应 ${response.status}`);
-    const payload = await response.json();
-    const content = payload.choices?.[0]?.message?.content;
-    if (typeof content !== 'string') throw new Error('模型网关返回内容为空');
-    return { text: content, model: config.modelName, usage: payload.usage || {} };
-  } finally {
-    clearTimeout(timeout);
-    if (signal) signal.removeEventListener('abort', abortFromCaller);
-  }
+  const { DeepSeekClient } = require('../ai/client');
+  return new DeepSeekClient({
+    baseUrl: config.baseUrl, apiKey: config.apiKey, model: config.modelName,
+    provider: config.model?.provider || 'openai',
+    timeoutMs: Number(config.model?.timeout_ms || process.env.OPENAI_TIMEOUT_MS || 30000),
+    hasKey: () => !!config.apiKey || config.model?.provider === 'ollama',
+  });
+}
+async function complete(messages, options = {}) {
+  const client = await createClient(options.model, options.userId);
+  return client ? client.chatCompletion(messages, { ...options, model: client.config.model }) : null;
 }
 
-module.exports = { complete, enabled, gatewayConfig, resolveModel, isPrivateAddress, parseModelBaseUrl, validatePublicModelHost };
+module.exports = { createClient, complete, enabled, gatewayConfig, resolveModel, isPrivateAddress, parseModelBaseUrl, validatePublicModelHost };

@@ -3,16 +3,17 @@
    非暗黑模式 / 明亮清爽 / 悬浮指令中枢 / 8大科研智能体范式
    ============================================================ */
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { api, chatStream } from '../api/client';
+import { api, chatStream, uploadDocument, type UploadProgress } from '../api/client';
 import Icon, { type IconName } from '../components/Icon';
 import { useToast } from '../components/ui';
 import { useAuth } from '../stores/auth';
 import { useIsMobile } from '../hooks/useIsMobile';
 import type { AgentMode, ChatMessage, Conversation, SkillItem } from '../types';
-import { ChatCommandDock } from './chat/ChatCommandDock';
+import { ChatCommandDock, type DockTask } from './chat/ChatCommandDock';
 import { ChatMessages } from './chat/ChatMessages';
 import { ChatSidebar } from './chat/ChatSidebar';
 import { MemoryDrawer } from './chat/MemoryDrawer';
+import { AddModelModal } from './chat/AddModelModal';
 
 interface QuickPrompt {
   id: string;
@@ -31,12 +32,12 @@ const QUICK_PROMPTS: QuickPrompt[] = [
 
 const DEFAULT_MODELS = {
   builtin: [
-    { id: 'm-deepseek-flash', name: 'DeepSeek V4.1 Flash', model_name: 'DeepSeek-Flash', provider: 'deepseek', tag: '极速推理 · 推荐', context: '64K' },
-    { id: 'm-gpt4o', name: 'GPT-4o', provider: 'openai', tag: '通用最强', context: '128K' },
-    { id: 'm-claude', name: 'Claude 3.7 Sonnet', provider: 'anthropic', tag: '长文写作', context: '200K' },
-    { id: 'm-gemini', name: 'Gemini 2.0 Flash', provider: 'google', tag: '高速低价', context: '1M' },
-    { id: 'm-deepseek', name: 'DeepSeek-V3', provider: 'deepseek', tag: '代码 / 推理', context: '64K' },
-    { id: 'm-qwen', name: 'Qwen-Max', provider: 'qwen', tag: '中文优化', context: '128K' },
+    { id: 'm-deepseek-flash', name: 'DeepSeek V4.1 Flash', model_name: 'DeepSeek-Flash', provider: 'deepseek', tag: '极速推理 · 默认推荐', context: '64K', status: 'connected' },
+    { id: 'm-gpt-sol', name: 'GPT-6.1 Sol', model_name: 'gpt-6.1-sol', provider: 'openai', tag: '通用旗舰 · 深度推理', context: '128K', status: 'connected' },
+    { id: 'm-claude', name: 'Claude Sonnet 5', model_name: 'claude-sonnet-5', provider: 'openai', tag: '长文写作 · 学术润色', context: '200K', status: 'connected' },
+    { id: 'm-gemini', name: 'Gemini 3.8 Flash', model_name: 'gemini-3.8-flash', provider: 'openai', tag: '高速低价 · 超长上下文', context: '1M', status: 'connected' },
+    { id: 'm-deepseek', name: 'DeepSeek V4 Pro', model_name: 'deepseek-v4-pro', provider: 'openai', tag: '代码 / 数学推理', context: '128K', status: 'connected' },
+    { id: 'm-kimi', name: 'Kimi K2.5', model_name: 'kimi-k2.5', provider: 'openai', tag: '中文长文档精读', context: '256K', status: 'connected' },
   ],
   custom: [],
 };
@@ -56,7 +57,7 @@ export default function Chat() {
       const saved = localStorage.getItem('sciencex_chat_model');
       if (saved && saved !== 'DeepSeek-V3') return saved;
     } catch {}
-    return 'DeepSeek V4.1 Flash';
+    return 'GPT-6.1 Sol';
   });
   const [skills, setSkills] = useState<SkillItem[]>([]);
   const [keyword, setKeyword] = useState('');
@@ -65,6 +66,11 @@ export default function Chat() {
   const [showMemoryDrawer, setShowMemoryDrawer] = useState(false);
   const [memoryCount, setMemoryCount] = useState<number>(4);
   const [sidebarOpen, setSidebarOpen] = useState(false); // 默认不显示，点击按钮才展开
+  const [uploadProgress, setUploadProgress] = useState<UploadProgress | null>(null);
+  const [enhanceProgress, setEnhanceProgress] = useState<DockTask | null>(null);
+  const [attachedDoc, setAttachedDoc] = useState<{ docId: string; title: string; sections: number; excerpt: string } | null>(null);
+  const [addModelOpen, setAddModelOpen] = useState(false);
+  const uploadHandle = useRef<{ abort: () => void } | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   // 初始化带有精确演示数据的看板状态
@@ -85,7 +91,7 @@ export default function Chat() {
       const [c, m, d, s, mem] = await Promise.all([
         api<{ items: Conversation[] } | Conversation[]>('/conversations'),
         api<{ builtin: any[]; custom: any[] }>('/models'),
-        api<any>('/dashboard/summary'),
+        api<any>('/dashboard/summary').catch(() => null), // 看板缺数据不应阻断整个工作台首屏
         api<{ items: SkillItem[] } | SkillItem[]>('/skills'),
         api<{ total: number }>('/chat/memories').catch(() => ({ total: 4 })),
       ]);
@@ -93,7 +99,7 @@ export default function Chat() {
       const loadedModels = (m && m.builtin && m.builtin.length > 0) ? m : DEFAULT_MODELS;
       setModels(loadedModels);
 
-      // 模型选择优先级：用户主动选择 > DeepSeek V4.1 Flash 默认
+      // 模型选择优先级：用户主动选择 > GPT-6.1 Sol 默认
       const allModelNames = [
         ...(loadedModels.builtin || []).map((x: any) => x.name),
         ...(loadedModels.custom || []).map((x: any) => x.name),
@@ -103,12 +109,12 @@ export default function Chat() {
         if (saved && saved !== 'DeepSeek-V3' && allModelNames.includes(saved)) {
           setModel(saved);
         } else {
-          const defaultFlash = loadedModels.builtin?.find((item: any) => item.name === 'DeepSeek V4.1 Flash' || item.id === 'm-deepseek-flash')?.name || 'DeepSeek V4.1 Flash';
-          setModel(defaultFlash);
-          localStorage.setItem('sciencex_chat_model', defaultFlash);
+          const defaultSol = loadedModels.builtin?.find((item: any) => item.name === 'GPT-6.1 Sol' || item.id === 'm-gpt-sol')?.name || allModelNames[0] || 'GPT-6.1 Sol';
+          setModel(defaultSol);
+          localStorage.setItem('sciencex_chat_model', defaultSol);
         }
       } catch {
-        setModel('DeepSeek V4.1 Flash');
+        setModel('GPT-6.1 Sol');
       }
 
       if (d) setDashboard(d);
@@ -122,6 +128,14 @@ export default function Chat() {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  useEffect(
+    () => () => {
+      // 离开工作台时中断进行中的上传，避免后台回调写入已卸载组件
+      uploadHandle.current?.abort();
+    },
+    []
+  );
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -161,11 +175,29 @@ export default function Chat() {
     }
   };
 
+  /* 提示词增强：真实调用大模型改写，耗时期间展示衰减式进度条 */
   const enhancePrompt = async () => {
     if (!input.trim()) return toast('请先输入提示词', 'info');
-    const { enhanced } = await api<{ enhanced: string }>('/prompt/enhance', { method: 'POST', body: { prompt: input } });
-    setInput(enhanced);
-    toast('提示词已增强（角色 + 结构 + 背景）');
+    if (enhanceProgress) return;
+    const startedAt = Date.now();
+    const stageOf = (p: number) =>
+      p < 34 ? '正在拆解原始意图与研究背景…' : p < 68 ? '大模型结构化改写中（角色 + 任务 + 约束）…' : '术语校准与学术格式润色…';
+    setEnhanceProgress({ percent: 4, label: stageOf(4) });
+    const timer = setInterval(() => {
+      setEnhanceProgress((prev) => (prev ? { percent: Math.min(93, prev.percent + Math.max(0.7, (93 - prev.percent) * 0.09)), label: stageOf(prev.percent) } : prev));
+    }, 240);
+    try {
+      const { enhanced, mode } = await api<{ enhanced: string; mode?: string }>('/prompt/enhance', { method: 'POST', body: { prompt: input } });
+      setEnhanceProgress({ percent: 100, label: '增强完成' });
+      setInput(enhanced);
+      const cost = ((Date.now() - startedAt) / 1000).toFixed(1);
+      toast(mode === 'live' ? `大模型已重写提示词（耗时 ${cost}s）` : '提示词已增强（模型不可用，已回退模板）', mode === 'live' ? 'ok' : 'info');
+    } catch (err: any) {
+      toast(err?.message || '提示词增强失败，请稍后重试', 'err');
+    } finally {
+      clearInterval(timer);
+      setTimeout(() => setEnhanceProgress(null), 800);
+    }
   };
 
   const voiceInput = () => {
@@ -179,18 +211,57 @@ export default function Chat() {
     toast('正在聆听…再次点击结束（演示模拟 Web Speech API）', 'info');
   };
 
+  /* 附件上传：读取 → 上传 → 服务端版面解析全链路真实进度，完成后拉取结构化正文供大模型使用 */
   const handleUpload = (file?: File) => {
-    if (!file) return toast('附件上传：演示环境已就绪', 'info');
-    const sizeKb = (file.size / 1024).toFixed(0);
-    toast(`已添加附件「${file.name}」（${sizeKb} KB），发送后随消息一并提交`, 'ok');
+    if (!file) return;
+    uploadHandle.current?.abort();
+    setAttachedDoc(null);
+    setUploadProgress({ stage: 'reading', percent: 0, fileName: file.name });
+    const handle = uploadDocument(file, { onProgress: (p) => setUploadProgress(p) });
+    uploadHandle.current = handle;
+    handle.promise
+      .then(async (doc: any) => {
+        let excerpt = '';
+        let sections = doc?.sections || 0;
+        try {
+          const structured = await api<{ sections: { title: string; paragraphs: string[] }[] }>(`/documents/${doc.doc_id}/structured`);
+          const list = structured?.sections || [];
+          sections = sections || list.length;
+          excerpt = list
+            .map((sec) => `## ${sec.title}\n${(sec.paragraphs || []).join('\n')}`)
+            .join('\n\n')
+            .slice(0, 3200);
+        } catch { /* 正文拉取失败不阻断附件使用 */ }
+        setAttachedDoc({ docId: doc.doc_id, title: doc.title || file.name, sections, excerpt });
+        setUploadProgress(null);
+        toast(`《${doc.title || file.name}》解析完成：${sections} 个章节片段，发送时随提问交给大模型`, 'ok');
+      })
+      .catch((err: any) => {
+        setUploadProgress(null);
+        if (err?.name !== 'AbortError') toast(err?.message || '文献上传失败', 'err');
+      });
+  };
+
+  const abortUpload = () => {
+    uploadHandle.current?.abort();
+    uploadHandle.current = null;
+    setUploadProgress(null);
+    toast('已取消上传');
   };
 
   const send = async (text?: string, skillId?: string) => {
     const content = (text ?? input).trim();
     if (!content || streaming) return;
+    /* 附件正文以节选形式注入本轮用户消息，保证大模型真实读到文献内容 */
+    const doc = attachedDoc;
+    const payloadContent = doc?.excerpt
+      ? `【已附文献《${doc.title}》结构化解析正文节选】\n${doc.excerpt}\n\n【我的问题】\n${content}`
+      : content;
+    const displayContent = doc ? `${content}\n\n📎 已关联文献：《${doc.title}》` : content;
     setInput('');
+    setAttachedDoc(null);
     setStreaming(true);
-    const userMsg: ChatMessage = { id: `u${Date.now()}`, role: 'user', content };
+    const userMsg: ChatMessage = { id: `u${Date.now()}`, role: 'user', content: displayContent };
     const aiMsg: ChatMessage = {
       id: `a${Date.now()}`,
       role: 'assistant',
@@ -211,7 +282,7 @@ export default function Chat() {
 
     await chatStream(
       {
-        messages: [...messages.filter((m) => !m.streaming), { role: 'user', content }].map((m) => ({
+        messages: [...messages.filter((m) => !m.streaming), { role: 'user', content: payloadContent }].map((m) => ({
           role: m.role,
           content: m.content,
         })),
@@ -246,7 +317,7 @@ export default function Chat() {
                     plan: {
                       ...x.plan,
                       steps: x.plan.steps.map((s, idx) =>
-                        idx === up.step_index ? { ...s, status: up.status, output: up.output } : s
+                        idx === up.step_index ? { ...s, status: up.status || s.status, output: up.output } : s
                       ),
                     },
                   }
@@ -288,10 +359,11 @@ export default function Chat() {
           setStreaming(false);
           api<any>('/conversations').then((r: any) => setConvs(r?.items || (Array.isArray(r) ? r : [])));
         },
-        onError: (msg) => {
-          toast(msg, 'err');
+        onFallback: (details) => toast(details.message || '已降级为演示模板', 'info'),
+        onError: (msg, details) => {
+          toast(`${msg}${details?.retryable ? '，可稍后重试' : ''}`, 'err');
           setStreaming(false);
-          setMessages((m) => m.filter((x) => x.id !== aiMsg.id));
+          setMessages((m) => m.map((x) => x.id === aiMsg.id ? { ...x, streaming: false, content: x.content + '\n\n> 生成中断：' + msg } : x));
         },
       }
     );
@@ -461,6 +533,12 @@ export default function Chat() {
               onInvokeSkill={invokeSkill}
               agentMode={agentMode}
               onSelectAgentMode={setAgentMode}
+              uploadProgress={uploadProgress}
+              onAbortUpload={abortUpload}
+              enhanceProgress={enhanceProgress}
+              attachedDoc={attachedDoc ? { title: attachedDoc.title, sections: attachedDoc.sections } : null}
+              onRemoveAttachment={() => setAttachedDoc(null)}
+              onAddModel={() => setAddModelOpen(true)}
             />
 
             {/* 下方快捷推荐指令胶囊栏 */}
@@ -506,6 +584,12 @@ export default function Chat() {
                 onInvokeSkill={invokeSkill}
                 agentMode={agentMode}
                 onSelectAgentMode={setAgentMode}
+                uploadProgress={uploadProgress}
+                onAbortUpload={abortUpload}
+                enhanceProgress={enhanceProgress}
+                attachedDoc={attachedDoc ? { title: attachedDoc.title, sections: attachedDoc.sections } : null}
+                onRemoveAttachment={() => setAttachedDoc(null)}
+                onAddModel={() => setAddModelOpen(true)}
               />
             </div>
           </>
@@ -525,6 +609,16 @@ export default function Chat() {
         onRemoveConv={removeConv}
         collapsed={!sidebarOpen}
         onClose={() => setSidebarOpen(false)}
+      />
+
+      {/* 添加自定义模型（与个人设置一致：先真实测连通，通过才保存并标记已连接） */}
+      <AddModelModal
+        open={addModelOpen}
+        onClose={() => setAddModelOpen(false)}
+        onAdded={(m) => {
+          setModels((x) => ({ ...x, custom: [...(x.custom || []), m] }));
+          if (m?.name) handleSelectModel(m.name);
+        }}
       />
 
       {/* 课题组三层记忆抽屉 */}

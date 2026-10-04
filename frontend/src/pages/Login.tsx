@@ -8,6 +8,21 @@ import Icon from '../components/Icon';
 import { useToast } from '../components/ui';
 import { useAuth } from '../stores/auth';
 
+/* 与后端 shared/api-schemas.js 的认证契约保持一致（密码下限 6 位，与演示账号 123456 同构），
+   前端先拦一轮并展示中文字段提示，避免把明显不合法的表单丢给接口拿 40011「参数校验失败」。 */
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const MIN_PASSWORD_LEN = 6;
+type FieldKey = 'name' | 'email' | 'password';
+type FieldErrors = Partial<Record<FieldKey, string>>;
+
+/* 字段级中文错误提示（统一翡翠红调） */
+function FieldError({ msg }: { msg?: string }) {
+  if (!msg) return null;
+  return (
+    <div style={{ marginTop: 7, fontSize: 12.5, color: '#dc2626', fontWeight: 600, lineHeight: 1.45 }}>{msg}</div>
+  );
+}
+
 export default function Login() {
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [email, setEmail] = useState('demo@sciencex.cn');
@@ -15,19 +30,47 @@ export default function Login() {
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [fieldErr, setFieldErr] = useState<FieldErrors>({});
   const { login, register } = useAuth();
   const nav = useNavigate();
   const toast = useToast();
 
+  /* 输入即清除对应字段的错误，避免红色提示赖在界面上 */
+  const patch = (key: FieldKey) => setFieldErr((prev) => (prev[key] ? { ...prev, [key]: undefined } : prev));
+
+  const switchMode = (next: 'login' | 'register') => {
+    setMode(next);
+    setFieldErr({});
+  };
+
+  const validate = (): FieldErrors => {
+    const errs: FieldErrors = {};
+    const mail = email.trim();
+    if (!mail) errs.email = '请填写学术邮箱 / 账号';
+    else if (!EMAIL_RE.test(mail)) errs.email = '邮箱格式不正确，请填写完整地址（例如 you@university.edu.cn）';
+    if (!password) errs.password = '请输入登录密码';
+    else if (mode === 'register' && password.length < MIN_PASSWORD_LEN)
+      errs.password = `密码长度至少 ${MIN_PASSWORD_LEN} 位，当前仅 ${password.length} 位`;
+    if (mode === 'register' && !name.trim()) errs.name = '请填写学者姓名或称谓';
+    setFieldErr(errs);
+    return errs;
+  };
+
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const errs = validate();
+    const first = Object.values(errs).filter(Boolean)[0];
+    if (first) {
+      toast(first, 'err');
+      return;
+    }
     setLoading(true);
     try {
       if (mode === 'login') {
-        await login(email, password);
+        await login(email.trim(), password);
         toast('欢迎回来，科研工作空间已就绪');
       } else {
-        await register(name || '青年学者', email, password);
+        await register(name.trim() || '青年学者', email.trim(), password);
         toast('注册成功，已为您开通学术专属工作台');
       }
       const redirect = new URLSearchParams(window.location.hash.split('?')[1] || '').get('redirect');
@@ -42,6 +85,7 @@ export default function Login() {
   const handleQuickDemoLogin = async () => {
     setEmail('demo@sciencex.cn');
     setPassword('123456');
+    setFieldErr({});
     setLoading(true);
     try {
       await login('demo@sciencex.cn', '123456');
@@ -422,7 +466,7 @@ export default function Login() {
           >
             <button
               type="button"
-              onClick={() => setMode('login')}
+              onClick={() => switchMode('login')}
               style={{
                 flex: 1,
                 padding: '11px 0',
@@ -441,7 +485,7 @@ export default function Login() {
             </button>
             <button
               type="button"
-              onClick={() => setMode('register')}
+              onClick={() => switchMode('register')}
               style={{
                 flex: 1,
                 padding: '11px 0',
@@ -460,8 +504,8 @@ export default function Login() {
             </button>
           </div>
 
-          {/* 登录/注册表单 */}
-          <form onSubmit={submit}>
+          {/* 登录/注册表单（noValidate 接管原生校验：浏览器英文气泡会直接拦下演示密码 123456） */}
+          <form onSubmit={submit} noValidate>
             {mode === 'register' && (
               <div style={{ marginBottom: 18 }}>
                 <label
@@ -479,15 +523,18 @@ export default function Login() {
                   <input
                     className="input"
                     value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    onChange={(e) => {
+                      setName(e.target.value);
+                      patch('name');
+                    }}
                     placeholder="例如：张博士 / 陈教授"
-                    required
+                    maxLength={200}
                     style={{
                       paddingLeft: 44,
                       height: 48,
                       fontSize: 15,
                       borderRadius: 12,
-                      border: '1px solid #d0dfd6',
+                      border: fieldErr.name ? '1px solid #f2b8b5' : '1px solid #d0dfd6',
                       background: '#ffffff',
                       width: '100%',
                       boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
@@ -506,6 +553,7 @@ export default function Login() {
                     <Icon name="user" size={19} />
                   </span>
                 </div>
+                <FieldError msg={fieldErr.name} />
               </div>
             )}
 
@@ -526,15 +574,18 @@ export default function Login() {
                   className="input"
                   type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    patch('email');
+                  }}
                   placeholder="you@university.edu.cn"
-                  required
+                  maxLength={254}
                   style={{
                     paddingLeft: 44,
                     height: 48,
                     fontSize: 15,
                     borderRadius: 12,
-                    border: '1px solid #d0dfd6',
+                    border: fieldErr.email ? '1px solid #f2b8b5' : '1px solid #d0dfd6',
                     background: '#ffffff',
                     width: '100%',
                     boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
@@ -553,6 +604,7 @@ export default function Login() {
                   <Icon name="mail" size={19} />
                 </span>
               </div>
+              <FieldError msg={fieldErr.email} />
             </div>
 
             <div style={{ marginBottom: 24 }}>
@@ -574,17 +626,19 @@ export default function Login() {
                   className="input"
                   type={showPassword ? 'text' : 'password'}
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="至少 6 位安全字符"
-                  required
-                  minLength={6}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    patch('password');
+                  }}
+                  placeholder={mode === 'register' ? `设置登录密码（至少 ${MIN_PASSWORD_LEN} 位）` : '请输入登录密码'}
+                  maxLength={128}
                   style={{
                     paddingLeft: 44,
                     paddingRight: 46,
                     height: 48,
                     fontSize: 15,
                     borderRadius: 12,
-                    border: '1px solid #d0dfd6',
+                    border: fieldErr.password ? '1px solid #f2b8b5' : '1px solid #d0dfd6',
                     background: '#ffffff',
                     width: '100%',
                     boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
@@ -622,6 +676,12 @@ export default function Login() {
                   <Icon name="eye" size={19} />
                 </button>
               </div>
+              <FieldError msg={fieldErr.password} />
+              {mode === 'register' && !fieldErr.password && (
+                <div style={{ marginTop: 7, fontSize: 12, color: '#688072', lineHeight: 1.5 }}>
+                  密码需 {MIN_PASSWORD_LEN}-128 位；注册成功后自动进入工作台，无需再次登录。
+                </div>
+              )}
             </div>
 
             {/* 主提交按钮 - 采用高级翡翠翠绿微光 */}

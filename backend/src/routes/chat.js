@@ -6,7 +6,7 @@ const ai = require('../lib/ai');
 const { auth } = require('./account');
 const { canAccess } = require('../lib/access');
 
-const router = express.Router();
+const router = require('../lib/router').createRouter();
 
 const lingxiEngine = require('../lib/agents/lingxiEngine');
 
@@ -17,11 +17,12 @@ router.post('/chat/completions', auth, express.json({ limit: '2mb' }), asyncHand
   
   if (!stream) {
     const result = await ai.generateResponse(messages, { model, userId: req.user.id });
-    return ok(res, { content: result.text, model: result.model || model, usage: result.usage || {} });
+    return ok(res, { content: result.text, model: result.model || model, usage: result.usage || {}, fallback: !!result.fallback, mode: result.fallback ? 'fallback' : 'live' });
   }
 
   // 调度 LingXiAgent 多智能体引擎 (支持 8 大模式、灵寻规划流、三层记忆与 MCP 工具)
-  await lingxiEngine.executeAgentStream(res, {
+  // 引擎优先真实调用 DeepSeek V4.1 Flash，返回真实正文与 token 用量
+  const agentResult = await lingxiEngine.executeAgentStream(res, {
     messages,
     model,
     agentMode: agent_mode,
@@ -31,7 +32,7 @@ router.post('/chat/completions', auth, express.json({ limit: '2mb' }), asyncHand
     convId: conversation_id,
   });
 
-  // 记录会话历史
+  // 记录会话历史（保存真实模型回复，而非占位符）
   const conv = store.conversations.find((c) => c.id === conversation_id && canAccess(c, req.user.id));
   if (conv) {
     const lastUser = [...messages].reverse().find((m) => m.role === 'user');
@@ -40,7 +41,7 @@ router.post('/chat/completions', auth, express.json({ limit: '2mb' }), asyncHand
         id: store.id('msg'),
         role: 'user',
         content: lastUser.content,
-        tokens: 64,
+        tokens: null,
         created_at: store.now(),
       });
       conv.messages.push({
@@ -48,11 +49,13 @@ router.post('/chat/completions', auth, express.json({ limit: '2mb' }), asyncHand
         role: 'assistant',
         model,
         agent_mode,
-        content: `（已完成 ${agent_mode} 模式智能体推演与处理）`,
-        tokens: 280,
+        content: agentResult?.content || '本轮未生成完整回复，请重试。',
+        tokens: agentResult?.usage?.total_tokens || 0,
+        fallback: !!agentResult?.fallback,
         created_at: store.now(),
       });
       conv.updated_at = store.now();
+      await store.persist();
     }
   }
 }));
@@ -95,19 +98,23 @@ router.delete('/conversations/:id', auth, (req, res) => {
 
 /* ---------- 顶部看板 REQ-CHAT-04 ---------- */
 router.get('/dashboard/summary', auth, (req, res) => {
-  const project = store.projects.find((p) => p.id === (req.query.project_id || 'p1') && canAccess(p, req.user.id)) || store.projects.find((p) => canAccess(p, req.user.id));
-  if (!project) return errors.notFound(res, '项目不存在');
+  const mine = store.projects.filter((p) => canAccess(p, req.user.id));
+  const requested = req.query.project_id;
+  // 显式指定课题但不存在/无权限时仍抱 404；新注册用户没有任何课题时返回空看板（project: null），
+  // 否则工作台首屏会因为一次 404 中断整批并发请求，会话/模型/技能全部空并弹出“项目不存在”。
+  if (requested && !mine.some((p) => p.id === requested)) return errors.notFound(res, '项目不存在');
+  const project = mine.find((p) => p.id === (requested || 'p1')) || mine[0] || null;
   const isDemoUser = req.user.id === 'u1';
   const today = store.now().slice(0, 10);
   const usage = store.usageRecords
-    .filter((record) => canAccess(record, req.user.id) && record.date === today)
+    .filter((record) => record.source === 'live' && canAccess(record, req.user.id) && record.date === today)
     .reduce((summary, record) => ({
       tokens: summary.tokens + record.prompt_tokens + record.completion_tokens,
       calls: summary.calls + record.calls,
       cost: summary.cost + record.cost,
     }), { tokens: 0, calls: 0, cost: 0 });
   ok(res, {
-    project: { id: project.id, name: project.name, progress: project.progress },
+    project: project ? { id: project.id, name: project.name, progress: project.progress } : null,
     recent_outputs: isDemoUser ? store.recentOutputs : [],
     papers_daily: isDemoUser ? store.papersDaily.at(-1) : { date: today, items: [] },
     today_usage: { ...usage, cost: +usage.cost.toFixed(2) },
@@ -124,22 +131,24 @@ router.get('/skills', auth, (req, res) => ok(res, { items: store.skills, total: 
 router.post('/skills/:id/invoke', auth, asyncHandler(async (req, res) => {
   const skill = store.skills.find((s) => s.id === req.params.id);
   if (!skill) return errors.notFound(res, '技能不存在');
-  await ai.streamText(res, `已调用技能「${skill.name}」。\n\n基于你的输入，执行结果如下：\n\n1. 已根据技能模板解析任务参数\n2. 完成检索与计算\n3. 生成结果（见下方）\n\n> 演示环境返回模拟结果，生产环境将调用真实技能执行器。`, {});
+  const input = String(req.body?.input || req.body?.query || req.body?.prompt || '').trim();
+  if (!input) return errors.param(res, '请输入技能任务');
+  const result = await ai.generateResponse(require('../ai/prompts').render('skill', { skill, input }), { userId: req.user.id, model: req.body?.model, scene: 'skill' });
+  await ai.streamText(res, result.text, { model: result.model, usage: result.usage, fallback: !!result.fallback });
 }));
 
 /* ---------- MCP 推荐 REQ-CHAT-03 ---------- */
-router.get('/mcp/recommend', auth, (req, res) => {
-  const intent = String(req.query.intent || '');
-  const keywords = intent.match(/文献|论文|代码|实验|检索/g) || [];
-  const matched = store.mcpServers.filter((m) => !keywords.length || keywords.some((keyword) => m.category.includes(keyword) || m.desc.includes(keyword)));
-  ok(res, matched.length ? matched : store.mcpServers);
-});
-router.post('/mcp/:id/connect', auth, (req, res) => {
-  const server = store.mcpServers.find((m) => m.id === req.params.id);
-  if (!server) return errors.notFound(res, 'MCP 服务不存在');
-  server.status = 'connected';
-  ok(res, server, `已接入 ${server.name}`);
-});
+router.get('/mcp/recommend', auth, (req, res) => ok(res, require('../ai/mcp').catalog));
+router.post('/mcp/:id/connect', auth, asyncHandler(async (req, res) => {
+  if (!require('../ai/mcp').catalog.some((s) => s.id === req.params.id)) return errors.notFound(res, 'MCP 服务未配置');
+  ok(res, await require('../ai/mcp').connect(req.params.id));
+}));
+router.post('/mcp/:id/call', auth, asyncHandler(async (req, res) => {
+  const { name = 'search_papers', arguments: args = {} } = req.body || {};
+  if (name !== 'search_papers' || typeof args.query !== 'string' || !args.query.trim() || args.query.length > 500 || (args.limit !== undefined && (!Number.isInteger(args.limit) || args.limit < 1 || args.limit > 20))) return errors.param(res, '工具参数无效');
+  if (!require('../ai/mcp').catalog.some((s) => s.id === req.params.id)) return errors.notFound(res, 'MCP 服务未配置');
+  ok(res, await require('../ai/mcp').call(req.params.id, name, args));
+}));
 
 /* ---------- 提示词增强 REQ-CHAT-03 ---------- */
 router.post('/prompt/enhance', auth, asyncHandler(async (req, res) => {
@@ -193,7 +202,7 @@ router.post('/chat/memories', auth, (req, res) => {
 });
 
 router.patch('/chat/memories/:id', auth, (req, res) => {
-  const fact = (store.researchMemories || []).find((m) => m.id === req.params.id && (!m.user_id || m.user_id === req.user.id));
+  const fact = (store.researchMemories || []).find((m) => m.id === req.params.id && (m.user_id === req.user.id || (!m.user_id && req.user.id === 'u1')));
   if (!fact) return errors.notFound(res, '记忆事实不存在');
   if (req.body.active !== undefined) fact.active = !!req.body.active;
   if (req.body.content) fact.content = req.body.content;
@@ -202,19 +211,21 @@ router.patch('/chat/memories/:id', auth, (req, res) => {
 });
 
 router.delete('/chat/memories/:id', auth, (req, res) => {
-  const idx = (store.researchMemories || []).findIndex((m) => m.id === req.params.id && (!m.user_id || m.user_id === req.user.id));
+  const idx = (store.researchMemories || []).findIndex((m) => m.id === req.params.id && (m.user_id === req.user.id || (!m.user_id && req.user.id === 'u1')));
   if (idx < 0) return errors.notFound(res, '记忆事实不存在');
   store.researchMemories.splice(idx, 1);
   ok(res, {}, '记忆事实已删除');
 });
 
-router.post('/chat/memories/extract', auth, (req, res) => {
+router.post('/chat/memories/extract', auth, asyncHandler(async (req, res) => {
   const { conversation_id, project_id = 'p1' } = req.body || {};
   const conv = store.conversations.find((c) => c.id === conversation_id && canAccess(c, req.user.id));
+  if (conversation_id && !conv) return errors.notFound(res, '会话不存在');
   const messages = conv ? conv.messages : (req.body?.messages || []);
-  const result = lingxiEngine.extractMemoriesFromConversation(messages, req.user.id, project_id);
+  if (!Array.isArray(messages) || messages.some((m) => typeof m.content !== 'string')) return errors.param(res, 'messages 格式无效');
+  const result = await lingxiEngine.extractMemoriesFromConversation(messages, req.user.id, project_id);
   ok(res, result, `已智能提取并沉淀 ${result.added.length} 条科研事实`);
-});
+}));
 
 /* ---------- 学术 MCP 与沙箱工具交互 ---------- */
 router.get('/chat/arxiv/search', auth, asyncHandler(async (req, res) => {
@@ -226,7 +237,7 @@ router.get('/chat/arxiv/search', auth, asyncHandler(async (req, res) => {
 router.post('/chat/codeact/run', auth, (req, res) => {
   const { query = '消融指标' } = req.body || {};
   const result = lingxiEngine.runCodeActSandbox(query);
-  ok(res, result);
+  res.status(501).json({ code: 60009, message: result.message, data: result });
 });
 
 function daysText(n) {

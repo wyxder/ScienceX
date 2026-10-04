@@ -1,6 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Icon from '../../components/Icon';
 import type { AgentMode, SkillItem } from '../../types';
+import type { UploadProgress } from '../../api/client';
+
+/** 后台耗时任务（上传解析 / 提示词增强）的真实进度呈现 */
+export interface DockTask {
+  percent: number;
+  label: string;
+}
 
 interface ChatCommandDockProps {
   input: string;
@@ -18,6 +25,12 @@ interface ChatCommandDockProps {
   onInvokeSkill: (skill: SkillItem) => void;
   agentMode: AgentMode;
   onSelectAgentMode: (mode: AgentMode) => void;
+  uploadProgress?: UploadProgress | null;
+  onAbortUpload?: () => void;
+  enhanceProgress?: DockTask | null;
+  attachedDoc?: { title: string; sections: number } | null;
+  onRemoveAttachment?: () => void;
+  onAddModel?: () => void;
 }
 
 const AGENT_MODES: Array<{ mode: AgentMode; label: string; icon: any; desc: string }> = [
@@ -30,6 +43,81 @@ const AGENT_MODES: Array<{ mode: AgentMode; label: string; icon: any; desc: stri
   { mode: 'text2sql', label: 'Text2SQL 数据查询', icon: 'db', desc: '指标过滤 · SOTA 聚合对比' },
   { mode: 'structured', label: '结构化产出', icon: 'grid', desc: 'LaTeX 三线表 · 审稿矩阵' },
 ];
+
+/** 模型厂商品牌 logo（内联 SVG，无需外网；未知厂商回退为钥匙图标） */
+function ModelBrandLogo({ model, color }: { model: any; color: string }) {
+  const key = `${model.id || ''} ${model.name || ''} ${model.vendor || ''}`.toLowerCase();
+  const size = { width: 16, height: 16, flexShrink: 0 } as const;
+
+  if (key.includes('gpt') || key.includes('openai')) {
+    // OpenAI 花结：黑色圆底 + 六瓣白色花环
+    return (
+      <svg {...size} viewBox="0 0 24 24" aria-hidden>
+        <circle cx="12" cy="12" r="11" fill="#0f172a" />
+        <g fill="none" stroke="#fff" strokeWidth="1.6">
+          {[0, 60, 120, 180, 240, 300].map((deg) => (
+            <ellipse key={deg} cx="12" cy="7.2" rx="2.1" ry="3.4" transform={`rotate(${deg} 12 12)`} />
+          ))}
+        </g>
+      </svg>
+    );
+  }
+  if (key.includes('claude') || key.includes('anthropic')) {
+    // Anthropic 星芒：浅橙圆底 + 橙色四芒
+    return (
+      <svg {...size} viewBox="0 0 24 24" aria-hidden>
+        <circle cx="12" cy="12" r="11" fill="#f5eee9" />
+        <path d="M12 3.5 L13.6 10.4 L20.5 12 L13.6 13.6 L12 20.5 L10.4 13.6 L3.5 12 L10.4 10.4 Z" fill="#D97757" />
+      </svg>
+    );
+  }
+  if (key.includes('gemini') || key.includes('google')) {
+    // Gemini 四角星：蓝紫渐变
+    return (
+      <svg {...size} viewBox="0 0 24 24" aria-hidden>
+        <defs>
+          <linearGradient id="mbl-gemini" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#4285F4" />
+            <stop offset="50%" stopColor="#9B72CB" />
+            <stop offset="100%" stopColor="#D96570" />
+          </linearGradient>
+        </defs>
+        <path d="M12 2 C13.1 8 16 10.9 22 12 C16 13.1 13.1 16 12 22 C10.9 16 8 13.1 2 12 C8 10.9 10.9 8 12 2 Z" fill="url(#mbl-gemini)" />
+      </svg>
+    );
+  }
+  if (key.includes('deepseek')) {
+    // DeepSeek 鲸鱼：品牌蓝紫圆底 + 白色鲸影曲线
+    return (
+      <svg {...size} viewBox="0 0 24 24" aria-hidden>
+        <circle cx="12" cy="12" r="11" fill="#4D6BFE" />
+        <path
+          d="M5.5 14.2 C7.5 9.8 12.5 8.2 16.2 10.4 C17 10.9 17.8 10.8 18.5 10.2 C18.2 11.4 17.5 12 16.6 12.3 C16.9 15.5 14.4 18 11.2 18.2 C12.4 17.2 13 16.1 13.1 14.9 C10.6 15.6 7.9 15.4 5.5 14.2 Z"
+          fill="#fff"
+        />
+      </svg>
+    );
+  }
+  if (key.includes('kimi') || key.includes('moonshot')) {
+    // Kimi / Moonshot：黑圆 + 白色 K
+    return (
+      <svg {...size} viewBox="0 0 24 24" aria-hidden>
+        <circle cx="12" cy="12" r="11" fill="#111827" />
+        <path d="M8 5.5 H10.2 V10.8 L15 5.5 H17.8 L12.6 11.4 L18 18.5 H15.2 L10.2 12.2 V18.5 H8 Z" fill="#fff" />
+      </svg>
+    );
+  }
+  // 自定义 / 未知厂商：钥匙图标
+  return <Icon name="key" size={13} style={{ color, flexShrink: 0 }} />;
+}
+
+/* 上传各阶段的人读提示 */
+const UPLOAD_STAGE_LABEL: Record<string, string> = {
+  reading: '本地读取编码',
+  uploading: '上传至解析服务',
+  parsing: '版面与图表解析',
+  done: '解析完成',
+};
 
 export const ChatCommandDock: React.FC<ChatCommandDockProps> = ({
   input,
@@ -45,15 +133,22 @@ export const ChatCommandDock: React.FC<ChatCommandDockProps> = ({
   models,
   agentMode,
   onSelectAgentMode,
+  uploadProgress,
+  onAbortUpload,
+  enhanceProgress,
+  attachedDoc,
+  onRemoveAttachment,
+  onAddModel,
 }) => {
   const currentModeMeta = AGENT_MODES.find((m) => m.mode === agentMode) || AGENT_MODES[0];
-  const canSend = !streaming && input.trim().length > 0;
+  const uploading = !!uploadProgress;
+  const enhancing = !!enhanceProgress;
+  const canSend = !streaming && !uploading && input.trim().length > 0;
 
   /* 统一互斥菜单管理，确保每个按钮弹出的下拉菜单置于最顶层，且互不遮挡重叠 */
   const [activeMenu, setActiveMenu] = useState<'model' | 'mode' | null>(null);
   const dockRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [attachedFile, setAttachedFile] = useState<File | null>(null);
 
   useEffect(() => {
     const handleOutsideClick = (e: MouseEvent) => {
@@ -72,10 +167,7 @@ export const ChatCommandDock: React.FC<ChatCommandDockProps> = ({
   const openFilePicker = () => fileInputRef.current?.click();
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
-    if (f) {
-      setAttachedFile(f);
-      onUploadClick(f);
-    }
+    if (f) onUploadClick(f);
     e.target.value = '';
   };
 
@@ -98,16 +190,55 @@ export const ChatCommandDock: React.FC<ChatCommandDockProps> = ({
           rows={2}
         />
 
-        {/* 附件展示条：选中文件后显示文件名与大小，可移除 */}
-        {attachedFile && (
+        {/* 上传真实进度条：本地读取 → 字节上传 → 服务端版面解析 */}
+        {uploadProgress && (
+          <div className="chat-task-tray">
+            <div className="chat-task-head">
+              <Icon name="upload" size={13} style={{ color: '#059669' }} />
+              <span className="chat-task-title" title={uploadProgress.fileName}>{uploadProgress.fileName}</span>
+              <span className="chat-task-stage">{UPLOAD_STAGE_LABEL[uploadProgress.stage]}</span>
+              <span className="chat-task-percent">{uploadProgress.percent}%</span>
+              <button
+                type="button"
+                className="chat-attach-remove"
+                onClick={onAbortUpload}
+                title="取消上传"
+                aria-label="取消上传"
+              >
+                <Icon name="x" size={12} />
+              </button>
+            </div>
+            <div className="chat-progress-bar" role="progressbar" aria-valuenow={uploadProgress.percent} aria-valuemin={0} aria-valuemax={100}>
+              <span className="chat-progress-fill" style={{ width: `${uploadProgress.percent}%` }} />
+            </div>
+          </div>
+        )}
+
+        {/* 提示词增强进度：大模型实时改写 */}
+        {enhanceProgress && (
+          <div className="chat-task-tray">
+            <div className="chat-task-head">
+              <Icon name="spark" size={13} style={{ color: '#7c3aed' }} />
+              <span className="chat-task-title">学术提示词增强</span>
+              <span className="chat-task-stage">{enhanceProgress.label}</span>
+              <span className="chat-task-percent">{enhanceProgress.percent}%</span>
+            </div>
+            <div className="chat-progress-bar violet" role="progressbar" aria-valuenow={enhanceProgress.percent} aria-valuemin={0} aria-valuemax={100}>
+              <span className="chat-progress-fill" style={{ width: `${enhanceProgress.percent}%` }} />
+            </div>
+          </div>
+        )}
+
+        {/* 附件就绪展示条：解析完成后随下一条消息注入模型上下文 */}
+        {attachedDoc && !uploadProgress && (
           <div className="chat-attach-chip">
             <Icon name="file" size={13} style={{ color: '#059669' }} />
-            <span className="chat-attach-name" title={attachedFile.name}>{attachedFile.name}</span>
-            <span className="chat-attach-size">{(attachedFile.size / 1024).toFixed(0)} KB</span>
+            <span className="chat-attach-name" title={attachedDoc.title}>{attachedDoc.title}</span>
+            <span className="chat-attach-size">已解析 {attachedDoc.sections} 段正文 · 发送时随提问交给大模型</span>
             <button
               type="button"
               className="chat-attach-remove"
-              onClick={() => setAttachedFile(null)}
+              onClick={onRemoveAttachment}
               title="移除附件"
               aria-label="移除附件"
             >
@@ -118,7 +249,8 @@ export const ChatCommandDock: React.FC<ChatCommandDockProps> = ({
 
         {/* 输入框内置动作栏（左侧模式/模型 + 上传/增强，右侧语音与发送） */}
         <div className="chat-dock-actions" style={{ position: 'relative' }}>
-          <div className="chat-dock-left-tools" style={{ gap: 6, flexWrap: 'wrap' }}>
+          {/* 移动端为单行横向滑动容器；菜单展开时加 menu-open 解除裁剪 */}
+          <div className={`chat-dock-left-tools${activeMenu ? ' menu-open' : ''}`}>
             {/* Agent 模式切换胶囊（向上展开改为向下展开顶层菜单） */}
             <div style={{ position: 'relative' }}>
               <button
@@ -131,28 +263,13 @@ export const ChatCommandDock: React.FC<ChatCommandDockProps> = ({
                 }}
               >
                 <Icon name={currentModeMeta.icon} size={12} />
-                <span>{currentModeMeta.label}</span>
+                <span className="chat-pill-label">{currentModeMeta.label}</span>
                 <Icon name="chevronDown" size={10} style={{ opacity: 0.6 }} />
               </button>
 
               {activeMenu === 'mode' && (
                 <div
-                  className="anim-pop"
-                  style={{
-                    position: 'absolute',
-                    top: 'calc(100% + 8px)',
-                    left: 0,
-                    zIndex: 1500,
-                    minWidth: 260,
-                    maxWidth: 'calc(100vw - 32px)',
-                    background: '#ffffff',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: 14,
-                    boxShadow: '0 16px 40px -8px rgba(15, 23, 42, 0.22), 0 4px 12px rgba(0, 0, 0, 0.08)',
-                    padding: 6,
-                    maxHeight: 320,
-                    overflowY: 'auto',
-                  }}
+                  className="anim-pop chat-dock-menu chat-dock-mode-menu"
                   onClick={() => setActiveMenu(null)}
                 >
                   <div style={{ padding: '6px 10px 8px', fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase' }}>
@@ -201,28 +318,13 @@ export const ChatCommandDock: React.FC<ChatCommandDockProps> = ({
                 }}
               >
                 <Icon name="cpu" size={13} style={{ color: '#059669' }} />
-                <span>{model}</span>
+                <span className="chat-pill-label">{model}</span>
                 <Icon name="chevronDown" size={11} style={{ opacity: 0.6 }} />
               </button>
 
               {activeMenu === 'model' && (
                 <div
-                  className="anim-pop"
-                  style={{
-                    position: 'absolute',
-                    top: 'calc(100% + 8px)',
-                    left: 0,
-                    zIndex: 1500,
-                    minWidth: 230,
-                    maxWidth: 'calc(100vw - 32px)',
-                    background: '#ffffff',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: 14,
-                    boxShadow: '0 16px 40px -8px rgba(15, 23, 42, 0.18), 0 4px 12px rgba(0, 0, 0, 0.08)',
-                    padding: 6,
-                    maxHeight: 320,
-                    overflowY: 'auto',
-                  }}
+                  className="anim-pop chat-dock-menu chat-dock-model-menu"
                   onClick={() => setActiveMenu(null)}
                 >
                   <div style={{ padding: '6px 10px 8px', fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase' }}>
@@ -233,18 +335,7 @@ export const ChatCommandDock: React.FC<ChatCommandDockProps> = ({
                     return (
                       <div
                         key={m.id}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 8,
-                          padding: '8px 10px',
-                          borderRadius: 8,
-                          fontSize: 13,
-                          cursor: 'pointer',
-                          background: isSelected ? 'rgba(16, 185, 129, 0.1)' : 'transparent',
-                          color: isSelected ? '#047857' : '#1e293b',
-                          transition: 'background 0.15s',
-                        }}
+                        className={`chat-model-row${isSelected ? ' active' : ''}`}
                         onMouseEnter={(e) => { if (!isSelected) e.currentTarget.style.background = '#f1f5f9'; }}
                         onMouseLeave={(e) => { if (!isSelected) e.currentTarget.style.background = 'transparent'; }}
                         onClick={(e) => {
@@ -253,23 +344,13 @@ export const ChatCommandDock: React.FC<ChatCommandDockProps> = ({
                           setActiveMenu(null);
                         }}
                       >
-                        <Icon name="cpu" size={13} style={{ color: isSelected ? '#059669' : '#64748b' }} />
-                        <span style={{ fontWeight: isSelected ? 700 : 400 }}>{m.name}</span>
-                        {m.tag && (
-                          <span
-                            style={{
-                              fontSize: 11,
-                              color: isSelected ? '#059669' : 'var(--muted)',
-                              background: isSelected ? 'rgba(16, 185, 129, 0.12)' : 'rgba(0, 0, 0, 0.04)',
-                              padding: '1px 6px',
-                              borderRadius: 4,
-                              marginLeft: 'auto',
-                            }}
-                          >
-                            {m.tag}
-                          </span>
-                        )}
-                        {isSelected && <Icon name="check" size={13} style={{ color: '#059669', marginLeft: 4 }} />}
+                        <ModelBrandLogo model={m} color={isSelected ? '#059669' : '#64748b'} />
+                        <span className="chat-model-name">{m.name}</span>
+                        {m.tag && <span className="chat-model-tag">{m.tag}</span>}
+                        <span className={`chat-model-state ${m.status === 'connected' ? 'ok' : 'idle'}`}>
+                          <span className={`dot dot-${m.status === 'connected' ? 'green' : 'gray'}`} />
+                        </span>
+                        {isSelected && <Icon name="check" size={13} style={{ color: '#059669' }} />}
                       </div>
                     );
                   })}
@@ -278,18 +359,7 @@ export const ChatCommandDock: React.FC<ChatCommandDockProps> = ({
                     return (
                       <div
                         key={m.id}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 8,
-                          padding: '8px 10px',
-                          borderRadius: 8,
-                          fontSize: 13,
-                          cursor: 'pointer',
-                          background: isSelected ? 'rgba(16, 185, 129, 0.1)' : 'transparent',
-                          color: isSelected ? '#047857' : '#1e293b',
-                          transition: 'background 0.15s',
-                        }}
+                        className={`chat-model-row${isSelected ? ' active' : ''}`}
                         onMouseEnter={(e) => { if (!isSelected) e.currentTarget.style.background = '#f1f5f9'; }}
                         onMouseLeave={(e) => { if (!isSelected) e.currentTarget.style.background = 'transparent'; }}
                         onClick={(e) => {
@@ -298,24 +368,22 @@ export const ChatCommandDock: React.FC<ChatCommandDockProps> = ({
                           setActiveMenu(null);
                         }}
                       >
-                        <Icon name="key" size={13} style={{ color: '#10b981' }} />
-                        <span style={{ fontWeight: isSelected ? 700 : 400 }}>{m.name}</span>
-                        <span
-                          style={{
-                            fontSize: 11,
-                            color: '#10b981',
-                            background: 'rgba(16, 185, 129, 0.12)',
-                            padding: '1px 6px',
-                            borderRadius: 4,
-                            marginLeft: 'auto',
-                          }}
-                        >
-                          自定义
+                        <ModelBrandLogo model={m} color="#10b981" />
+                        <span className="chat-model-name">{m.name}</span>
+                        <span className="chat-model-tag">自定义</span>
+                        <span className={`chat-model-state ${m.status === 'connected' ? 'ok' : 'idle'}`}>
+                          <span className={`dot dot-${m.status === 'connected' ? 'green' : 'gray'}`} />
                         </span>
-                        {isSelected && <Icon name="check" size={13} style={{ color: '#059669', marginLeft: 4 }} />}
+                        {isSelected && <Icon name="check" size={13} style={{ color: '#059669' }} />}
                       </div>
                     );
                   })}
+                  {onAddModel && (
+                    <div className="chat-dock-menu-footer" onClick={(e) => { e.stopPropagation(); setActiveMenu(null); onAddModel(); }}>
+                      <Icon name="plus" size={13} />
+                      添加自定义模型（先测连通再保存）
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -325,15 +393,16 @@ export const ChatCommandDock: React.FC<ChatCommandDockProps> = ({
               type="button"
               className="chat-action-pill"
               onClick={openFilePicker}
-              title="上传论文 / 实验数据附件"
+              disabled={uploading}
+              title="上传论文 / 文献正文（PDF / Word / Markdown / CAJ）"
               aria-label="文件上传"
             >
-              <Icon name="upload" size={14} />
+              {uploading ? <span className="spinner" /> : <Icon name="upload" size={14} />}
             </button>
             <input
               ref={fileInputRef}
               type="file"
-              accept=".pdf,.doc,.docx,.md,.txt,.csv,.png,.jpg,.jpeg"
+              accept=".pdf,.doc,.docx,.md,.markdown,.caj"
               style={{ display: 'none' }}
               onChange={handleFileChange}
               aria-hidden="true"
@@ -345,10 +414,11 @@ export const ChatCommandDock: React.FC<ChatCommandDockProps> = ({
               type="button"
               className="chat-action-pill"
               onClick={onEnhancePrompt}
-              title="学术提示词深度增强（角色+结构+背景）"
+              disabled={enhancing}
+              title="学术提示词深度增强（大模型实时改写）"
               aria-label="提示词增强"
             >
-              <Icon name="spark" size={14} />
+              {enhancing ? <span className="spinner" /> : <Icon name="spark" size={14} />}
             </button>
           </div>
 
