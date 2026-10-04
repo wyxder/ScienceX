@@ -55,7 +55,12 @@ router.post('/chat/completions', auth, express.json({ limit: '2mb' }), asyncHand
         created_at: store.now(),
       });
       conv.updated_at = store.now();
-      await store.persist();
+      try {
+        await store.persist();
+      } catch (persistErr) {
+        // 只读环境持久化失败不应中断已完成的流式回复
+        console.warn('[chat] 会话历史持久化失败:', persistErr && persistErr.message);
+      }
     }
   }
 }));

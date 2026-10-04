@@ -544,20 +544,21 @@
   gap: 8px;
 }
 
-/* 输入坞下拉浮层（Agent 模式 / 模型选择）：自内联样式收归统一类 */
+/* 输入坞下拉浮层（Agent 模式 / 模型选择）：统一向上展开，避免底部吸附时被屏幕下缘裁剪 */
 .chat-dock-menu {
   position: absolute;
-  top: calc(100% + 8px);
+  top: auto;
+  bottom: calc(100% + 8px);
   left: 0;
   z-index: 1500;
   max-width: calc(100vw - 32px);
+  max-height: min(480px, 62vh);
+  overflow-y: auto;
   background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 14px;
   box-shadow: 0 16px 40px -8px rgba(15, 23, 42, 0.22), 0 4px 12px rgba(0, 0, 0, 0.08);
   padding: 6px;
-  max-height: 320px;
-  overflow-y: auto;
 }
 
 .chat-dock-mode-menu {
@@ -1035,10 +1036,8 @@
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-  /* 底部空间有限：下拉菜单改为向上展开 */
+  /* 移动端视口更矮：限制上拉菜单最大高度（方向已由基础规则统一为向上） */
   .chat-dock-menu {
-    top: auto;
-    bottom: calc(100% + 8px);
     max-height: min(320px, 52vh);
   }
   .chat-dock-sticky-container {

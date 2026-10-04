@@ -102,9 +102,22 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
                   />
                 ) : (
                   m.streaming && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#64748b', fontSize: 13, padding: '4px 0' }}>
-                      <span className="spinner" style={{ width: 14, height: 14, borderWidth: 2, borderColor: '#10b981' }} />
-                      <span>正在深度检索与推理中...</span>
+                    <div className="chat-task-tray" style={{ margin: '4px 0 2px', maxWidth: 460 }} role="status">
+                      <div className="chat-task-head">
+                        <span className="spinner" style={{ width: 13, height: 13, borderWidth: 2, borderColor: '#10b981', flexShrink: 0 }} />
+                        <span className="chat-task-title">正在深度检索与推理中</span>
+                        <span className="chat-task-stage">{m.thinking?.label || '解析问题意图与研究语境'}</span>
+                        <span className="chat-task-percent">{Math.round(m.thinking?.percent ?? 0)}%</span>
+                      </div>
+                      <div
+                        className="chat-progress-bar"
+                        role="progressbar"
+                        aria-valuenow={Math.round(m.thinking?.percent ?? 0)}
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                      >
+                        <span className="chat-progress-fill" style={{ width: `${m.thinking?.percent ?? 0}%` }} />
+                      </div>
                     </div>
                   )
                 )}

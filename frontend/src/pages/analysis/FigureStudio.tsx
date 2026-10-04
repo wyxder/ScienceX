@@ -196,7 +196,7 @@ export default function FigureStudio() {
     }
   }, [title, method, selected, ratio, fidelity, strength, custom, imgModel, toast]);
 
-  const ready = Boolean(title.trim() && method.trim() && selected.length > 0);
+  const ready = Boolean(title.trim() && method.trim());
 
   /* 位图导出：url 跨域时经 fetch blob 下载，失败回退新窗口打开 */
   const downloadImage = async () => {
@@ -217,7 +217,7 @@ export default function FigureStudio() {
     <div className="fx-studio anim-in">
       <div className="fx-intro">
         <div className="fx-intro-title"><Icon name="flask" size={16} />科研图工作台</div>
-        <p>两阶段 Design→Implement 流水线：选定模板作 few-shot 参考 → 抽取结构 → 填充方法内容 → 矢量渲染导出。能力对接自 DreamPaper（PolyForm Noncommercial，仅限非商业学习研究）。</p>
+        <p>两阶段 Design→Implement 流水线：填完参数即可直接生成；模板为可选项，选定后作 few-shot 参考 → 抽取结构 → 填充方法内容 → 矢量渲染导出。能力对接自 DreamPaper（PolyForm Noncommercial，仅限非商业学习研究）。</p>
       </div>
 
       <div className="fx-work">
@@ -268,7 +268,7 @@ export default function FigureStudio() {
           </div>
           <footer className="fx-card-foot">
             <div className="fx-foot-side">
-              <span className="fx-foot-note">已选 {selected.length}/{MAX_TEMPLATES}</span>
+              <span className="fx-foot-note">已选 {selected.length}/{MAX_TEMPLATES}{selected.length === 0 ? ' · 模板可选' : ''}</span>
               <select className="fx-mini" value={imgModel} onChange={(e) => setImgModel(e.target.value)} aria-label="生图模型">
                 {IMAGE_MODELS.map((m) => (
                   <option key={m} value={m}>{m}</option>
@@ -389,7 +389,7 @@ export default function FigureStudio() {
               )}
 
               {!running && !result && !diagnosis && (
-                <div className="fx-empty"><strong>提交任务后，这里显示进度与产出</strong><p>在左侧填写参数、选择模板，点击「生成」启动两阶段流水线。</p></div>
+                <div className="fx-empty"><strong>提交任务后，这里显示进度与产出</strong><p>在左侧填写参数（模板可选），点击「生成」直接启动两阶段流水线。</p></div>
               )}
             </div>
           )}

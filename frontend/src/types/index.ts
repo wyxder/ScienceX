@@ -121,6 +121,11 @@ export interface ChatMessage {
     facts: string[];
     summary?: string;
   };
+  /** 首字输出前的深度检索与推理真实进度（计时衰减 + SSE 事件驱动） */
+  thinking?: {
+    percent: number;
+    label: string;
+  };
 }
 
 export interface CitationReference {

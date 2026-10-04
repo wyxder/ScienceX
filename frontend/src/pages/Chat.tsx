@@ -30,6 +30,10 @@ const QUICK_PROMPTS: QuickPrompt[] = [
   { id: 'chart', icon: 'chart', label: '科研图表生成', prompt: '帮我用 Python 生成一份多指标消融对比的学术柱状图' },
 ];
 
+/* 首字输出前「深度检索与推理」进度条的阶段文案（按真实百分比切换） */
+const THINK_STAGE_OF = (p: number) =>
+  p < 25 ? '解析问题意图与研究语境' : p < 48 ? '多路检索文献与知识证据' : p < 72 ? '交叉验证与证据整合' : '组织推理链并撰写回答';
+
 const DEFAULT_MODELS = {
   builtin: [
     { id: 'm-deepseek-flash', name: 'DeepSeek V4.1 Flash', model_name: 'DeepSeek-Flash', provider: 'deepseek', tag: '极速推理 · 默认推荐', context: '64K', status: 'connected' },
@@ -57,7 +61,8 @@ export default function Chat() {
       const saved = localStorage.getItem('sciencex_chat_model');
       if (saved && saved !== 'DeepSeek-V3') return saved;
     } catch {}
-    return 'GPT-6.1 Sol';
+    // 移动端默认极速推理模型 DeepSeek V4.1 Flash，桌面端默认 GPT-6.1 Sol
+    return isMobile ? 'DeepSeek V4.1 Flash' : 'GPT-6.1 Sol';
   });
   const [skills, setSkills] = useState<SkillItem[]>([]);
   const [keyword, setKeyword] = useState('');
@@ -71,6 +76,7 @@ export default function Chat() {
   const [attachedDoc, setAttachedDoc] = useState<{ docId: string; title: string; sections: number; excerpt: string } | null>(null);
   const [addModelOpen, setAddModelOpen] = useState(false);
   const uploadHandle = useRef<{ abort: () => void } | null>(null);
+  const thinkTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   // 初始化带有精确演示数据的看板状态
@@ -99,22 +105,25 @@ export default function Chat() {
       const loadedModels = (m && m.builtin && m.builtin.length > 0) ? m : DEFAULT_MODELS;
       setModels(loadedModels);
 
-      // 模型选择优先级：用户主动选择 > GPT-6.1 Sol 默认
+      // 模型选择优先级：用户主动选择 > 端侧默认（移动端 DeepSeek V4.1 Flash / 桌面端 GPT-6.1 Sol）
       const allModelNames = [
         ...(loadedModels.builtin || []).map((x: any) => x.name),
         ...(loadedModels.custom || []).map((x: any) => x.name),
       ];
+      const mobileNow = typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches;
+      const preferredName = mobileNow ? 'DeepSeek V4.1 Flash' : 'GPT-6.1 Sol';
+      const preferredId = mobileNow ? 'm-deepseek-flash' : 'm-gpt-sol';
       try {
         const saved = localStorage.getItem('sciencex_chat_model');
         if (saved && saved !== 'DeepSeek-V3' && allModelNames.includes(saved)) {
           setModel(saved);
         } else {
-          const defaultSol = loadedModels.builtin?.find((item: any) => item.name === 'GPT-6.1 Sol' || item.id === 'm-gpt-sol')?.name || allModelNames[0] || 'GPT-6.1 Sol';
+          const defaultSol = loadedModels.builtin?.find((item: any) => item.name === preferredName || item.id === preferredId)?.name || allModelNames[0] || preferredName;
           setModel(defaultSol);
           localStorage.setItem('sciencex_chat_model', defaultSol);
         }
       } catch {
-        setModel('GPT-6.1 Sol');
+        setModel(preferredName);
       }
 
       if (d) setDashboard(d);
@@ -133,6 +142,7 @@ export default function Chat() {
     () => () => {
       // 离开工作台时中断进行中的上传，避免后台回调写入已卸载组件
       uploadHandle.current?.abort();
+      if (thinkTimerRef.current) clearInterval(thinkTimerRef.current);
     },
     []
   );
@@ -269,8 +279,49 @@ export default function Chat() {
       model,
       agent_mode: agentMode,
       streaming: true,
+      thinking: { percent: 4, label: THINK_STAGE_OF(4) },
     };
     setMessages((m) => [...m, userMsg, aiMsg]);
+
+    /* 深度检索与推理真实进度：计时衰减兜底 + SSE 真实事件前推，首字输出后收敛到 100% */
+    const bumpThink = (floor?: number, inc?: number) =>
+      setMessages((m) =>
+        m.map((x) => {
+          if (x.id !== aiMsg.id || !x.thinking) return x;
+          const base = floor !== undefined ? Math.max(x.thinking.percent, floor) : x.thinking.percent + (inc ?? 0);
+          const percent = Math.min(94, base);
+          return { ...x, thinking: { percent, label: THINK_STAGE_OF(percent) } };
+        })
+      );
+    if (thinkTimerRef.current) clearInterval(thinkTimerRef.current);
+    thinkTimerRef.current = setInterval(() => {
+      setMessages((m) =>
+        m.map((x) =>
+          x.id === aiMsg.id && x.thinking
+            ? {
+                ...x,
+                thinking: {
+                  percent: Math.min(92, x.thinking.percent + Math.max(0.5, (92 - x.thinking.percent) * 0.05)),
+                  label: THINK_STAGE_OF(x.thinking.percent),
+                },
+              }
+            : x
+        )
+      );
+    }, 280);
+    const stopThink = () => {
+      if (thinkTimerRef.current) {
+        clearInterval(thinkTimerRef.current);
+        thinkTimerRef.current = null;
+      }
+    };
+    /* 首字输出后即完成「深度检索」阶段，仅收敛一次，避免在 setState 更新器内做副作用 */
+    let thinkDone = false;
+    const finishThink = () => {
+      if (thinkDone) return;
+      thinkDone = true;
+      stopThink();
+    };
 
     let convId = activeConv;
     if (!convId) {
@@ -292,9 +343,18 @@ export default function Chat() {
         skills: skillId ? [skillId] : [],
       },
       {
-        onDelta: (t) => setMessages((m) => m.map((x) => (x.id === aiMsg.id ? { ...x, content: x.content + t } : x))),
-        onPlan: (plan) => setMessages((m) => m.map((x) => (x.id === aiMsg.id ? { ...x, plan } : x))),
-        onStepStart: (step) =>
+        onDelta: (t) => {
+          finishThink();
+          setMessages((m) =>
+            m.map((x) => (x.id === aiMsg.id ? { ...x, content: x.content + t, thinking: undefined } : x))
+          );
+        },
+        onPlan: (plan) => {
+          bumpThink(30);
+          setMessages((m) => m.map((x) => (x.id === aiMsg.id ? { ...x, plan } : x)));
+        },
+        onStepStart: (step) => {
+          bumpThink(38);
           setMessages((m) =>
             m.map((x) =>
               x.id === aiMsg.id && x.plan
@@ -307,8 +367,10 @@ export default function Chat() {
                   }
                 : x
             )
-          ),
-        onStepUpdate: (up) =>
+          );
+        },
+        onStepUpdate: (up) => {
+          bumpThink(undefined, 4);
           setMessages((m) =>
             m.map((x) =>
               x.id === aiMsg.id && x.plan
@@ -323,12 +385,16 @@ export default function Chat() {
                   }
                 : x
             )
-          ),
-        onThought: (th) =>
+          );
+        },
+        onThought: (th) => {
+          bumpThink(undefined, 7);
           setMessages((m) =>
             m.map((x) => (x.id === aiMsg.id ? { ...x, thoughts: [...(x.thoughts || []), th] } : x))
-          ),
-        onToolResult: (tr) =>
+          );
+        },
+        onToolResult: (tr) => {
+          bumpThink(72);
           setMessages((m) =>
             m.map((x) =>
               x.id === aiMsg.id
@@ -340,17 +406,22 @@ export default function Chat() {
                   }
                 : x
             )
-          ),
-        onMemoryInjected: (mem) =>
-          setMessages((m) => m.map((x) => (x.id === aiMsg.id ? { ...x, memory_injected: mem } : x))),
+          );
+        },
+        onMemoryInjected: (mem) => {
+          bumpThink(18);
+          setMessages((m) => m.map((x) => (x.id === aiMsg.id ? { ...x, memory_injected: mem } : x)));
+        },
         onTool: (d) => toast(`技能「${d.name}」已调用`, 'info'),
         onDone: () => {
+          stopThink();
           setMessages((m) =>
             m.map((x) =>
               x.id === aiMsg.id
                 ? {
                     ...x,
                     streaming: false,
+                    thinking: undefined,
                     plan: x.plan ? { ...x.plan, percent: 100, status: 'completed' } : undefined,
                   }
                 : x
@@ -361,9 +432,10 @@ export default function Chat() {
         },
         onFallback: (details) => toast(details.message || '已降级为演示模板', 'info'),
         onError: (msg, details) => {
+          stopThink();
           toast(`${msg}${details?.retryable ? '，可稍后重试' : ''}`, 'err');
           setStreaming(false);
-          setMessages((m) => m.map((x) => x.id === aiMsg.id ? { ...x, streaming: false, content: x.content + '\n\n> 生成中断：' + msg } : x));
+          setMessages((m) => m.map((x) => x.id === aiMsg.id ? { ...x, streaming: false, thinking: undefined, content: x.content + '\n\n> 生成中断：' + msg } : x));
         },
       }
     );

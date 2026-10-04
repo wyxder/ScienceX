@@ -282,7 +282,12 @@ async function executeAgentStream(res, {
     }
 
     // 3. 真实用量记账与完成事件
-    await store.persist();
+    // 持久化失败（如只读文件系统环境）不得影响已生成的回复，故降级为告警而非抛出
+    try {
+      await store.persist();
+    } catch (persistErr) {
+      console.warn('[LingXiAgent] 会话持久化失败（不影响本轮回复）:', persistErr && persistErr.message);
+    }
     const realTokens = ctx.acc.usage.total_tokens;
     send('done', {
       message_id: messageId,
