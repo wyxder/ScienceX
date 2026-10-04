@@ -466,11 +466,11 @@ location / { root /var/www/sciencex/dist; try_files $uri /index.html; }
 
 ---
 
-## 🏆 八、参赛评分自评分析
+## 🏆 九、参赛评分自评分析
 
 > 依据大赛《评分维度与权重》《加分项与减分项》《建议提交（加分项）》三张评分标准，对 ScienceX 科研 AI 工作台当前仓库（截至 2026-10-03）进行逐项对照分析与自评。
 
-### 8.1 评分维度自评（满分 100 分）
+### 9.1 评分维度自评（满分 100 分）
 
 ![评分维度自评表](docs/submissions/评分维度自评表.png)
 
@@ -483,7 +483,7 @@ location / { root /var/www/sciencex/dist; try_files $uri /index.html; }
 | **网络投票** | 15 | 按得票排名区间折算 | 待比赛现场/线上投票结束后按实际排名折算，暂无法预估 | **待折算** |
 | **总分（不含网络投票与加/减分）** | 85 | — | — | **75 / 85** |
 
-### 8.2 加分项与减分项对照
+### 9.2 加分项与减分项对照
 
 ![加分项总览图（加分项 + 建议提交物核对清单，不含减分项）](docs/submissions/加分项核对表.png)
 
@@ -498,17 +498,17 @@ location / { root /var/www/sciencex/dist; try_files $uri /index.html; }
 
 **加分小计：+7 / +7 满分达成（开源 License +2、测试覆盖 +2、在线 Demo 已上线 +3），详见 [`docs/加分.md`](docs/加分.md)**
 
-### 8.3 建议提交物（加分项）核对清单
+### 9.3 建议提交物（加分项）核对清单
 
 | 序号 | 交付物 | 格式要求 | ScienceX 现状 | 行动建议 |
 | :---: | :--- | :---: | :--- | :--- |
 | 1 | 系统架构图 | PNG/SVG | ✅ 已交付：[`docs/submissions/architecture.svg`](docs/submissions/architecture.svg)（六层组件 + 同步/流式/异步三类数据流） | 完成，随仓库提交 |
 | 2 | Agent 工作流程图 | PNG/SVG | ✅ 已交付：[`docs/submissions/agent-flow.svg`](docs/submissions/agent-flow.svg)（记忆注入→模式路由→8 模式→4 条工具链→SSE 总线→记忆回写闭环） | 完成，随仓库提交 |
-| 3 | 测试用例与结果 | Markdown/JSON | ✅ 已交付：[`docs/测试.md`](docs/测试.md)（21 用例全通过含逐例耗时）+ GitHub Actions CI 持续记录 | 完成，可附 Actions 页截图 |
+| 3 | 测试用例与结果 | Markdown/JSON | ✅ 已交付：[`docs/submissions/测试用例与结果.md`](docs/submissions/测试用例与结果.md)（55 条自动化用例 + 12 条 AI 质量评测 + 21 项人工验收，完整内容亦收录于本文第七节）+ GitHub Actions CI 持续记录 | 完成，可附 Actions 页截图 |
 | 4 | 在线 Demo 链接 | URL | ✅ 已上线：**https://ci.playe.top/**（演示账号 demo@sciencex.cn / 123456） | 赛前再次人工验证可用性 |
 | 5 | 开源 License | 文件 | ✅ `LICENSE`（MIT）在仓库根目录；✅ `License.md` 开源许可证合规声明已补写 | 无需处理（对应加分 +2） |
 
-### 8.4 综合结论与优先行动项
+### 9.4 综合结论与优先行动项
 
 **自评汇总**：评分维度 75/85 + 加分项 +7（均达成）+ 减分项 0 = **预计总分 82 + 网络投票**。
 
@@ -525,7 +525,7 @@ location / { root /var/www/sciencex/dist; try_files $uri /index.html; }
 
 ---
 
-## 💡 九、总结与展望
+## 💡 十、总结与展望
 
 ### ✅ 阶段成果总结
 
