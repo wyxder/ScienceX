@@ -6,8 +6,6 @@
 ---
 
 ## 📋 一、项目简介
-<img width="2549" height="1346" alt="image" src="https://github.com/user-attachments/assets/101fa715-2ba2-4381-91c2-66a70f611d68" />
-<img width="2542" height="1346" alt="image" src="https://github.com/user-attachments/assets/19763201-c5d4-446f-942e-ddef4cd7d4fc" />
 
 **ScienceX（科研 AI 工作台）** 是一站式覆盖「选题 ➔ 文献 ➔ 复现 ➔ 实验 ➔ 分析 ➔ 写作 ➔ 投稿 ➔ 协作」科研全生命周期的 Agent工作台。它以 **智能体对话中枢** 为骨架，将 7 大科研工具与 2 大特色机制（组会汇报、多智能体专家评审团）咬合为数据自沉淀、上下文可追溯的科研闭环。
 
