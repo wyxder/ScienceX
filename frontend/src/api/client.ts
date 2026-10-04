@@ -298,6 +298,8 @@ export interface SSEHandlers {
   onToolCall?: (data: SSEToolPayload) => void;
   onToolResult?: (data: SSEToolPayload) => void;
   onMemoryInjected?: (data: NonNullable<ChatMessage['memory_injected']>) => void;
+  /** 多智能体评审团：单个角色 Agent 的实时状态事件（running / done / fallback） */
+  onAgent?: (data: { agent: string; role: string; status: string; score?: number; comments?: string }) => void;
 }
 
 /* ---------- SSE：对话流式 (支持 AbortSignal 中断与 Last-Event-ID 记录) ---------- */
@@ -393,6 +395,7 @@ export function taskStream(taskId: string, handlers: SSEHandlers): () => void {
 
         await readSSE(res.body, {
           onProgress: (d) => handlers.onProgress?.(d),
+          onAgent: (d) => handlers.onAgent?.(d),
           onDone: (d) => {
             stopped = true;
             handlers.onDone?.(d);
@@ -619,6 +622,9 @@ async function readSSE(stream: ReadableStream<Uint8Array>, handlers: SSEHandlers
         break;
       case 'memory_injected':
         handlers.onMemoryInjected?.(data);
+        break;
+      case 'agent':
+        handlers.onAgent?.(data);
         break;
       case 'fallback':
         handlers.onFallback?.(data);
