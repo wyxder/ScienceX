@@ -80,16 +80,39 @@ export default function Topic() {
   const [yearFrom, setYearFrom] = useState(2020);
   const [results, setResults] = useState<any[] | null>(null);
   const [searching, setSearching] = useState(false);
+  /* 检索分析进度条：计时衰减 + 阶段文案，接口返回后收敛到 100% */
+  const [searchProgress, setSearchProgress] = useState<{ percent: number; stage: string } | null>(null);
+
+  const SEARCH_STAGE_OF = (p: number) =>
+    p < 22
+      ? '解析检索意图与关键词扩展'
+      : p < 52
+        ? `并行检索 ${sources.join(' / ')}`
+        : p < 78
+          ? '元数据合并 · DOI / arXiv 去重'
+          : '相关性排序与开源代码标注';
 
   const search = async () => {
     if (!sources.length) return toast('请至少选择一个检索源', 'info');
     if (!query.trim()) return toast('请输入检索关键词', 'info');
     setSearching(true);
+    setSearchProgress({ percent: 5, stage: SEARCH_STAGE_OF(5) });
+    const timer = setInterval(() => {
+      setSearchProgress((prev) =>
+        prev
+          ? {
+              percent: Math.min(93, prev.percent + Math.max(0.8, (93 - prev.percent) * 0.07)),
+              stage: SEARCH_STAGE_OF(prev.percent),
+            }
+          : prev
+      );
+    }, 260);
     try {
       const r = await api<{ items: any[]; dedup_removed: number; warnings?: Array<{ source: string; message: string }> }>('/literature/search', {
         method: 'POST',
         body: { query, sources, year_range: [yearFrom, 2026], has_code: hasCode },
       });
+      setSearchProgress({ percent: 100, stage: '检索完成' });
       setResults(r.items);
       if (r.warnings?.length) toast(r.warnings.map((w) => `${w.source}: ${w.message}`).join('；'), 'info');
       toast(`检索完成：共 ${r.items.length} 篇，去重移除 ${r.dedup_removed} 条`);
@@ -97,6 +120,8 @@ export default function Topic() {
       setResults([]);
       toast('文献检索失败，请稍后重试', 'err');
     } finally {
+      clearInterval(timer);
+      setTimeout(() => setSearchProgress(null), 800);
       setSearching(false);
     }
   };
@@ -237,7 +262,19 @@ export default function Topic() {
 
           {searching && (
             <div className="card card-pad">
-              <Skeleton lines={5} />
+              <div className="row-between mb-2 wrap g-2">
+                <span style={{ fontSize: 13.5, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+                  <span className="spinner spinner-dark" style={{ flexShrink: 0 }} />
+                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {searchProgress?.stage || '准备检索'}
+                  </span>
+                </span>
+                <span className="mono text-muted" style={{ flexShrink: 0 }}>{searchProgress?.percent ?? 0}%</span>
+              </div>
+              <div className="progress" style={{ height: 9 }} role="progressbar" aria-valuenow={searchProgress?.percent ?? 0} aria-valuemin={0} aria-valuemax={100}>
+                <div className="progress-bar" style={{ width: `${searchProgress?.percent ?? 0}%` }} />
+              </div>
+              <div className="text-xs text-muted mt-2">多源聚合检索中，完成后自动展示去重与排序结果…</div>
             </div>
           )}
 

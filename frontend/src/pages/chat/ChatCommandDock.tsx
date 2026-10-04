@@ -251,7 +251,7 @@ export const ChatCommandDock: React.FC<ChatCommandDockProps> = ({
         <div className="chat-dock-actions" style={{ position: 'relative' }}>
           {/* 移动端为单行横向滑动容器；菜单展开时加 menu-open 解除裁剪 */}
           <div className={`chat-dock-left-tools${activeMenu ? ' menu-open' : ''}`}>
-            {/* Agent 模式切换胶囊（向上展开改为向下展开顶层菜单） */}
+            {/* Agent 模式切换胶囊（顶层菜单向上展开，避免底部吸附时被屏幕裁剪） */}
             <div style={{ position: 'relative' }}>
               <button
                 type="button"
@@ -305,7 +305,7 @@ export const ChatCommandDock: React.FC<ChatCommandDockProps> = ({
               )}
             </div>
 
-            {/* 模型选择器（向下展开顶层菜单） */}
+            {/* 模型选择器（顶层菜单向上展开，避免底部吸附时被屏幕裁剪） */}
             <div style={{ position: 'relative' }}>
               <button
                 type="button"
