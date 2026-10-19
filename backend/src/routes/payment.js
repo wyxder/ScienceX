@@ -29,13 +29,42 @@ function normalizeAmountText(value) {
 }
 
 /**
+ * 支付成功后为用户开通套餐权益
+ */
+function applyOrderSuccess(order, tradeNo) {
+  if (!order) return;
+  order.pay_status = 'paid';
+  if (tradeNo) order.trade_no = tradeNo;
+  if (!order.paid_at) order.paid_at = store.now();
+
+  const plan = store.plans.find((p) => p.id === order.plan_id || p.name === order.plan);
+  const planId = plan ? plan.id : (order.plan && order.plan.includes('团队') ? 'team' : 'pro');
+  const planName = plan ? plan.name : (order.plan || '科研进阶版');
+
+  const user = store.users.find((u) => u.id === order.owner_id);
+  if (user) {
+    user.plan = planId;
+  }
+  store.subscription.plan = planId;
+  store.subscription.plan_name = planName;
+  store.subscription.price = order.amount != null ? order.amount : (plan ? plan.price : 19.9);
+  store.subscription.period = order.period || (plan ? plan.period : '月');
+  store.subscription.expire_at = store.daysAhead(30);
+  if (planId === 'pro') {
+    store.subscription.quota = { chat: 999999, literature: 2000, chart: 500, kb: 50 };
+  } else if (planId === 'team') {
+    store.subscription.quota = { chat: 999999, literature: 10000, chart: 2000, kb: 200 };
+  }
+}
+
+/**
  * 1. 创建订单并获取支付宝支付页面表单 (alipay.trade.page.pay)
  * POST /api/v1/payment/alipay/page-pay
  */
 router.post('/payment/alipay/page-pay', auth, async (req, res) => {
   try {
     const { plan_id, return_url } = req.body || {};
-    const plan = store.plans.find((p) => p.id === plan_id);
+    const plan = store.plans.find((p) => p.id === plan_id || p.name === plan_id);
     if (!plan) return errors.notFound(res, '套餐不存在');
 
     const outTradeNo = `SX${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
@@ -51,6 +80,7 @@ router.post('/payment/alipay/page-pay', auth, async (req, res) => {
       owner_id: req.user.id,
       order_no: outTradeNo,
       out_trade_no: outTradeNo,
+      plan_id: plan.id,
       plan: plan.name,
       amount: Number(totalAmount),
       total_amount: totalAmount,
@@ -124,16 +154,12 @@ router.post('/payment/alipay/notify', express.urlencoded({ extended: false }), a
       return res.type('text/plain').send('fail');
     }
 
-    // 3. 幂等更新订单状态
+    // 3. 幂等更新订单状态并开通权益
     const isPaid = params.trade_status === 'TRADE_SUCCESS' || params.trade_status === 'TRADE_FINISHED';
     if (isPaid) {
-      if (order.pay_status !== 'paid') {
-        order.pay_status = 'paid';
-        order.trade_no = params.trade_no;
-        order.paid_at = store.now();
-        order.notify_raw = params;
-        console.log(`[Alipay Notify] 订单 ${order.out_trade_no} 状态已更新为 paid`);
-      }
+      applyOrderSuccess(order, params.trade_no);
+      order.notify_raw = params;
+      console.log(`[Alipay Notify] 订单 ${order.out_trade_no} 状态已更新为 paid，权益已生效`);
     } else if (params.trade_status === 'TRADE_CLOSED') {
       order.pay_status = 'closed';
     }
@@ -149,38 +175,23 @@ router.post('/payment/alipay/notify', express.urlencoded({ extended: false }), a
  * 3. 同步回跳页面 (return_url)
  * GET /api/v1/payment/alipay/return
  */
-router.get('/payment/alipay/return', (req, res) => {
-  const { out_trade_no, trade_no, total_amount } = req.query;
+router.get('/payment/alipay/return', async (req, res) => {
+  const { out_trade_no, trade_no } = req.query;
   const order = store.orders.find((o) => o.out_trade_no === out_trade_no || o.order_no === out_trade_no);
   
-  // 同步通知不直接确认为支付成功，需结合主动查询确认
-  const html = `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <meta charset="utf-8" />
-        <title>ScienceX - 支付返回处理中</title>
-        <style>
-          body { font-family: system-ui, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; background: #0f172a; color: #f8fafc; }
-          .card { background: #1e293b; padding: 2rem; border-radius: 12px; border: 1px solid #334155; text-align: center; max-width: 400px; }
-          h2 { color: #10b981; margin-bottom: 1rem; }
-          p { color: #94a3b8; font-size: 14px; }
-          .btn { display: inline-block; margin-top: 1.5rem; padding: 0.6rem 1.5rem; background: #2563eb; color: #fff; text-decoration: none; border-radius: 6px; font-weight: 500; }
-        </style>
-      </head>
-      <body>
-        <div class="card">
-          <h2>支付请求已提交</h2>
-          <p>商户订单号: ${out_trade_no || '未知'}</p>
-          <p>支付宝交易号: ${trade_no || '未知'}</p>
-          <p>金额: ¥${total_amount || '0.00'}</p>
-          <p>系统正在通过异步通知与主动查询核对支付结果，请返回工作台查看最新状态。</p>
-          <a class="btn" href="/account?tab=billing">返回个人中心</a>
-        </div>
-      </body>
-    </html>
-  `;
-  res.type('text/html').send(html);
+  if (order) {
+    try {
+      const result = await queryTrade({ outTradeNo: out_trade_no, tradeNo: trade_no });
+      if (result && (result.trade_status === 'TRADE_SUCCESS' || result.trade_status === 'TRADE_FINISHED')) {
+        applyOrderSuccess(order, result.trade_no || trade_no);
+      }
+    } catch (e) {
+      console.warn('[Alipay Return] 同步校验查询略过或待轮询:', e.message);
+    }
+  }
+
+  // 重定向回前端订阅计费页
+  return res.redirect(`/account?tab=billing&pay_result=success&out_trade_no=${encodeURIComponent(out_trade_no || '')}`);
 });
 
 /**
@@ -196,12 +207,11 @@ router.get('/payment/alipay/query', auth, async (req, res) => {
 
     const result = await queryTrade({ outTradeNo: out_trade_no, tradeNo: trade_no });
     
-    // 同步更新本地订单状态兜底
+    // 同步更新本地订单状态并生效套餐权益
     if (result && result.code === '10000') {
       const order = store.orders.find((o) => o.out_trade_no === result.out_trade_no || o.order_no === result.out_trade_no);
       if (order && (result.trade_status === 'TRADE_SUCCESS' || result.trade_status === 'TRADE_FINISHED')) {
-        order.pay_status = 'paid';
-        order.trade_no = result.trade_no;
+        applyOrderSuccess(order, result.trade_no);
       }
     }
 

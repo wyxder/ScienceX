@@ -231,7 +231,7 @@ router.post('/orders', auth, (req, res) => {
   if (!plan) return errors.notFound(res, '套餐不存在');
   const order = { id: store.id('o'), owner_id: req.user.id, order_no: `SX${Date.now()}`, plan: plan.name, amount: plan.price, pay_status: 'pending', period: plan.period, created_at: store.now() };
   store.orders.unshift(order);
-  ok(res, { order, pay_params: { channel: 'demo', qr_url: 'https://pay.sciencex.cn/demo' } }, '订单已创建（演示环境模拟支付）');
+  ok(res, { order }, '订单已创建');
 });
 
 router.post('/pay/callback', auth, (req, res) => {

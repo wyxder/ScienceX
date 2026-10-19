@@ -1,5 +1,6 @@
 /* 个人中心 —— REQ-USER-01~05：资料偏好 · 模型管理 · 用量 · 订阅计费 · 安全 */
 import React, { useCallback, useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { api } from '../api/client';
 import Icon from '../components/Icon';
 import { Confirm, Modal, Tabs, Tag, useToast } from '../components/ui';
@@ -15,7 +16,8 @@ import { UsageSection } from './account/UsageSection';
 export default function Account() {
   const toast = useToast();
   const { user, refresh } = useAuth();
-  const [tab, setTab] = useState('profile');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [tab, setTab] = useState(() => searchParams.get('tab') || 'profile');
 
   /* 资料 */
   const [form, setForm] = useState<any>({});
@@ -32,10 +34,13 @@ export default function Account() {
   const [usage, setUsage] = useState<any>(null);
   const [range, setRange] = useState(30);
 
-  /* 订阅 */
+  /* 订阅与支付宝收银台 */
   const [plans, setPlans] = useState<any[]>([]);
   const [subscription, setSubscription] = useState<any>(null);
-  const [order, setOrder] = useState<any>(null);
+  const [checkoutPlan, setCheckoutPlan] = useState<any>(null);
+  const [payLoading, setPayLoading] = useState(false);
+  const [payingState, setPayingState] = useState<{ outTradeNo: string; isPolling: boolean } | null>(null);
+  const [enterpriseOpen, setEnterpriseOpen] = useState(false);
 
   /* 安全 */
   const [security, setSecurity] = useState<any>(null);
@@ -70,17 +75,24 @@ export default function Account() {
     }
   }, [tab, range]);
 
-  useEffect(() => {
-    if (tab === 'billing') {
-      Promise.all([
+  const loadBilling = useCallback(async () => {
+    try {
+      const [p, s] = await Promise.all([
         api<any[]>('/billing/plans'),
         api<any>('/billing/subscription'),
-      ]).then(([p, s]) => {
-        setPlans(p || []);
-        setSubscription(s);
-      }).catch(() => {});
+      ]);
+      setPlans(p || []);
+      setSubscription(s);
+    } catch {
+      // 容错
     }
-  }, [tab]);
+  }, []);
+
+  useEffect(() => {
+    if (tab === 'billing') {
+      loadBilling();
+    }
+  }, [tab, loadBilling]);
 
   /* ===== 资料保存 ===== */
   const saveProfile = async () => {
@@ -103,7 +115,7 @@ export default function Account() {
     setTagInput('');
   };
 
-  /* ===== 模型管理（添加走共享弹窗：先测连通后保存）===== */
+  /* ===== 模型管理 ===== */
   const testModel = async (id: string) => {
     setTesting(id);
     try {
@@ -133,11 +145,141 @@ export default function Account() {
     toast('模型已删除');
   };
 
-  /* ===== 订阅 ===== */
-  const buy = async (planId: string) => {
-    const r = await api<any>('/orders', { method: 'POST', body: { plan_id: planId } });
-    setOrder(r);
-    toast('订单已创建（演示环境模拟支付）');
+  /* ===== 订阅与支付宝支付 ===== */
+  const buy = useCallback((planId: string) => {
+    if (planId === 'enterprise') {
+      setEnterpriseOpen(true);
+      return;
+    }
+    const target = plans.find((p) => p.id === planId) || {
+      id: planId,
+      name: planId === 'team' ? '课题组尊享版' : '科研进阶版',
+      price: planId === 'team' ? 199 : 19.9,
+      period: '月',
+    };
+    setCheckoutPlan(target);
+    setPayingState(null);
+  }, [plans]);
+
+  /* 检查 URL 中的支付宝回跳结果与直达购买参数 */
+  useEffect(() => {
+    const returnTradeNo = searchParams.get('out_trade_no');
+    const autoBuyPlan = searchParams.get('buy') || searchParams.get('plan');
+
+    if (returnTradeNo) {
+      api<any>(`/payment/alipay/query?out_trade_no=${encodeURIComponent(returnTradeNo)}`)
+        .then(async (res) => {
+          if (res && (res.trade_status === 'TRADE_SUCCESS' || res.trade_status === 'TRADE_FINISHED')) {
+            toast('🎉 支付宝支付成功，已为您开通套餐！');
+            await loadBilling();
+            await refresh();
+          } else {
+            toast('正在核对支付宝付款结果，请稍候查看', 'info');
+          }
+        })
+        .catch(() => {})
+        .finally(() => {
+          const newParams = new URLSearchParams(searchParams);
+          newParams.delete('out_trade_no');
+          newParams.delete('pay_result');
+          newParams.delete('trade_no');
+          setSearchParams(newParams, { replace: true });
+        });
+    } else if (autoBuyPlan && plans.length > 0) {
+      buy(autoBuyPlan);
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete('buy');
+      newParams.delete('plan');
+      setSearchParams(newParams, { replace: true });
+    }
+  }, [searchParams, plans, buy, loadBilling, refresh, setSearchParams, toast]);
+
+  /* 拉起支付宝官方收银台 */
+  const handleAlipayPay = async () => {
+    if (!checkoutPlan) return;
+    setPayLoading(true);
+    try {
+      const returnUrl = `${window.location.origin}/account?tab=billing&pay_result=success`;
+      const res = await api<any>('/payment/alipay/page-pay', {
+        method: 'POST',
+        body: { plan_id: checkoutPlan.id, return_url: returnUrl },
+      });
+
+      if (!res?.payment_html) {
+        throw new Error('未获取到支付表单，请稍后重试');
+      }
+
+      setPayingState({ outTradeNo: res.out_trade_no, isPolling: true });
+
+      // 在页面创建隐藏容器提交表单，在新标签页打开支付宝官方收银台
+      const oldContainer = document.getElementById('sciencex-alipay-checkout-form');
+      if (oldContainer) oldContainer.remove();
+
+      const formContainer = document.createElement('div');
+      formContainer.id = 'sciencex-alipay-checkout-form';
+      formContainer.style.display = 'none';
+      formContainer.innerHTML = res.payment_html;
+      document.body.appendChild(formContainer);
+
+      const submitForm = formContainer.querySelector('form');
+      if (submitForm) {
+        submitForm.target = '_blank';
+        submitForm.submit();
+      }
+    } catch (err: any) {
+      toast(err?.message || '创建支付宝支付订单失败', 'err');
+    } finally {
+      setPayLoading(false);
+    }
+  };
+
+  /* 轮询支付状态 */
+  useEffect(() => {
+    if (!payingState?.outTradeNo || !payingState?.isPolling) return;
+    let count = 0;
+    const maxPoll = 40; // 40 * 2.5s = 100秒
+
+    const timer = setInterval(async () => {
+      count += 1;
+      if (count > maxPoll) {
+        clearInterval(timer);
+        setPayingState((s) => (s ? { ...s, isPolling: false } : null));
+        return;
+      }
+      try {
+        const queryRes = await api<any>(`/payment/alipay/query?out_trade_no=${encodeURIComponent(payingState.outTradeNo)}`);
+        if (queryRes && (queryRes.trade_status === 'TRADE_SUCCESS' || queryRes.trade_status === 'TRADE_FINISHED')) {
+          clearInterval(timer);
+          toast('🎉 支付宝支付成功，已为您开通套餐！');
+          setPayingState(null);
+          setCheckoutPlan(null);
+          await loadBilling();
+          await refresh();
+        }
+      } catch {
+        // 静默
+      }
+    }, 2500);
+
+    return () => clearInterval(timer);
+  }, [payingState?.outTradeNo, payingState?.isPolling, loadBilling, refresh, toast]);
+
+  const manualCheckPayment = async () => {
+    if (!payingState?.outTradeNo) return;
+    try {
+      const queryRes = await api<any>(`/payment/alipay/query?out_trade_no=${encodeURIComponent(payingState.outTradeNo)}`);
+      if (queryRes && (queryRes.trade_status === 'TRADE_SUCCESS' || queryRes.trade_status === 'TRADE_FINISHED')) {
+        toast('🎉 支付宝支付成功，已为您开通套餐！');
+        setPayingState(null);
+        setCheckoutPlan(null);
+        await loadBilling();
+        await refresh();
+      } else {
+        toast('暂未核销到支付结果，若已付款请稍等片刻后再次点击', 'info');
+      }
+    } catch (e: any) {
+      toast(e?.message || '查询支付状态失败', 'err');
+    }
   };
 
   /* ===== 安全 ===== */
@@ -180,7 +322,14 @@ export default function Account() {
 
       <Tabs
         active={tab}
-        onChange={setTab}
+        onChange={(t) => {
+          setTab(t);
+          const newParams = new URLSearchParams(searchParams);
+          newParams.set('tab', t);
+          newParams.delete('buy');
+          newParams.delete('plan');
+          setSearchParams(newParams, { replace: true });
+        }}
         tabs={[
           { key: 'profile', label: <><Icon name="user" size={13} /> 资料偏好</> },
           { key: 'models', label: <><Icon name="cpu" size={13} /> 模型管理</> },
@@ -252,33 +401,162 @@ export default function Account() {
         onAdded={(m) => setModels((x) => ({ ...x, custom: [...x.custom, m] }))}
       />
 
-      {/* ===== 支付模拟模态 ===== */}
+      {/* ===== 支付宝安全收银台模态框 ===== */}
       <Modal
-        open={!!order}
-        onClose={() => setOrder(null)}
-        title={<><Icon name="card" size={15} /> 订单确认</>}
+        open={!!checkoutPlan}
+        onClose={() => {
+          if (!payLoading) {
+            setCheckoutPlan(null);
+            setPayingState(null);
+          }
+        }}
+        title={<><Icon name="alipay" size={17} style={{ color: '#1677ff' }} /> 订阅订单确认</>}
         footer={
-          <>
-            <button className="btn btn-ghost" onClick={() => setOrder(null)}>取消</button>
-            <button className="btn btn-primary" onClick={async () => {
-              await api('/pay/callback', { method: 'POST', body: { order_no: order.order.order_no } });
-              toast('支付成功（演示模拟）');
-              setOrder(null);
-              setTab('billing');
-            }}>模拟支付 ¥{order?.order?.amount}</button>
-          </>
+          payingState ? (
+            <>
+              <button
+                className="btn btn-ghost"
+                onClick={() => {
+                  setPayingState(null);
+                  setCheckoutPlan(null);
+                }}
+              >
+                关闭
+              </button>
+              <button
+                className="btn btn-ghost"
+                onClick={handleAlipayPay}
+                disabled={payLoading}
+              >
+                重新拉起支付
+              </button>
+              <button
+                className="btn btn-primary"
+                style={{ background: '#1677ff', borderColor: '#1677ff' }}
+                onClick={manualCheckPayment}
+              >
+                我已完成支付
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                className="btn btn-ghost"
+                onClick={() => setCheckoutPlan(null)}
+                disabled={payLoading}
+              >
+                取消
+              </button>
+              <button
+                className="btn btn-primary"
+                style={{ background: '#1677ff', borderColor: '#1677ff' }}
+                onClick={handleAlipayPay}
+                disabled={payLoading}
+              >
+                {payLoading ? '正在创建收银台...' : `前往支付宝支付 ¥${checkoutPlan?.price}`}
+              </button>
+            </>
+          )
         }
       >
-        <div className="kv">
-          <span className="kv-k">订单号</span><span className="kv-v mono">{order?.order?.order_no}</span>
+        {checkoutPlan && !payingState && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            <div className="kv">
+              <span className="kv-k">订阅方案</span>
+              <span className="kv-v fw-bold">{checkoutPlan.name}</span>
+            </div>
+            <div className="kv">
+              <span className="kv-k">计费周期</span>
+              <span className="kv-v">按{checkoutPlan.period || '月'}开通 · 随时可退</span>
+            </div>
+            <div className="kv">
+              <span className="kv-k">应付金额</span>
+              <span className="kv-v mono fw-bold" style={{ fontSize: 20, color: '#1677ff' }}>
+                ¥{checkoutPlan.price}
+              </span>
+            </div>
+
+            <div style={{
+              marginTop: 6,
+              padding: '12px 14px',
+              borderRadius: 8,
+              border: '1px solid rgba(22, 119, 255, 0.3)',
+              background: 'rgba(22, 119, 255, 0.04)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 12,
+            }}>
+              <div style={{
+                width: 38,
+                height: 38,
+                borderRadius: 8,
+                background: '#1677ff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#fff',
+                flexShrink: 0,
+              }}>
+                <Icon name="alipay" size={24} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontWeight: 600, fontSize: 13, color: 'var(--ink)' }}>
+                  支付宝官方安全支付 (Alipay)
+                </div>
+                <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>
+                  支持手机支付宝扫码与电脑端快捷付款，实时开通权益
+                </div>
+              </div>
+              <Icon name="check" size={16} style={{ color: '#1677ff' }} />
+            </div>
+
+            <p className="text-xs text-muted" style={{ lineHeight: 1.6, marginTop: 4 }}>
+              点击后将在新标签页中打开支付宝官方安全收银台完成付款。付款完成后系统将自动同步权益。
+            </p>
+          </div>
+        )}
+
+        {payingState && (
+          <div style={{ textAlign: 'center', padding: '16px 0' }}>
+            <div style={{
+              width: 52,
+              height: 52,
+              borderRadius: '50%',
+              background: 'rgba(22, 119, 255, 0.1)',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#1677ff',
+              marginBottom: 14,
+            }}>
+              <Icon name="alipay" size={32} />
+            </div>
+            <div className="fw-bold" style={{ fontSize: 16 }}>已为您打开支付宝收银台</div>
+            <p className="text-xs text-muted mt-2" style={{ maxWidth: 360, margin: '8px auto 0', lineHeight: 1.6 }}>
+              商户订单号：<span className="mono">{payingState.outTradeNo}</span><br />
+              请在弹出的支付宝页面完成扫码或登录支付。付款完成后，请点击下方「我已完成支付」。
+            </p>
+          </div>
+        )}
+      </Modal>
+
+      {/* ===== 机构私有版咨询模态框 ===== */}
+      <Modal
+        open={enterpriseOpen}
+        onClose={() => setEnterpriseOpen(false)}
+        title={<><Icon name="shield" size={16} /> 咨询机构私有版方案</>}
+        footer={<button className="btn btn-primary" onClick={() => setEnterpriseOpen(false)}>我知道了</button>}
+      >
+        <div style={{ lineHeight: 1.8, fontSize: 13, display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <p>
+            <b>机构私有版</b> 面向高校院所、重点实验室与企业研发中心，支持单机或 K8s 集群本地化私有部署、集成 Qwen / GLM 等本地模型与数据中心算力，并提供专属审计与 Skill 智能体定制开发。
+          </p>
+          <div className="card card-pad" style={{ background: 'var(--bg-sub)', padding: 12 }}>
+            <div>📧 机构专属咨询邮箱：<b>contact@sciencex.cn</b></div>
+            <div className="mt-1">💬 技术顾问微信：<b>ScienceX-Enterprise</b></div>
+            <div className="mt-1">⏱️ 专属团队将在 2 小时内响应并提供定制方案方案书与技术支持。</div>
+          </div>
         </div>
-        <div className="kv">
-          <span className="kv-k">套餐</span><span className="kv-v">{order?.order?.plan}（{order?.order?.period}）</span>
-        </div>
-        <div className="kv">
-          <span className="kv-k">金额</span><span className="kv-v mono fw-bold">¥{order?.order?.amount}</span>
-        </div>
-        <p className="text-xs text-muted mt-2">演示环境：点击「模拟支付」即视为支付回调成功并开通权益。</p>
       </Modal>
 
       <Confirm

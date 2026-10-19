@@ -831,16 +831,17 @@ const orders = [
 ];
 
 const subscription = {
-  plan: 'pro', plan_name: 'Pro 专业版', price: 59, period: '月付',
+  plan: 'pro', plan_name: '科研进阶版', price: 19.9, period: '月付',
   expire_at: daysAhead(29), auto_renew: true,
   quota: { chat: 2000, literature: 500, chart: 100, kb: 10 },
   used: { chat: 1284, literature: 213, chart: 37, kb: 3 },
 };
 
 const plans = [
-  { id: 'free', name: 'Free 免费版', price: 0, period: '永久', features: ['基础对话 50 次/天', '文献检索 20 次/天', '1 个知识库', '单模型接入'] },
-  { id: 'pro', name: 'Pro 专业版', price: 59, period: '月', features: ['全工具解锁', '多模型无限切换', 'RAG 知识库 ×10', '图表生成 100 次/月', '不限量润色与翻译'], highlight: true },
-  { id: 'team', name: 'Team 科研团队版', price: 399, period: '月', features: ['包含 5 席位', '课题组共享空间', '共享知识库', '管理员权限', '优先支持'], },
+  { id: 'free', name: '探索版', price: 0, period: '永久免费', features: ['每日 30 次基础 AI 对话', '文献阅读与思维导图 5 篇/月', '基础学术润色与翻译', '自定义接入 OpenAI 模型'] },
+  { id: 'pro', name: '科研进阶版', price: 19.9, period: '月', features: ['无限次对话中枢交互', '三栏文献精读与引用图谱', '自动化消融实验方案矩阵', '专家完整盲审 10 次/月', '双通道查重与高保真降重', '一键生成组会汇报 PPTX'], highlight: true },
+  { id: 'team', name: '课题组尊享版', price: 199, period: '月', features: ['支持 15 位团队成员', '专属共享 RAG 文献知识库', 'GPU 集群监控与任务调度', '导师意见归档与待办分发', '团队项目资产与成果看板'] },
+  { id: 'enterprise', name: '机构私有版', price: 0, period: '按年付费', features: ['单机 / K8s 集群本地化部署', 'Qwen、GLM 与本地算力集成', '统一 SSO 与科研数据审计', '专属技术支持', '定制科研 Skill 智能体开发'], custom: true },
 ];
 
 const auditLogs = [

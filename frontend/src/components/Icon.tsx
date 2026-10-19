@@ -64,6 +64,7 @@ const P: Record<string, JSX.Element> = {
   grid: <><rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" /><rect x="3" y="14" width="7" height="7" rx="1.5" /></>,
   terminal: <><path d="m4 17 6-6-6-6" /><path d="M12 19h8" /></>,
   code: <><path d="m16 18 6-6-6-6M8 6l-6 6 6 6" /></>,
+  alipay: <><rect x="2" y="2" width="20" height="20" rx="4" /><path d="M7 8h10M12 5v3M8 12h8M12 8v5c0 2.5-1.5 4.5-4 5.5M13.5 14.5c2 1 3.5 2.5 4.5 4.5" /></>,
 };
 
 export type IconName = keyof typeof P;

@@ -85,7 +85,9 @@ export const BillingSection: React.FC<BillingSectionProps> = ({
               {subscription.plan === p.id && <Tag color="green">当前</Tag>}
             </div>
             <div className="mono fw-bold" style={{ fontSize: 24 }}>
-              {p.price === 0 ? (
+              {p.id === 'enterprise' || p.price === 0 && p.period?.includes('年') ? (
+                '按需定制'
+              ) : p.price === 0 ? (
                 '免费'
               ) : (
                 <>
@@ -103,16 +105,25 @@ export const BillingSection: React.FC<BillingSectionProps> = ({
                 <Icon name="check" size={12} /> {f}
               </div>
             ))}
-            {subscription.plan !== p.id && p.price > 0 && (
+            {p.id === 'enterprise' ? (
               <button
-                className="btn btn-primary btn-sm"
+                className="btn btn-ghost btn-sm"
                 style={{ marginTop: 'auto' }}
                 onClick={() => onBuy(p.id)}
-                aria-label={`升级至 ${p.name}`}
+                aria-label={`咨询 ${p.name}`}
               >
-                升级
+                咨询机构方案
               </button>
-            )}
+            ) : p.price > 0 ? (
+              <button
+                className={`btn btn-sm ${subscription.plan === p.id ? 'btn-ghost' : 'btn-primary'}`}
+                style={{ marginTop: 'auto' }}
+                onClick={() => onBuy(p.id)}
+                aria-label={`${subscription.plan === p.id ? '立即续费' : '升级至'} ${p.name}`}
+              >
+                {subscription.plan === p.id ? '立即续费' : '升级'}
+              </button>
+            ) : null}
           </div>
         ))}
       </div>
