@@ -37,6 +37,9 @@ yarn-error.log*
 .env.*
 *.env
 !.env.example
+.agents/
+backend/.alipay-sandbox.json
+*.keytext
 
 # OS and Editor
 .DS_Store

@@ -8,26 +8,33 @@ let cachedSdk = null;
 function getAlipayConfig() {
   if (cachedConfig) return cachedConfig;
 
-  const sandboxConfigPath = path.resolve(__dirname, '../../.alipay-sandbox.json');
-  if (fs.existsSync(sandboxConfigPath)) {
-    try {
-      const raw = JSON.parse(fs.readFileSync(sandboxConfigPath, 'utf8'));
-      const app = raw.appIds && raw.appIds[0];
-      if (app) {
-        cachedConfig = {
-          appId: app.appId,
-          // Node.js SDK 必须使用 PKCS#1 私钥
-          privateKey: app.appPrivatePkcsKey || app.appPrivateKey,
-          alipayPublicKey: app.alipayPublicKey,
-          gateway: 'https://openapi-sandbox.dl.alipaydev.com/gateway.do',
-          signType: 'RSA2',
-          sellerId: app.pid || (raw.sandboxAccounts && raw.sandboxAccounts.partner && raw.sandboxAccounts.partner.userId),
-          isSandbox: true,
-        };
-        return cachedConfig;
+  // 1. 如果显式配置了生产环境或通过环境变量指定了生产 APP_ID，优先走环境变量
+  const forceProduction = process.env.NODE_ENV === 'production' ||
+                          process.env.ALIPAY_ENV === 'production' ||
+                          (Boolean(process.env.ALIPAY_APP_ID) && process.env.ALIPAY_IS_SANDBOX === 'false');
+
+  if (!forceProduction) {
+    const sandboxConfigPath = path.resolve(__dirname, '../../.alipay-sandbox.json');
+    if (fs.existsSync(sandboxConfigPath)) {
+      try {
+        const raw = JSON.parse(fs.readFileSync(sandboxConfigPath, 'utf8'));
+        const app = raw.appIds && raw.appIds[0];
+        if (app) {
+          cachedConfig = {
+            appId: app.appId,
+            // Node.js SDK 必须使用 PKCS#1 私钥
+            privateKey: app.appPrivatePkcsKey || app.appPrivateKey,
+            alipayPublicKey: app.alipayPublicKey,
+            gateway: 'https://openapi-sandbox.dl.alipaydev.com/gateway.do',
+            signType: 'RSA2',
+            sellerId: app.pid || (raw.sandboxAccounts && raw.sandboxAccounts.partner && raw.sandboxAccounts.partner.userId),
+            isSandbox: true,
+          };
+          return cachedConfig;
+        }
+      } catch (err) {
+        console.error('[Alipay] 读取 .alipay-sandbox.json 失败:', err);
       }
-    } catch (err) {
-      console.error('[Alipay] 读取 .alipay-sandbox.json 失败:', err);
     }
   }
 
