@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-e7wS6K22dPH0rLOPEIXiqarT3THYbebGQ6+mllUAkUQ='; style-src 'sha256-sVcbxXTlbZkV3rlitpaCCaR5w2QcAHI+aIs8/Og7Ang='; connect-src 'none'; img-src 'none'; font-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'">
+<title>RSA2 应用密钥生成工具</title>
+<style>
+  :root {
+    color-scheme: light;
+    --page: #f4f6f8;
+    --surface: #ffffff;
+    --surface-muted: #f7f8fa;
+    --text: #18212a;
+    --muted: #5e6975;
+    --border: #d7dde3;
+    --border-strong: #b8c1ca;
+    --primary: #1769aa;
+    --success: #176b45;
+    --danger: #a53535;
+    --danger-soft: #fff2f1;
+    --focus: #0a76d3;
+  }
+
+  * {
+    box-sizing: border-box;
+    letter-spacing: 0;
+  }
+
+  html {
+    min-width: 320px;
+    background: var(--page);
+  }
+
+  body {
+    margin: 0;
+    color: var(--text);
+    background: var(--page);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.55;
+  }
+
+  button,
+  textarea {
+    font: inherit;
+  }
+
+  button {
+    min-height: 44px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    padding: 9px 16px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 120ms ease, border-color 120ms ease;
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+
+  button:focus-visible,
+  textarea:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 2px;
+    border-color: var(--focus);
+  }
+
+  .page-header,
+  .tool-shell,
+  .page-footer {
+    width: min(100% - 32px, 800px);
+    margin-inline: auto;
+  }
+
+  .page-header {
+    padding: 42px 0 22px;
+  }
+
+  h1,
+  h2,
+  h3,
+  p {
+    margin-top: 0;
+  }
+
+  h1 {
+    margin-bottom: 8px;
+    font-size: 30px;
+    line-height: 1.25;
+  }
+
+  h2 {
+    margin-bottom: 8px;
+    font-size: 19px;
+    line-height: 1.4;
+  }
+
+  h3 {
+    margin-bottom: 10px;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+
+  .page-footer {
+    color: var(--muted);
+  }
+
+  .security-notice {
+    padding: 0 0 14px;
+  }
+
+  .security-notice h2 {
+    margin-bottom: 8px;
+    color: var(--text);
+    font-size: 19px;
+    line-height: 1.4;
+  }
+
+  .security-notice p {
+    margin-bottom: 8px;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.65;
+  }
+
+  .security-notice ul {
+    margin: 0;
+    padding-left: 20px;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.65;
+  }
+
+  .security-notice li + li {
+    margin-top: 2px;
+  }
+
+  .capability-notice {
+    border-bottom: 1px solid #ebc1bd;
+    padding: 12px 22px;
+    color: var(--danger);
+    background: var(--danger-soft);
+  }
+
+  .panel {
+    padding: 4px 0 0;
+  }
+
+  .intro {
+    margin-bottom: 20px;
+    color: var(--muted);
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .btn-main {
+    width: 240px;
+    border-color: var(--border-strong);
+    color: var(--text);
+    background: var(--surface);
+  }
+
+  .btn-main:hover:not(:disabled) {
+    background: var(--surface-muted);
+  }
+
+  .btn-main[data-state="success"] {
+    border-color: #9fcab5;
+    color: var(--success);
+    background: #f4fbf7;
+  }
+
+  .btn-danger {
+    color: var(--danger);
+  }
+
+  .status {
+    margin: 14px 0 0;
+    color: var(--muted);
+  }
+
+  .status:empty {
+    margin-top: 0;
+  }
+
+  .status[data-state="working"] {
+    color: var(--primary);
+  }
+
+  .status[data-state="success"] {
+    color: var(--success);
+  }
+
+  .status[data-state="error"] {
+    color: var(--danger);
+  }
+
+  .result {
+    margin-top: 14px;
+    padding-top: 0;
+  }
+
+  .field {
+    margin-bottom: 20px;
+  }
+
+  .field-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 7px;
+  }
+
+  .field-heading label {
+    display: block;
+    min-width: 0;
+    margin-bottom: 0;
+    font-weight: 650;
+  }
+
+  .btn-copy {
+    width: 74px;
+    min-height: 36px;
+    flex: 0 0 74px;
+    border-color: var(--border-strong);
+    padding: 5px 8px;
+    color: var(--text);
+    background: var(--surface);
+    font-size: 13px;
+  }
+
+  .btn-copy:hover:not(:disabled) {
+    background: var(--surface-muted);
+  }
+
+  textarea {
+    width: 100%;
+    min-height: 112px;
+    border: 1px solid var(--border-strong);
+    border-radius: 6px;
+    padding: 10px 12px;
+    resize: vertical;
+    overflow-wrap: anywhere;
+    color: var(--text);
+    background: var(--surface-muted);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    font-size: 13px;
+    line-height: 1.55;
+  }
+
+  .format-guide {
+    margin: 0 0 14px;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .format-row {
+    display: grid;
+    grid-template-columns: minmax(96px, 120px) minmax(0, 1fr);
+    gap: 16px;
+    padding: 12px 0;
+  }
+
+  .format-row + .format-row {
+    border-top: 1px solid var(--border);
+  }
+
+  .format-row dt {
+    font-weight: 650;
+  }
+
+  .format-row dd {
+    margin: 0;
+    color: var(--muted);
+  }
+
+  .page-footer {
+    padding: 18px 0 38px;
+    font-size: 13px;
+    text-align: center;
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+
+  @media (max-width: 600px) {
+    .page-header,
+    .tool-shell,
+    .page-footer {
+      width: min(100% - 20px, 800px);
+    }
+
+    .page-header {
+      padding-top: 26px;
+    }
+
+    h1 {
+      font-size: 26px;
+    }
+
+    .security-notice {
+      padding-bottom: 12px;
+    }
+
+    .panel {
+      padding-top: 4px;
+    }
+
+    .format-row {
+      grid-template-columns: 1fr;
+      gap: 3px;
+    }
+
+    textarea {
+      font-size: 16px;
+    }
+  }
+</style>
+</head>
+<body>
+<header class="page-header">
+  <h1>RSA2 应用密钥生成工具</h1>
+</header>
+
+<main class="tool-shell">
+  <section class="security-notice" aria-label="安全提示">
+    <h2>本地生成说明</h2>
+    <ul>
+      <li>本浏览器页面在设备本地生成 RSA2 2048 位应用密钥对，不依赖联网服务。</li>
+      <li>【应用私钥】不会在页面明文显示，但会写入下载的压缩包，请妥善保管密钥并避免同步到网盘或共享目录等。</li>
+      <li>支付宝不会以任何形式要求您提供【应用私钥】，切勿将私钥告知他人或发送至 Agent 对话。</li>
+      <li>本页面底层代码公开可审查，请确保您当前使用的支付宝 AI 付接入 Skill 通过官方渠道获取，确认页面来源可信。</li>
+    </ul>
+  </section>
+
+  <div class="capability-notice" id="capabilityNotice" role="alert" hidden></div>
+
+  <section class="panel" aria-label="生成应用密钥对">
+    <button class="btn-main" id="generateButton" type="button">一键生成应用密钥对</button>
+    <p class="status" id="generateStatus" role="status" aria-live="polite"></p>
+
+    <section class="result" id="keyResult" aria-labelledby="resultTitle" hidden>
+      <h2 id="resultTitle" tabindex="-1">密钥生成成功</h2>
+
+      <div class="field">
+        <div class="field-heading">
+          <label for="publicKeyOutput">应用公钥（复制给 Agent 上传）</label>
+          <button class="btn-copy" id="copyPublicButton" type="button" disabled>复制</button>
+        </div>
+        <textarea id="publicKeyOutput" rows="6" readonly spellcheck="false" autocapitalize="off"></textarea>
+      </div>
+
+      <section aria-labelledby="privateKeyTitle">
+        <h3 id="privateKeyTitle">应用私钥使用格式</h3>
+        <p class="intro">下载的压缩包包含应用公钥和两种格式的应用私钥；页面清除不会删除已下载文件，请自行妥善保管。</p>
+        <dl class="format-guide">
+          <div class="format-row">
+            <dt>Java 语言</dt>
+            <dd>使用 PKCS#8 格式的应用私钥</dd>
+          </div>
+          <div class="format-row">
+            <dt>非 Java 语言</dt>
+            <dd>使用 PKCS#1 格式的应用私钥</dd>
+          </div>
+        </dl>
+      </section>
+
+      <div class="actions">
+        <button class="btn-main" id="downloadKeyPairButton" type="button" disabled>下载应用密钥对</button>
+        <button class="btn-main btn-danger" id="clearButton" type="button">清空密钥</button>
+      </div>
+      <p class="status" id="actionStatus" role="status" aria-live="polite"></p>
+    </section>
+  </section>
+</main>
+
+<footer class="page-footer">单文件本地运行 · Unix · macOS · Linux · Windows</footer>
+
+<script>
+'use strict';
+
+const RSA_ALGORITHM = Object.freeze({
+  name: 'RSASSA-PKCS1-v1_5',
+  modulusLength: 2048,
+  publicExponent: new Uint8Array([1, 0, 1]),
+  hash: 'SHA-256'
+});
+const cryptoApi = globalThis.crypto;
+
+class UserFacingError extends Error {}
+
+function wipe(value) {
+  if (value instanceof ArrayBuffer) {
+    new Uint8Array(value).fill(0);
+  } else if (ArrayBuffer.isView(value)) {
+    new Uint8Array(value.buffer, value.byteOffset, value.byteLength).fill(0);
+  }
+}
+
+function bytesToBase64(value) {
+  const bytes = value instanceof Uint8Array ? value : new Uint8Array(value);
+  let binary = '';
+  for (let offset = 0; offset < bytes.length; offset += 0x8000) {
+    const chunk = bytes.subarray(offset, Math.min(offset + 0x8000, bytes.length));
+    binary += String.fromCharCode.apply(null, chunk);
+  }
+  return btoa(binary);
+}
+
+function readDerElement(bytes, offset) {
+  if (!Number.isInteger(offset) || offset < 0 || offset + 2 > bytes.length) {
+    throw new UserFacingError('私钥 DER 结构不完整。');
+  }
+
+  const tag = bytes[offset];
+  const firstLength = bytes[offset + 1];
+  let contentLength = 0;
+  let lengthBytes = 1;
+
+  if (firstLength < 0x80) {
+    contentLength = firstLength;
+  } else {
+    const count = firstLength & 0x7f;
+    if (count === 0 || count > 4 || offset + 2 + count > bytes.length) {
+      throw new UserFacingError('私钥 DER 长度编码无效。');
+    }
+    if (bytes[offset + 2] === 0) {
+      throw new UserFacingError('私钥 DER 长度编码不规范。');
+    }
+    lengthBytes += count;
+    for (let index = 0; index < count; index += 1) {
+      contentLength = contentLength * 256 + bytes[offset + 2 + index];
+    }
+    if (contentLength < 0x80) {
+      throw new UserFacingError('私钥 DER 使用了非最短长度编码。');
+    }
+  }
+
+  const contentStart = offset + 1 + lengthBytes;
+  const end = contentStart + contentLength;
+  if (end > bytes.length) {
+    throw new UserFacingError('私钥 DER 内容越界。');
+  }
+  return { tag: tag, contentStart: contentStart, end: end };
+}
+
+function pkcs8ToPkcs1(pkcs8Bytes) {
+  const outer = readDerElement(pkcs8Bytes, 0);
+  if (outer.tag !== 0x30 || outer.end !== pkcs8Bytes.length) {
+    throw new UserFacingError('私钥不是规范的 PKCS#8。');
+  }
+
+  let position = outer.contentStart;
+  const version = readDerElement(pkcs8Bytes, position);
+  if (version.tag !== 0x02 || version.end - version.contentStart !== 1 || pkcs8Bytes[version.contentStart] !== 0) {
+    throw new UserFacingError('PKCS#8 版本字段无效。');
+  }
+  position = version.end;
+
+  const algorithm = readDerElement(pkcs8Bytes, position);
+  if (algorithm.tag !== 0x30) {
+    throw new UserFacingError('PKCS#8 算法字段无效。');
+  }
+  position = algorithm.end;
+
+  const privateKey = readDerElement(pkcs8Bytes, position);
+  if (privateKey.tag !== 0x04 || privateKey.end !== outer.end) {
+    throw new UserFacingError('PKCS#8 私钥字段无效。');
+  }
+
+  const pkcs1Bytes = pkcs8Bytes.slice(privateKey.contentStart, privateKey.end);
+  try {
+    const inner = readDerElement(pkcs1Bytes, 0);
+    if (inner.tag !== 0x30 || inner.end !== pkcs1Bytes.length) {
+      throw new UserFacingError('PKCS#8 内部不是规范的 PKCS#1 私钥。');
+    }
+    return pkcs1Bytes;
+  } catch (error) {
+    wipe(pkcs1Bytes);
+    throw error;
+  }
+}
+
+async function generateKeyMaterial() {
+  let pkcs8Bytes = null;
+  let pkcs1Bytes = null;
+
+  try {
+    const pair = await cryptoApi.subtle.generateKey(RSA_ALGORITHM, true, ['sign', 'verify']);
+    const publicKeyBytes = new Uint8Array(await cryptoApi.subtle.exportKey('spki', pair.publicKey));
+    pkcs8Bytes = new Uint8Array(await cryptoApi.subtle.exportKey('pkcs8', pair.privateKey));
+    pkcs1Bytes = pkcs8ToPkcs1(pkcs8Bytes);
+
+    const importedPublicKey = await cryptoApi.subtle.importKey(
+      'spki',
+      publicKeyBytes,
+      { name: RSA_ALGORITHM.name, hash: RSA_ALGORITHM.hash },
+      false,
+      ['verify']
+    );
+    const importedPrivateKey = await cryptoApi.subtle.importKey(
+      'pkcs8',
+      pkcs8Bytes,
+      { name: RSA_ALGORITHM.name, hash: RSA_ALGORITHM.hash },
+      false,
+      ['sign']
+    );
+
+    const algorithm = importedPrivateKey.algorithm;
+    const exponent = new Uint8Array(algorithm.publicExponent || []);
+    if (algorithm.modulusLength !== 2048 || exponent.length !== 3 || exponent[0] !== 1 || exponent[1] !== 0 || exponent[2] !== 1) {
+      throw new UserFacingError('生成的密钥不是 RSA-2048 / 65537。');
+    }
+
+    const challenge = cryptoApi.getRandomValues(new Uint8Array(32));
+    const signature = new Uint8Array(await cryptoApi.subtle.sign(RSA_ALGORITHM.name, importedPrivateKey, challenge));
+    const verified = await cryptoApi.subtle.verify(RSA_ALGORITHM.name, importedPublicKey, signature, challenge);
+    if (!verified) {
+      throw new UserFacingError('生成的公私钥无法通过配对验证。');
+    }
+
+    return {
+      publicKey: bytesToBase64(publicKeyBytes),
+      privateKeyPkcs8: bytesToBase64(pkcs8Bytes),
+      privateKeyPkcs1: bytesToBase64(pkcs1Bytes)
+    };
+  } finally {
+    wipe(pkcs8Bytes);
+    wipe(pkcs1Bytes);
+  }
+}
+
+function createPublicKeyFile(material) {
+  return [
+    'RSA2 应用公钥',
+    '',
+    '[应用公钥 / SPKI Base64]',
+    material.publicKey,
+    ''
+  ].join('\n');
+}
+
+function createPrivateKeyFile(material) {
+  return [
+    'RSA2 应用私钥',
+    '【提醒】',
+    '- 本文件包含明文应用私钥，请妥善保管，避免泄露、云同步或提交到代码仓库。',
+    '- Java 语言使用 PKCS#8 格式的应用私钥。',
+    '- 非 Java 语言使用 PKCS#1 格式的应用私钥。',
+    '',
+    '[应用私钥 / PKCS#8 Base64]',
+    material.privateKeyPkcs8,
+    '',
+    '[应用私钥 / PKCS#1 Base64]',
+    material.privateKeyPkcs1,
+    ''
+  ].join('\n');
+}
+
+let crc32Table = null;
+
+function getCrc32Table() {
+  if (crc32Table) {
+    return crc32Table;
+  }
+
+  crc32Table = new Uint32Array(256);
+  for (let index = 0; index < 256; index += 1) {
+    let value = index;
+    for (let bit = 0; bit < 8; bit += 1) {
+      value = (value & 1) ? (0xedb88320 ^ (value >>> 1)) : (value >>> 1);
+    }
+    crc32Table[index] = value >>> 0;
+  }
+  return crc32Table;
+}
+
+function crc32(bytes) {
+  const table = getCrc32Table();
+  let value = 0xffffffff;
+  for (let index = 0; index < bytes.length; index += 1) {
+    value = table[(value ^ bytes[index]) & 0xff] ^ (value >>> 8);
+  }
+  return (value ^ 0xffffffff) >>> 0;
+}
+
+function writeUint16(bytes, offset, value) {
+  bytes[offset] = value & 0xff;
+  bytes[offset + 1] = (value >>> 8) & 0xff;
+}
+
+function writeUint32(bytes, offset, value) {
+  bytes[offset] = value & 0xff;
+  bytes[offset + 1] = (value >>> 8) & 0xff;
+  bytes[offset + 2] = (value >>> 16) & 0xff;
+  bytes[offset + 3] = (value >>> 24) & 0xff;
+}
+
+function createKeyPairZipBytes(material) {
+  const encoder = new TextEncoder();
+  const files = [
+    { name: '应用公钥.txt', content: createPublicKeyFile(material) },
+    { name: '应用私钥.txt', content: createPrivateKeyFile(material) }
+  ].map(function (file) {
+    return {
+      name: encoder.encode(file.name),
+      content: encoder.encode(file.content)
+    };
+  });
+
+  let localSize = 0;
+  let centralSize = 0;
+  for (const file of files) {
+    file.crc = crc32(file.content);
+    file.offset = localSize;
+    localSize += 30 + file.name.length + file.content.length;
+    centralSize += 46 + file.name.length;
+  }
+
+  const centralOffset = localSize;
+  const bytes = new Uint8Array(localSize + centralSize + 22);
+  let offset = 0;
+  for (const file of files) {
+    writeUint32(bytes, offset, 0x04034b50);
+    writeUint16(bytes, offset + 4, 20);
+    writeUint16(bytes, offset + 6, 0x0800);
+    writeUint16(bytes, offset + 8, 0);
+    writeUint16(bytes, offset + 10, 0);
+    writeUint16(bytes, offset + 12, 0);
+    writeUint32(bytes, offset + 14, file.crc);
+    writeUint32(bytes, offset + 18, file.content.length);
+    writeUint32(bytes, offset + 22, file.content.length);
+    writeUint16(bytes, offset + 26, file.name.length);
+    writeUint16(bytes, offset + 28, 0);
+    offset += 30;
+    bytes.set(file.name, offset);
+    offset += file.name.length;
+    bytes.set(file.content, offset);
+    offset += file.content.length;
+  }
+
+  for (const file of files) {
+    writeUint32(bytes, offset, 0x02014b50);
+    writeUint16(bytes, offset + 4, 20);
+    writeUint16(bytes, offset + 6, 20);
+    writeUint16(bytes, offset + 8, 0x0800);
+    writeUint16(bytes, offset + 10, 0);
+    writeUint16(bytes, offset + 12, 0);
+    writeUint16(bytes, offset + 14, 0);
+    writeUint32(bytes, offset + 16, file.crc);
+    writeUint32(bytes, offset + 20, file.content.length);
+    writeUint32(bytes, offset + 24, file.content.length);
+    writeUint16(bytes, offset + 28, file.name.length);
+    writeUint16(bytes, offset + 30, 0);
+    writeUint16(bytes, offset + 32, 0);
+    writeUint16(bytes, offset + 34, 0);
+    writeUint16(bytes, offset + 36, 0);
+    writeUint32(bytes, offset + 38, 0);
+    writeUint32(bytes, offset + 42, file.offset);
+    offset += 46;
+    bytes.set(file.name, offset);
+    offset += file.name.length;
+  }
+
+  writeUint32(bytes, offset, 0x06054b50);
+  writeUint16(bytes, offset + 8, files.length);
+  writeUint16(bytes, offset + 10, files.length);
+  writeUint32(bytes, offset + 12, centralSize);
+  writeUint32(bytes, offset + 16, centralOffset);
+  return bytes;
+}
+
+function setStatus(element, message, state) {
+  element.textContent = message || '';
+  if (state) {
+    element.dataset.state = state;
+  } else {
+    delete element.dataset.state;
+  }
+}
+
+function fallbackCopyPublicKey() {
+  ui.publicKeyOutput.focus();
+  ui.publicKeyOutput.select();
+  if (!document.execCommand('copy')) {
+    throw new Error('copy failed');
+  }
+}
+
+async function handleCopyPublicKey() {
+  const value = ui.publicKeyOutput.value;
+  if (!value || ui.copyPublicButton.disabled) {
+    return;
+  }
+
+  const operationId = appState.operationEpoch;
+  if (appState.copyLabelTimer) {
+    clearTimeout(appState.copyLabelTimer);
+    appState.copyLabelTimer = null;
+  }
+  ui.copyPublicButton.disabled = true;
+  let label = '已复制';
+  let message = '应用公钥已复制，可粘贴给 Agent。';
+  let state = 'success';
+
+  try {
+    let copied = false;
+    if (navigator.clipboard && globalThis.isSecureContext) {
+      try {
+        await navigator.clipboard.writeText(value);
+        copied = true;
+      } catch {}
+    }
+    if (!copied) {
+      fallbackCopyPublicKey();
+    }
+  } catch (error) {
+    if (operationId === appState.operationEpoch) {
+      ui.publicKeyOutput.focus();
+      ui.publicKeyOutput.select();
+    }
+    label = '复制失败';
+    message = '自动复制失败，应用公钥已选中，请使用系统复制命令。';
+    state = 'error';
+  }
+
+  if (operationId !== appState.operationEpoch || !appState.lastGenerated) {
+    return;
+  }
+
+  ui.copyPublicButton.disabled = false;
+  ui.copyPublicButton.textContent = label;
+  setStatus(ui.actionStatus, message, state);
+  appState.copyLabelTimer = setTimeout(function () {
+    if (operationId === appState.operationEpoch) {
+      ui.copyPublicButton.textContent = '复制';
+      appState.copyLabelTimer = null;
+    }
+  }, 1600);
+}
+
+function downloadBytes(filename, bytes, mimeType, statusElement) {
+  try {
+    const blob = new Blob([bytes], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = filename;
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+    setStatus(statusElement, '已向浏览器请求下载，页面清除不会删除已下载文件。', 'success');
+  } catch {
+    setStatus(statusElement, '下载失败，请检查浏览器下载权限后重试；确认保存前不要清除或关闭页面。', 'error');
+  }
+}
+
+let ui = null;
+let appState = null;
+
+function clearKeyMaterial(announce) {
+  appState.operationEpoch += 1;
+  if (appState.copyLabelTimer) {
+    clearTimeout(appState.copyLabelTimer);
+    appState.copyLabelTimer = null;
+  }
+  appState.lastGenerated = null;
+  ui.publicKeyOutput.value = '';
+  delete ui.generateButton.dataset.state;
+  ui.copyPublicButton.textContent = '复制';
+  ui.copyPublicButton.disabled = true;
+  ui.keyResult.hidden = true;
+  ui.downloadKeyPairButton.disabled = true;
+  if (announce) {
+    setStatus(ui.generateStatus, '当前页面中的密钥已清空。已下载文件不会被删除，请自行安全保管或删除。', 'success');
+  }
+  setStatus(ui.actionStatus, '', null);
+}
+
+function setGenerateBusy(busy) {
+  appState.generating = busy;
+  ui.generateButton.disabled = busy || !appState.supported;
+  if (busy) {
+    delete ui.generateButton.dataset.state;
+    ui.generateButton.textContent = '正在生成...';
+  } else if (appState.lastGenerated) {
+    ui.generateButton.dataset.state = 'success';
+    ui.generateButton.textContent = '重新生成应用密钥对';
+  } else {
+    delete ui.generateButton.dataset.state;
+    ui.generateButton.textContent = '一键生成应用密钥对';
+  }
+}
+
+async function handleGenerate() {
+  if (appState.generating || !appState.supported) {
+    return;
+  }
+
+  if (appState.lastGenerated && !globalThis.confirm('重新生成将清空当前页面中的密钥，但不会删除已下载文件。是否继续？')) {
+    return;
+  }
+
+  clearKeyMaterial(false);
+  const operationId = appState.operationEpoch;
+  setGenerateBusy(true);
+  setStatus(ui.generateStatus, '正在生成并验证 RSA2 应用密钥对...', 'working');
+
+  try {
+    const material = await generateKeyMaterial();
+    if (operationId !== appState.operationEpoch) {
+      return;
+    }
+    appState.lastGenerated = material;
+    ui.publicKeyOutput.value = material.publicKey;
+    ui.keyResult.hidden = false;
+    ui.copyPublicButton.disabled = false;
+    ui.downloadKeyPairButton.disabled = false;
+    setStatus(ui.generateStatus, '', null);
+    ui.resultTitle.focus();
+  } catch (error) {
+    if (operationId !== appState.operationEpoch) {
+      return;
+    }
+    clearKeyMaterial(false);
+    setGenerateBusy(false);
+    setStatus(ui.generateStatus, error instanceof UserFacingError ? error.message : '密钥生成失败，请确认浏览器支持 Web Crypto 后重试。', 'error');
+  } finally {
+    if (operationId === appState.operationEpoch) {
+      setGenerateBusy(false);
+    }
+  }
+}
+
+function detectCapabilities() {
+  const missing = [];
+  if (!cryptoApi || !cryptoApi.subtle || typeof cryptoApi.getRandomValues !== 'function') {
+    missing.push('Web Crypto');
+  }
+  if (typeof btoa !== 'function') {
+    missing.push('Base64');
+  }
+  if (typeof Blob === 'undefined' || !globalThis.URL || typeof URL.createObjectURL !== 'function') {
+    missing.push('文件下载');
+  }
+
+  appState.supported = missing.length === 0;
+  if (appState.supported) {
+    ui.capabilityNotice.hidden = true;
+  } else {
+    ui.capabilityNotice.textContent = '当前浏览器缺少必要能力：' + missing.join('、') + '。请使用最新版 Chrome、Edge、Firefox 或 Safari。';
+    ui.capabilityNotice.hidden = false;
+  }
+}
+
+function initialize() {
+  ui = {
+    capabilityNotice: document.getElementById('capabilityNotice'),
+    generateButton: document.getElementById('generateButton'),
+    generateStatus: document.getElementById('generateStatus'),
+    keyResult: document.getElementById('keyResult'),
+    resultTitle: document.getElementById('resultTitle'),
+    publicKeyOutput: document.getElementById('publicKeyOutput'),
+    copyPublicButton: document.getElementById('copyPublicButton'),
+    downloadKeyPairButton: document.getElementById('downloadKeyPairButton'),
+    clearButton: document.getElementById('clearButton'),
+    actionStatus: document.getElementById('actionStatus')
+  };
+  appState = {
+    supported: false,
+    generating: false,
+    lastGenerated: null,
+    copyLabelTimer: null,
+    operationEpoch: 0
+  };
+
+  detectCapabilities();
+  setGenerateBusy(false);
+  ui.generateButton.addEventListener('click', handleGenerate);
+  ui.copyPublicButton.addEventListener('click', handleCopyPublicKey);
+  ui.downloadKeyPairButton.addEventListener('click', function () {
+    if (appState.lastGenerated) {
+      downloadBytes('应用密钥对.zip', createKeyPairZipBytes(appState.lastGenerated), 'application/zip', ui.actionStatus);
+    }
+  });
+  ui.clearButton.addEventListener('click', function () {
+    if (appState.lastGenerated && globalThis.confirm('确定清空当前页面中的密钥？已下载文件不会被删除。')) {
+      clearKeyMaterial(true);
+      setGenerateBusy(false);
+    }
+  });
+  globalThis.addEventListener('pagehide', function () {
+    clearKeyMaterial(false);
+    setGenerateBusy(false);
+  });
+}
+
+if (typeof document === 'undefined') {
+  globalThis.__rsaKeygenCore = Object.freeze({
+    RSA_ALGORITHM: RSA_ALGORITHM,
+    bytesToBase64: bytesToBase64,
+    readDerElement: readDerElement,
+    pkcs8ToPkcs1: pkcs8ToPkcs1,
+    generateKeyMaterial: generateKeyMaterial,
+    createPublicKeyFile: createPublicKeyFile,
+    createPrivateKeyFile: createPrivateKeyFile,
+    createKeyPairZipBytes: createKeyPairZipBytes,
+    wipe: wipe
+  });
+} else {
+  initialize();
+}
+</script>
+</body>
+</html>

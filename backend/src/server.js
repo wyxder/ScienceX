@@ -19,6 +19,7 @@ const documentsRoutes = require('./routes/documents');
 const researchRoutes = require('./routes/research');
 const publishRoutes = require('./routes/publish');
 const dreampaperRoutes = require('./routes/dreampaper');
+const paymentRoutes = require('./routes/payment');
 const aiModule = require('./ai');
 
 const app = express();
@@ -49,6 +50,7 @@ app.use((req, res, next) => {
 // 文献导入需承载 Base64 编码的源文件（单文件 50MB → Base64 约 67MB），故单独放宽上传路由限制
 app.use('/api/v1/documents/upload', express.json({ limit: '72mb' }));
 app.use(express.json({ limit: '2mb' }));
+app.use(express.urlencoded({ extended: false, limit: '2mb' }));
 
 // B3：每个挂载点独立 scope，共享限流后端（Redis/Upstash）下不同阈值不互踩；登录用户按 userId、匿名按 IP 计数
 app.use('/api/v1/chat/completions', rateLimit({ scope: 'chat-completions', windowMs: 60000, max: 30 }));
@@ -94,6 +96,7 @@ app.use('/api/v1', documentsRoutes.router);
 app.use('/api/v1', researchRoutes.router);
 app.use('/api/v1', publishRoutes.router);
 app.use('/api/v1', dreampaperRoutes.router);
+app.use('/api/v1', paymentRoutes.router);
 
 // 404
 app.use((req, res) => {

@@ -42,4 +42,5 @@ yarn-error.log*
 .DS_Store
 Thumbs.db
 .vscode/
-.idea/
+# Promo video maker outputs
+宣传片/
