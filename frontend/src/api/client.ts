@@ -17,6 +17,7 @@ import type {
   SSEToolPayload,
   ThoughtStep,
 } from '../types';
+import type { EvalDonePayload, EvalProgressPayload } from '../types/eval';
 
 const BASE = import.meta.env.VITE_API_BASE || '/api/v1';
 
@@ -683,3 +684,83 @@ async function readSSE(stream: ReadableStream<Uint8Array>, handlers: SSEHandlers
     reader.releaseLock();
   }
 }
+
+export interface EvalStreamHandlers {
+  onProgress?: (d: EvalProgressPayload) => void;
+  onDone?: (d: EvalDonePayload) => void;
+  onError?: (msg: string, details?: SSEErrorPayload) => void;
+}
+
+export function evalRunStream(runId: string, handlers: EvalStreamHandlers): () => void {
+  const controller = new AbortController();
+  const streamKey = `eval:${runId}`;
+  let stopped = false;
+  let terminal = false;
+  let attempts = 0;
+  let retryTimer: ReturnType<typeof setTimeout> | undefined;
+  let retryResolve: (() => void) | undefined;
+
+  (async () => {
+    while (!stopped && !controller.signal.aborted) {
+      try {
+        const token = getToken();
+        const lastId = lastReceivedEventIds.get(streamKey);
+        const res = await fetchWithAuth(`${BASE}/harness/eval/runs/${runId}/stream`, {
+          headers: {
+            Accept: 'text/event-stream',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            ...(lastId ? { 'Last-Event-ID': lastId } : {}),
+          },
+          signal: controller.signal,
+        });
+
+        if (!res.ok || !res.body) {
+          if (res.status === 401 || res.status === 403 || res.status === 404) {
+            terminal = true;
+            handlers.onError?.(`无法建立评测进度监听 [${res.status}]`);
+            return;
+          }
+          if (res.status >= 500 || res.status === 408 || res.status === 429) {
+            throw new Error(`评测流响应错误 [${res.status}]`);
+          }
+          terminal = true;
+          handlers.onError?.(`无法建立评测进度监听 [${res.status}]`);
+          return;
+        }
+
+        await readSSE(res.body, {
+          onProgress: (d) => handlers.onProgress?.(d as EvalProgressPayload),
+          onDone: (d) => { stopped = true; handlers.onDone?.(d as EvalDonePayload); },
+          onError: (msg, details) => { stopped = true; terminal = true; handlers.onError?.(msg, details); },
+        }, streamKey);
+
+        if (stopped || terminal || controller.signal.aborted) return;
+        throw new Error('评测流已断开');
+      } catch (err: any) {
+        if (err.name === 'AbortError' || stopped || terminal || controller.signal.aborted) return;
+        if (attempts >= 3) {
+          handlers.onError?.('评测进度连接中断，已切换为轮询', { degraded: true } as any);
+          return;
+        }
+        const delay = 500 * 2 ** attempts;
+        attempts += 1;
+        await new Promise<void>((resolve) => {
+          retryResolve = resolve;
+          retryTimer = setTimeout(() => {
+            retryTimer = undefined;
+            retryResolve = undefined;
+            resolve();
+          }, delay);
+        });
+      }
+    }
+  })();
+
+  return () => {
+    stopped = true;
+    if (retryTimer) clearTimeout(retryTimer);
+    retryResolve?.();
+    controller.abort();
+  };
+}
+

@@ -101,6 +101,37 @@ body('post', '/dreampaper/jobs', obj({ mode: z.enum(['paper_figure', 'ppt_slide'
   .refine((v) => v.mode === 'ppt_slide' ? !!v.payload.pages : v.mode === 'paper_figure' ? !!(v.payload.title?.trim() || v.payload.method?.trim()) : !!(v.payload.title?.trim() || v.payload.data?.trim()), '请填写该模式所需的标题、方法、数据或页数'));
 body('post', '/dreampaper/jobs/:id/rate', obj({ rating: z.enum(['good', 'fair', 'poor']).nullable() }));
 
+body('post', '/harness/eval/runs', obj({
+  suite_id: short.optional(),
+  mode: z.enum(['template', 'live']).optional(),
+  model: short.optional(),
+  note: z.string().trim().max(500).optional(),
+}));
+
+query('/harness/eval/runs', obj({
+  suite_id: short.optional(),
+  status: z.enum(['queued', 'running', 'passed', 'failed', 'cancelled', 'error']).optional(),
+  mode: z.enum(['template', 'live']).optional(),
+  page: z.coerce.number().int().min(1).optional(),
+  page_size: z.coerce.number().int().min(1).max(50).optional(),
+}));
+
+query('/harness/eval/runs/:id/stream', obj({
+  token: z.string().max(4096).optional(),
+  last_event_id: z.coerce.number().int().min(0).optional(),
+}));
+
+body('post', '/harness/eval/runs/:id/cancel', obj({}));
+
+body('post', '/harness/eval/runs/:id/baseline', obj({
+  label: z.string().trim().min(1).max(80).optional(),
+  rebuild: z.boolean().optional(),
+}));
+
+query('/harness/eval/gates', obj({ suite_id: short.optional() }));
+query('/harness/eval/overview', obj({ suite_id: short.optional() }));
+
+
 function getContract(method, path) {
   const schemas = { ...(contracts[method + ' ' + path] || {}) };
   const keys = [...path.matchAll(/:([\w]+)/g)].map((m) => m[1]);

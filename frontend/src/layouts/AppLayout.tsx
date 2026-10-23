@@ -30,6 +30,7 @@ const GROUPS: NavGroup[] = [
       { to: '/features/reproduce', label: '论文复现', icon: 'branch' },
       { to: '/features/meeting', label: '组会汇报', icon: 'users' },
       { to: '/features/review', label: '专家评审团', icon: 'award' },
+      { to: '/quality', label: '质量中心', icon: 'gauge' },
     ],
   },
 ];
@@ -46,6 +47,7 @@ const TITLES: Record<string, [string, string]> = {
   '/features/meeting': ['组会汇报', 'PPT 一键生成 · 导师建议记录'],
   '/features/review': ['多智能体专家评审团', '五角色并行评审 · 冲突分析 · 审稿报告'],
   '/features/reproduce': ['论文复现', '代码解析 · 环境搭建 · 基线对齐 · 结果比对'],
+  '/quality': ['质量中心', '评测套件 · 运行报告 · 基线门禁'],
   '/account': ['设置与管理', '资料偏好 · 模型管理 · 用量 · 订阅 · 安全'],
 };
 

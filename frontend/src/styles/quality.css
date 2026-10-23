@@ -1,0 +1,232 @@
+/* 质量中心 (EvalOps) 专属样式
+   所有选择器必须以 .sx-quality 开头，遵循设计规范与响应式规则 */
+
+.sx-quality {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.sx-quality-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.sx-quality-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.sx-quality-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Callouts */
+.sx-quality-callout {
+  padding: 12px 16px;
+  border-radius: var(--r-md);
+  font-size: 13px;
+  line-height: 1.5;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.sx-quality-callout.warning {
+  background: rgba(194, 118, 43, 0.08);
+  border: 1px solid rgba(194, 118, 43, 0.3);
+  color: var(--accent);
+}
+
+.sx-quality-callout.danger {
+  background: rgba(194, 74, 66, 0.08);
+  border: 1px solid rgba(194, 74, 66, 0.3);
+  color: var(--red);
+}
+
+.sx-quality-callout.info {
+  background: rgba(27, 122, 94, 0.08);
+  border: 1px solid rgba(27, 122, 94, 0.25);
+  color: var(--brand);
+}
+
+/* 看板两列布局 */
+.sx-quality-grid-2-1 {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+}
+
+.sx-quality-grid-1-1 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* 进度条包装器 */
+.sx-quality-progress-card {
+  padding: 14px 16px;
+  border-radius: var(--r-md);
+  background: var(--bg-deep);
+  border: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* 详情页顶栏与统计 */
+.sx-quality-detail-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.sx-quality-detail-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* 逐题列表与卡片 */
+.sx-quality-case-row {
+  transition: background-color 0.4s ease;
+}
+
+.sx-quality-highlight {
+  background-color: rgba(194, 118, 43, 0.18) !important;
+}
+
+.sx-quality-pre {
+  margin: 8px 0 0;
+  padding: 10px 12px;
+  background: var(--bg-deep);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  font-family: var(--font-mono, monospace);
+  font-size: 12px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 240px;
+  overflow-y: auto;
+  color: var(--ink);
+}
+
+/* 移动端与桌面端切换 */
+.sx-quality-desktop-only {
+  display: block;
+}
+
+.sx-quality-mobile-only {
+  display: none;
+}
+
+.sx-quality-mobile-card {
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: 12px 14px;
+  margin-bottom: 10px;
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* 门禁原因列表 */
+.sx-quality-reason-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.sx-quality-reason-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12.5px;
+  padding: 6px 10px;
+  border-radius: var(--r-sm);
+  background: rgba(194, 74, 66, 0.06);
+  border-left: 3px solid var(--red);
+}
+
+.sx-quality-reason-item.warn {
+  background: rgba(194, 118, 43, 0.06);
+  border-left: 3px solid var(--accent);
+}
+
+/* 两段模式切换按钮组 */
+.sx-quality-segmented {
+  display: inline-flex;
+  background: var(--bg-deep);
+  padding: 3px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--line);
+  gap: 2px;
+}
+
+.sx-quality-segmented-btn {
+  border: none;
+  background: transparent;
+  padding: 6px 14px;
+  font-size: 13px;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  color: var(--muted);
+  transition: all var(--t-fast, 0.15s);
+  font-weight: 500;
+}
+
+.sx-quality-segmented-btn.active {
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--shadow-sm);
+}
+
+.sx-quality-segmented-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 响应式断点 */
+@media (max-width: 1180px) {
+  .sx-quality-grid-2-1 {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 1024px) {
+  .sx-quality-grid-1-1 {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .sx-quality-desktop-only {
+    display: none !important;
+  }
+  .sx-quality-mobile-only {
+    display: block !important;
+  }
+  .sx-quality-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  .sx-quality-actions button {
+    flex: 1;
+    min-height: 40px;
+  }
+}

@@ -57,12 +57,23 @@ function buildOpenApiDocument() {
     const pathKey = toPathKey(route.path);
     const schemas = route.schemas || {};
     const parameters = [...toParameters(schemas.params, 'path'), ...toParameters(schemas.query, 'query')];
+    const isStream = route.path.endsWith('/stream');
+    const successResponse = isStream
+      ? {
+          description: 'SSE 事件流（text/event-stream）',
+          content: { 'text/event-stream': { schema: { type: 'string' } } },
+        }
+      : {
+          description: '成功（统一响应信封）',
+          content: { 'application/json': { schema: ENVELOPE_SCHEMA } },
+        };
+
     const operation = {
       tags: toTag(route.path),
       operationId: `${route.method}${pathKey.replace(/[^a-zA-Z0-9]+/g, '_')}`,
       security: route.authenticated ? [{ bearerAuth: [] }] : [],
       responses: {
-        200: { description: '成功（统一响应信封）', content: { 'application/json': { schema: ENVELOPE_SCHEMA } } },
+        200: successResponse,
         400: { description: '参数校验失败（code=40011）' },
         401: { description: 'Token 失效或未认证（code=40101）' },
       },

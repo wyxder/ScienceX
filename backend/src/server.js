@@ -20,6 +20,7 @@ const researchRoutes = require('./routes/research');
 const publishRoutes = require('./routes/publish');
 const dreampaperRoutes = require('./routes/dreampaper');
 const paymentRoutes = require('./routes/payment');
+const harnessRoutes = require('./routes/harness');
 const aiModule = require('./ai');
 
 const app = express();
@@ -97,6 +98,7 @@ app.use('/api/v1', researchRoutes.router);
 app.use('/api/v1', publishRoutes.router);
 app.use('/api/v1', dreampaperRoutes.router);
 app.use('/api/v1', paymentRoutes.router);
+app.use('/api/v1', harnessRoutes.router);
 
 // 404
 app.use((req, res) => {

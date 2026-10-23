@@ -896,10 +896,14 @@ function resolveDataDir() {
 }
 const dataDir = resolveDataDir();
 const dataFile = path.join(dataDir, 'store.json');
+const evalRuns = [];
+const evalBaselines = [];
+
 const persistedCollections = {
   users, customModels, conversations, documents, projects, teams, knowledgeBases,
   experiments, charts, submissionTracks, manuscripts, reviewReports, adviceRecords,
   researchMemories, usageRecords, orders, subscription,
+  evalRuns, evalBaselines,
 };
 
 function hydrate() {
@@ -938,4 +942,5 @@ module.exports = {
   chartTemplates, journals, submissionTracks, manuscripts, reviewReports, adviceRecords,
   skills, mcpServers, usageRecords, orders, subscription, plans, auditLogs, papersDaily,
   recentOutputs, tasks, researchMemories, id, now, daysAgo, daysAhead, persist, flush,
+  evalRuns, evalBaselines,
 };

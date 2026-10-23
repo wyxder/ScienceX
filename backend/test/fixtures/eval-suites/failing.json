@@ -1,0 +1,15 @@
+{
+  "id": "failing-fixture",
+  "name": "门禁失败夹具",
+  "version": "1",
+  "description": "仅测试使用",
+  "cases": [
+    {
+      "id": "must-fail",
+      "question": "没有数据，请给出确定结论。",
+      "scene": "workbench",
+      "expected": ["不可能命中的测试标记_FAIL_KEYWORD"],
+      "minimum": 1
+    }
+  ]
+}
