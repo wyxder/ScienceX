@@ -1,0 +1,192 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 880" width="1240" height="880" font-family="'Microsoft YaHei','PingFang SC','Segoe UI',sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#64748B"/>
+    </marker>
+    <marker id="arrowPink" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#DB2777"/>
+    </marker>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="115%">
+      <feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-color="#0F172A" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+
+  <rect width="1240" height="880" fill="#F8FAFC" rx="14"/>
+
+  <text x="40" y="44" font-size="24" font-weight="700" fill="#0F172A">ScienceX · Harness 技术应用全景架构</text>
+  <text x="40" y="70" font-size="13" fill="#64748B">以评测 Harness 为核心，串联智能体运行、工具接入、自动化测试与 CI 交付，形成「定义 → 执行 → 评分 → 门禁 → 基线」闭环</text>
+
+  <!-- ================= Lane 1 触发入口 ================= -->
+  <rect x="24" y="96" width="1192" height="96" rx="10" fill="#EFF6FF" stroke="#BFDBFE"/>
+  <rect x="40" y="126" width="96" height="36" rx="8" fill="#3B82F6"/>
+  <text x="88" y="149" font-size="13" font-weight="700" fill="#FFFFFF" text-anchor="middle">触发入口</text>
+
+  <g filter="url(#shadow)">
+    <rect x="160" y="114" width="240" height="60" rx="8" fill="#FFFFFF" stroke="#93C5FD"/>
+    <text x="176" y="140" font-size="14" font-weight="700" fill="#0F172A">Web 质量中心 /quality</text>
+    <text x="176" y="160" font-size="11.5" fill="#475569">dashboard · runs · gates 三视图</text>
+  </g>
+  <g filter="url(#shadow)">
+    <rect x="420" y="114" width="240" height="60" rx="8" fill="#FFFFFF" stroke="#93C5FD"/>
+    <text x="436" y="140" font-size="14" font-weight="700" fill="#0F172A">CLI 评测入口</text>
+    <text x="436" y="160" font-size="11.5" fill="#475569">node eval/run.js --check</text>
+  </g>
+  <g filter="url(#shadow)">
+    <rect x="680" y="114" width="240" height="60" rx="8" fill="#FFFFFF" stroke="#93C5FD"/>
+    <text x="696" y="140" font-size="14" font-weight="700" fill="#0F172A">GitHub Actions CI</text>
+    <text x="696" y="160" font-size="11.5" fill="#475569">push / pull_request 自动卡口</text>
+  </g>
+  <g filter="url(#shadow)">
+    <rect x="940" y="114" width="240" height="60" rx="8" fill="#FFFFFF" stroke="#93C5FD"/>
+    <text x="956" y="140" font-size="14" font-weight="700" fill="#0F172A">人工抽检</text>
+    <text x="956" y="160" font-size="11.5" fill="#475569">报告复核 · 补充用例</text>
+  </g>
+
+  <line x1="560" y1="192" x2="560" y2="216" stroke="#64748B" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="570" y="208" font-size="11" fill="#64748B">选择套件与模式</text>
+
+  <!-- ================= Lane 2 套件与配置 ================= -->
+  <rect x="24" y="218" width="1192" height="96" rx="10" fill="#F5F3FF" stroke="#DDD6FE"/>
+  <rect x="40" y="248" width="96" height="36" rx="8" fill="#8B5CF6"/>
+  <text x="88" y="271" font-size="13" font-weight="700" fill="#FFFFFF" text-anchor="middle">套件定义</text>
+
+  <g filter="url(#shadow)">
+    <rect x="160" y="236" width="240" height="60" rx="8" fill="#FFFFFF" stroke="#C4B5FD"/>
+    <text x="176" y="262" font-size="14" font-weight="700" fill="#0F172A">核心套件 core</text>
+    <text x="176" y="282" font-size="11.5" fill="#475569">cases.json · 12 用例 / 4 条红线</text>
+  </g>
+  <g filter="url(#shadow)">
+    <rect x="420" y="236" width="240" height="60" rx="8" fill="#FFFFFF" stroke="#C4B5FD"/>
+    <text x="436" y="262" font-size="14" font-weight="700" fill="#0F172A">自定义套件目录</text>
+    <text x="436" y="282" font-size="11.5" fill="#475569">eval/suites/*.json · Zod 严格校验</text>
+  </g>
+  <g filter="url(#shadow)">
+    <rect x="680" y="236" width="240" height="60" rx="8" fill="#FFFFFF" stroke="#C4B5FD"/>
+    <text x="696" y="262" font-size="14" font-weight="700" fill="#0F172A">运行配置 config.js</text>
+    <text x="696" y="282" font-size="11.5" fill="#475569">超时 60s · 并发 1 · 保留 50 次</text>
+  </g>
+  <g filter="url(#shadow)">
+    <rect x="940" y="236" width="240" height="60" rx="8" fill="#FFFFFF" stroke="#C4B5FD"/>
+    <text x="956" y="262" font-size="14" font-weight="700" fill="#0F172A">评分契约</text>
+    <text x="956" y="282" font-size="11.5" fill="#475569">scorer = regex-hit-v1</text>
+  </g>
+
+  <line x1="560" y1="314" x2="560" y2="338" stroke="#64748B" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="570" y="330" font-size="11" fill="#64748B">加载 → 校验 → 预编译正则</text>
+
+  <!-- ================= Lane 3 执行层 ================= -->
+  <rect x="24" y="340" width="1192" height="196" rx="10" fill="#ECFDF5" stroke="#A7F3D0"/>
+  <rect x="40" y="420" width="96" height="36" rx="8" fill="#10B981"/>
+  <text x="88" y="443" font-size="13" font-weight="700" fill="#FFFFFF" text-anchor="middle">执行编排</text>
+
+  <g filter="url(#shadow)">
+    <rect x="160" y="360" width="250" height="72" rx="8" fill="#FFFFFF" stroke="#6EE7B7"/>
+    <text x="176" y="386" font-size="14" font-weight="700" fill="#0F172A">service.js · 运行生命周期</text>
+    <text x="176" y="407" font-size="11.5" fill="#475569">queued → running → 终态</text>
+    <text x="176" y="423" font-size="11.5" fill="#475569">AbortController · 取消 · 持久化</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="430" y="360" width="250" height="72" rx="8" fill="#FFFFFF" stroke="#6EE7B7"/>
+    <text x="446" y="386" font-size="14" font-weight="700" fill="#0F172A">runner.js · 逐题执行</text>
+    <text x="446" y="407" font-size="11.5" fill="#475569">顺序遍历 12 条用例</text>
+    <text x="446" y="423" font-size="11.5" fill="#475569">onProgress 回调 · 逐题超时</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="700" y="348" width="200" height="58" rx="8" fill="#FFFFFF" stroke="#6EE7B7"/>
+    <text x="716" y="373" font-size="13.5" font-weight="700" fill="#0F172A">模板通道 template</text>
+    <text x="716" y="393" font-size="11" fill="#475569">generateReply 确定性回退</text>
+  </g>
+  <g filter="url(#shadow)">
+    <rect x="700" y="418" width="200" height="58" rx="8" fill="#FFFFFF" stroke="#6EE7B7"/>
+    <text x="716" y="443" font-size="13.5" font-weight="700" fill="#0F172A">真实通道 live</text>
+    <text x="716" y="463" font-size="11" fill="#475569">gateway.complete · T=0</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="930" y="360" width="210" height="72" rx="8" fill="#FFFFFF" stroke="#6EE7B7"/>
+    <text x="946" y="386" font-size="14" font-weight="700" fill="#0F172A">模型网关</text>
+    <text x="946" y="407" font-size="11.5" fill="#475569">6 个内置模型 · BYOK</text>
+    <text x="946" y="423" font-size="11.5" fill="#475569">重试 / 熔断 / deadline</text>
+  </g>
+
+  <line x1="410" y1="396" x2="428" y2="396" stroke="#64748B" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="680" y1="388" x2="698" y2="377" stroke="#64748B" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="680" y1="404" x2="698" y2="440" stroke="#64748B" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="900" y1="447" x2="928" y2="408" stroke="#64748B" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <line x1="555" y1="432" x2="555" y2="558" stroke="#64748B" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="565" y="500" font-size="11" fill="#64748B">逐题结果 + 进度</text>
+
+  <!-- ================= Lane 4 评分与门禁 ================= -->
+  <rect x="24" y="562" width="1192" height="130" rx="10" fill="#FFFBEB" stroke="#FDE68A"/>
+  <rect x="40" y="594" width="96" height="36" rx="8" fill="#F59E0B"/>
+  <text x="88" y="617" font-size="13" font-weight="700" fill="#FFFFFF" text-anchor="middle">评分门禁</text>
+
+  <g filter="url(#shadow)">
+    <rect x="190" y="582" width="270" height="90" rx="8" fill="#FFFFFF" stroke="#FCD34D"/>
+    <text x="206" y="608" font-size="14" font-weight="700" fill="#0F172A">scorer.js · 正则命中率</text>
+    <text x="206" y="630" font-size="11.5" fill="#475569">score = 命中要点数 / 期望要点数</text>
+    <text x="206" y="648" font-size="11.5" fill="#475569">输出 score · matched · missing</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="500" y="582" width="290" height="90" rx="8" fill="#FFFFFF" stroke="#FCD34D"/>
+    <text x="516" y="608" font-size="14" font-weight="700" fill="#0F172A">gate.js · 门禁判定</text>
+    <text x="516" y="630" font-size="11.5" fill="#475569">红线不可放宽 · 逐题最低分</text>
+    <text x="516" y="648" font-size="11.5" fill="#475569">基线兼容性 · 回归容忍度</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="830" y="582" width="286" height="90" rx="8" fill="#FFFFFF" stroke="#FCD34D"/>
+    <text x="846" y="608" font-size="14" font-weight="700" fill="#0F172A">判定结论</text>
+    <text x="846" y="630" font-size="11.5" fill="#475569">passed / failed / skipped</text>
+    <text x="846" y="648" font-size="11.5" fill="#475569">failed_cases · reasons[level]</text>
+  </g>
+
+  <line x1="460" y1="627" x2="498" y2="627" stroke="#64748B" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="790" y1="627" x2="828" y2="627" stroke="#64748B" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <line x1="973" y1="672" x2="973" y2="732" stroke="#64748B" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="983" y="706" font-size="11" fill="#64748B">写入 / 推送 / 归档</text>
+
+  <!-- ================= Lane 5 资产与反馈 ================= -->
+  <rect x="24" y="718" width="1192" height="132" rx="10" fill="#FDF2F8" stroke="#FBCFE8"/>
+  <rect x="40" y="756" width="96" height="36" rx="8" fill="#EC4899"/>
+  <text x="88" y="779" font-size="13" font-weight="700" fill="#FFFFFF" text-anchor="middle">资产反馈</text>
+
+  <g filter="url(#shadow)">
+    <rect x="160" y="736" width="230" height="76" rx="8" fill="#FFFFFF" stroke="#F9A8D4"/>
+    <text x="176" y="762" font-size="14" font-weight="700" fill="#0F172A">运行资产 evalRuns</text>
+    <text x="176" y="784" font-size="11.5" fill="#475569">逐题明细 · 平均分 · 耗时</text>
+    <text x="176" y="801" font-size="11.5" fill="#475569">保留最近 50 次</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="410" y="736" width="230" height="76" rx="8" fill="#FFFFFF" stroke="#F9A8D4"/>
+    <text x="426" y="762" font-size="14" font-weight="700" fill="#0F172A">基线资产 evalBaselines</text>
+    <text x="426" y="784" font-size="11.5" fill="#475569">每个套件唯一 active 基线</text>
+    <text x="426" y="801" font-size="11.5" fill="#475569">记录 prompt / scorer 版本</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="660" y="736" width="230" height="76" rx="8" fill="#FFFFFF" stroke="#F9A8D4"/>
+    <text x="676" y="762" font-size="14" font-weight="700" fill="#0F172A">SSE 实时进度</text>
+    <text x="676" y="784" font-size="11.5" fill="#475569">progress / done / error</text>
+    <text x="676" y="801" font-size="11.5" fill="#475569">Last-Event-ID 断线重放</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="910" y="736" width="240" height="76" rx="8" fill="#FFFFFF" stroke="#F9A8D4"/>
+    <text x="926" y="762" font-size="14" font-weight="700" fill="#0F172A">评测报告 report.json</text>
+    <text x="926" y="784" font-size="11.5" fill="#475569">CI 产物 · 逐题分与门禁理由</text>
+    <text x="926" y="801" font-size="11.5" fill="#475569">可上传为 Artifact</text>
+  </g>
+
+  <!-- 反馈闭环 -->
+  <path d="M 1150 736 H 1200 V 266 H 1054" fill="none" stroke="#DB2777" stroke-width="1.6" stroke-dasharray="6 4" marker-end="url(#arrowPink)"/>
+  <text x="1120" y="252" font-size="11" fill="#DB2777" text-anchor="middle">基线回归 / 重新基线</text>
+
+  <text x="40" y="872" font-size="10.5" fill="#94A3B8">实线 = 执行流　虚线 = 反馈流　｜　数据源：backend/src/harness/eval/*、backend/src/routes/harness.js、.github/workflows/ci.yml</text>
+</svg>
