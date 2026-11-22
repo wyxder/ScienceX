@@ -1,0 +1,647 @@
+ScienceX 交付复现校验
+✅ Node.js 版本 ≥ 18 — 当前 v22.16.0
+✅ 后端依赖已安装 — backend/node_modules
+✅ 前端依赖已安装 — frontend/node_modules
+
+▶ 后端自动化测试（74 条）
+  $ npm test
+
+> sciencex-backend@1.0.0 test
+> node --require ./test/env.cjs --test test/api.test.js test/ai.test.js test/ai-services.test.js test/persistence.test.js test/routes.contract.test.js test/harness.eval.test.js
+
+TAP version 13
+# Subtest: 429/5xx 重试，401 不重试，取消不重试
+ok 1 - 429/5xx 重试，401 不重试，取消不重试
+  ---
+  duration_ms: 535.158
+  type: 'test'
+  ...
+# Subtest: 连续失败触发熔断，熔断期间不发起请求
+ok 2 - 连续失败触发熔断，熔断期间不发起请求
+  ---
+  duration_ms: 2.8539
+  type: 'test'
+  ...
+# Subtest: 流式 UTF-8 跨块解析、usage 与一次完成通知
+ok 3 - 流式 UTF-8 跨块解析、usage 与一次完成通知
+  ---
+  duration_ms: 51.122
+  type: 'test'
+  ...
+# Subtest: 流已输出后截断不得重试或伪造 done
+ok 4 - 流已输出后截断不得重试或伪造 done
+  ---
+  duration_ms: 39.4313
+  type: 'test'
+  ...
+# Subtest: 整次请求 deadline 覆盖响应体读取
+ok 5 - 整次请求 deadline 覆盖响应体读取
+  ---
+  duration_ms: 41.3925
+  type: 'test'
+  ...
+# Subtest: 多协议 Provider 请求与响应字段映射
+ok 6 - 多协议 Provider 请求与响应字段映射
+  ---
+  duration_ms: 7.8275
+  type: 'test'
+  ...
+# Subtest: 真实 arXiv XML 映射与跨源 DOI 去重
+ok 7 - 真实 arXiv XML 映射与跨源 DOI 去重
+  ---
+  duration_ms: 86.3918
+  type: 'test'
+  ...
+# Subtest: Embedding 语义召回、重建缓存、页码溯源与内部向量隐藏
+ok 8 - Embedding 语义召回、重建缓存、页码溯源与内部向量隐藏
+  ---
+  duration_ms: 227.9446
+  type: 'test'
+  ...
+# Subtest: 无效向量拒绝，不能污染已有索引
+ok 9 - 无效向量拒绝，不能污染已有索引
+  ---
+  duration_ms: 23.4522
+  type: 'test'
+  ...
+# Subtest: 用量按调用记录、价格未知不伪造零成本、隔离用户
+ok 10 - 用量按调用记录、价格未知不伪造零成本、隔离用户
+  ---
+  duration_ms: 86.4965
+  type: 'test'
+  ...
+# Subtest: 记忆证据校验、跨项目去重和容量淘汰
+ok 11 - 记忆证据校验、跨项目去重和容量淘汰
+  ---
+  duration_ms: 302.7397
+  type: 'test'
+  ...
+# Subtest: 官方 MCP SDK 真实握手和工具枚举，CodeAct 执行明确禁用
+ok 12 - 官方 MCP SDK 真实握手和工具枚举，CodeAct 执行明确禁用
+  ---
+  duration_ms: 3866.4345
+  type: 'test'
+  ...
+# Subtest: MCP 工具调用贯通 SDK 与检索服务，保留真实来源
+ok 13 - MCP 工具调用贯通 SDK 与检索服务，保留真实来源
+  ---
+  duration_ms: 44.0726
+  type: 'test'
+  ...
+# Subtest: 无证据的降级方案不伪造实验指标或执行结果
+ok 14 - 无证据的降级方案不伪造实验指标或执行结果
+  ---
+  duration_ms: 3.1822
+  type: 'test'
+  ...
+# Subtest: AI 模块配置加载状态契约一致
+ok 15 - AI 模块配置加载状态契约一致
+  ---
+  duration_ms: 3.2558
+  type: 'test'
+  ...
+# {"level":30,"time":1795360560586,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbmil_zptvp3","method":"GET","path":"/api/v1/ai/status","status":200,"duration_ms":12}
+# Subtest: GET /api/v1/ai/status 返回 3.1.1 文本模态能力与就绪状态
+ok 16 - GET /api/v1/ai/status 返回 3.1.1 文本模态能力与就绪状态
+  ---
+  duration_ms: 103.3081
+  type: 'test'
+  ...
+# Subtest: DeepSeek V4.1 Flash 实时连通性测试 (POST /api/v1/ai/test)
+ok 17 - DeepSeek V4.1 Flash 实时连通性测试 (POST /api/v1/ai/test) # SKIP
+  ---
+  duration_ms: 1.1322
+  type: 'test'
+  ...
+# Subtest: 3.1.1 文本模态：学术中英翻译能力验证
+ok 18 - 3.1.1 文本模态：学术中英翻译能力验证 # SKIP
+  ---
+  duration_ms: 0.5435
+  type: 'test'
+  ...
+# Subtest: 3.1.1 文本模态：科研提示词增强能力验证
+ok 19 - 3.1.1 文本模态：科研提示词增强能力验证 # SKIP
+  ---
+  duration_ms: 0.4918
+  type: 'test'
+  ...
+# {"level":30,"time":1795360560556,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbmhn_1htm51","method":"GET","path":"/api/v1/health","status":200,"duration_ms":17}
+# Subtest: 健康检查返回统一结构
+ok 20 - 健康检查返回统一结构
+  ---
+  duration_ms: 110.8273
+  type: 'test'
+  ...
+# {"level":30,"time":1795360560804,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbmjh_1hmt2u","method":"POST","path":"/api/v1/auth/login","status":200,"duration_ms":200}
+# {"level":30,"time":1795360560821,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbmpb_c7revo","method":"GET","path":"/api/v1/user/profile","status":200,"duration_ms":6}
+# {"level":30,"time":1795360560839,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbmpt_eslmk4","method":"PUT","path":"/api/v1/user/profile","status":200,"duration_ms":7}
+# {"level":30,"time":1795360560861,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbmqe_vklzzo","method":"POST","path":"/api/v1/auth/refresh","status":200,"duration_ms":7}
+# Subtest: 登录、资料白名单和刷新令牌
+ok 21 - 登录、资料白名单和刷新令牌
+  ---
+  duration_ms: 281.4722
+  type: 'test'
+  ...
+# {"level":30,"time":1795360562249,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbmr0_bsq7lv","method":"GET","path":"/api/v1/mcp/recommend","status":200,"duration_ms":1372}
+# Subtest: MCP 推荐不会因为字符串 category 崩溃
+ok 22 - MCP 推荐不会因为字符串 category 崩溃
+  ---
+  duration_ms: 1387.5973
+  type: 'test'
+  ...
+# {"level":30,"time":1795360562261,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbnte_3kmnjx","method":"GET","path":"/api/v1/conversations","status":401,"duration_ms":3}
+# Subtest: 未授权请求被拒绝
+ok 23 - 未授权请求被拒绝
+  ---
+  duration_ms: 11.0536
+  type: 'test'
+  ...
+# {"level":30,"time":1795360562381,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbntr_m41n65","method":"POST","path":"/api/v1/auth/register","status":200,"duration_ms":111}
+# {"level":30,"time":1795360562405,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbnxb_yjjm9q","method":"GET","path":"/api/v1/projects","status":200,"duration_ms":5}
+# {"level":30,"time":1795360562409,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbnxi_yz7al1","method":"GET","path":"/api/v1/documents","status":200,"duration_ms":4}
+# {"level":30,"time":1795360562412,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbnxm_iakfyj","method":"GET","path":"/api/v1/conversations","status":200,"duration_ms":2}
+# {"level":30,"time":1795360562417,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbnxp_gi9nvd","method":"GET","path":"/api/v1/review/reports","status":200,"duration_ms":4}
+# {"level":30,"time":1795360562420,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbnxt_ncaec6","method":"GET","path":"/api/v1/teams","status":200,"duration_ms":2}
+# {"level":30,"time":1795360562422,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbnxw_ztl5nv","method":"GET","path":"/api/v1/models","status":200,"duration_ms":2}
+# {"level":30,"time":1795360562425,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbnxz_kaxgku","method":"GET","path":"/api/v1/billing/orders","status":200,"duration_ms":2}
+# {"level":30,"time":1795360562427,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbny1_ffkub3","method":"GET","path":"/api/v1/advice","status":200,"duration_ms":2}
+# {"level":30,"time":1795360562446,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbnyk_k97ulr","method":"GET","path":"/api/v1/dashboard/summary","status":200,"duration_ms":2}
+# {"level":30,"time":1795360562451,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbnyp_djpgth","method":"GET","path":"/api/v1/dashboard/summary","status":404,"duration_ms":2}
+# {"level":30,"time":1795360562459,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbnyw_wff02a","method":"POST","path":"/api/v1/projects","status":200,"duration_ms":3}
+# {"level":30,"time":1795360562464,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbnz2_ptzy3u","method":"GET","path":"/api/v1/dashboard/summary","status":200,"duration_ms":2}
+# Subtest: 新用户只能看到自己的资源
+ok 24 - 新用户只能看到自己的资源
+  ---
+  duration_ms: 201.7307
+  type: 'test'
+  ...
+# {"level":30,"time":1795360562473,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbnzb_bt3at5","method":"POST","path":"/api/v1/auth/logout","status":401,"duration_ms":2}
+# Subtest: SSE 查询参数 token 不能用于写请求
+ok 25 - SSE 查询参数 token 不能用于写请求
+  ---
+  duration_ms: 7.4309
+  type: 'test'
+  ...
+# Subtest: 模型网关对无权模型显式失败关闭
+ok 26 - 模型网关对无权模型显式失败关闭
+  ---
+  duration_ms: 0.9476
+  type: 'test'
+  ...
+# Subtest: 模型网关允许公共 HTTPS 域名并拒绝内网地址
+ok 27 - 模型网关允许公共 HTTPS 域名并拒绝内网地址
+  ---
+  duration_ms: 8.2727
+  type: 'test'
+  ...
+# Subtest: 生产环境未配置主密钥时告警回退并正常启动（Serverless 可用性优先）
+ok 28 - 生产环境未配置主密钥时告警回退并正常启动（Serverless 可用性优先）
+  ---
+  duration_ms: 1638.4559
+  type: 'test'
+  ...
+# {"level":30,"time":1795360564201,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbp9b_7h84wc","method":"POST","path":"/api/v1/auth/login","status":200,"duration_ms":74}
+# Subtest: 生产环境允许演示账号登录（现场演示要求）
+ok 29 - 生产环境允许演示账号登录（现场演示要求）
+  ---
+  duration_ms: 80.1142
+  type: 'test'
+  ...
+# Subtest: 模型网关总超时覆盖响应体读取
+ok 30 - 模型网关总超时覆盖响应体读取
+  ---
+  duration_ms: 97.072
+  type: 'test'
+  ...
+# {"level":50,"time":1795360564308,"service":"sciencex-backend","request_id":"req_mwrzbpe9_eemvf5","event":"unhandled_error","method":"POST","path":"/api/v1/chat/completions","status":404,"code":40003,"err":{"type":"Error","message":"模型不存在或无权访问","stack":"Error: 模型不存在或无权访问\\n    at Object.generateResponse (E:\\\\Code\\\\AI\\\\Start\\\\Web\\\\Science\\\\backend\\\\src\\\\lib\\\\ai.js:23:19)\\n    at E:\\\\Code\\\\AI\\\\Start\\\\Web\\\\Science\\\\backend\\\\src\\\\routes\\\\chat.js:19:29\\n    at E:\\\\Code\\\\AI\\\\Start\\\\Web\\\\Science\\\\backend\\\\src\\\\lib\\\\respond.js:22:46\\n    at E:\\\\Code\\\\AI\\\\Start\\\\Web\\\\Science\\\\backend\\\\src\\\\lib\\\\respond.js:22:46\\n    at Layer.handle [as handle_request] (E:\\\\Code\\\\AI\\\\Start\\\\Web\\\\Science\\\\backend\\\\node_modules\\\\express\\\\lib\\\\router\\\\layer.js:95:5)\\n    at next (E:\\\\Code\\\\AI\\\\Start\\\\Web\\\\Science\\\\backend\\\\node_modules\\\\express\\\\lib\\\\router\\\\route.js:149:13)\\n    at jsonParser (E:\\\\Code\\\\AI\\\\Start\\\\Web\\\\Science\\\\backend\\\\node_modules\\\\body-parser\\\\lib\\\\types\\\\json.js:108:7)\\n    at E:\\\\Code\\\\AI\\\\Start\\\\Web\\\\Science\\\\backend\\\\src\\\\lib\\\\respond.js:22:46\\n    at Layer.handle [as handle_request] (E:\\\\Code\\\\AI\\\\Start\\\\Web\\\\Science\\\\backend\\\\node_modules\\\\express\\\\lib\\\\router\\\\layer.js:95:5)\\n    at next (E:\\\\Code\\\\AI\\\\Start\\\\Web\\\\Science\\\\backend\\\\node_modules\\\\express\\\\lib\\\\router\\\\route.js:149:13)","statusCode":404,"businessCode":40003,"publicMessage":"模型不存在或无权访问"},"msg":"模型不存在或无权访问"}
+# {"level":30,"time":1795360564310,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbpe9_eemvf5","method":"POST","path":"/api/v1/chat/completions","status":404,"duration_ms":5}
+# Subtest: 未知显式模型返回受控错误而不是进程异常
+ok 31 - 未知显式模型返回受控错误而不是进程异常
+  ---
+  duration_ms: 10.7256
+  type: 'test'
+  ...
+# {"level":30,"time":1795360564317,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbpeh_hwuccr","method":"POST","path":"/api/v1/account/export","status":200,"duration_ms":3}
+# {"level":30,"time":1795360569665,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbpen_irmlh7","method":"GET","path":"/api/v1/tasks/task_mwrzbpejid5g/stream","status":200,"duration_ms":5345}
+# Subtest: 异步导出任务通过 SSE 推送进度并正常完成
+ok 32 - 异步导出任务通过 SSE 推送进度并正常完成
+  ---
+  duration_ms: 5354.2304
+  type: 'test'
+  ...
+# {"level":30,"time":1795360569670,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbtj9_24nxbr","method":"POST","path":"/api/v1/account/export","status":200,"duration_ms":1}
+# Subtest: 客户端关闭任务 SSE 后移除任务监听器
+ok 33 - 客户端关闭任务 SSE 后移除任务监听器
+  ---
+  duration_ms: 37.9466
+  type: 'test'
+  ...
+# {"level":30,"time":1795360569707,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbtk9_xf9yka","method":"POST","path":"/api/v1/topic/recommend","status":200,"duration_ms":2}
+# {"level":30,"time":1795360569711,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbtkd_qg6frw","method":"POST","path":"/api/v1/topic/feasibility","status":200,"duration_ms":2}
+# {"level":30,"time":1795360569714,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbtkh_9xizuw","method":"POST","path":"/api/v1/topic/proposal","status":200,"duration_ms":2}
+# Subtest: 选题三件套：双轨对接后响应结构稳定（无密钥时确定性回退）
+ok 34 - 选题三件套：双轨对接后响应结构稳定（无密钥时确定性回退）
+  ---
+  duration_ms: 11.3548
+  type: 'test'
+  ...
+# {"level":30,"time":1795360569719,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbtkl_gzb1e5","method":"POST","path":"/api/v1/review/council","status":200,"duration_ms":2}
+# {"level":30,"time":1795360572085,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbvec_5mnlwu","method":"GET","path":"/api/v1/review/reports/rv_mwrzbv8qp02n","status":200,"duration_ms":2}
+# Subtest: 多智能体评审团：任务完成后返回结构化报告（无密钥时确定性回退）
+ok 35 - 多智能体评审团：任务完成后返回结构化报告（无密钥时确定性回退）
+  ---
+  duration_ms: 2371.1451
+  type: 'test'
+  ...
+# {"level":30,"time":1795360560884,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbmli_gy1q21","method":"POST","path":"/api/v1/auth/login","status":200,"duration_ms":205}
+# Subtest: UT-EVAL-01: score() 正则三选二命中
+ok 36 - UT-EVAL-01: score() 正则三选二命中
+  ---
+  duration_ms: 282.2482
+  type: 'test'
+  ...
+# Subtest: UT-EVAL-02: 非法正则表达式加载失败抛错
+ok 37 - UT-EVAL-02: 非法正则表达式加载失败抛错
+  ---
+  duration_ms: 3.729
+  type: 'test'
+  ...
+# Subtest: UT-EVAL-03: 重复 case id 校验失败
+ok 38 - UT-EVAL-03: 重复 case id 校验失败
+  ---
+  duration_ms: 0.7512
+  type: 'test'
+  ...
+# Subtest: UT-EVAL-04: core 套件元数据正确，包含 12 条用例和 4 条红线
+ok 39 - UT-EVAL-04: core 套件元数据正确，包含 12 条用例和 4 条红线
+  ---
+  duration_ms: 14.9825
+  type: 'test'
+  ...
+# Subtest: UT-EVAL-05: 模板生成适配，scene=document 返回证据不足模板
+ok 40 - UT-EVAL-05: 模板生成适配，scene=document 返回证据不足模板
+  ---
+  duration_ms: 1.4544
+  type: 'test'
+  ...
+# Subtest: UT-EVAL-06: 门禁评估：无基线且单题低于 minimum 时门禁失败
+ok 41 - UT-EVAL-06: 门禁评估：无基线且单题低于 minimum 时门禁失败
+  ---
+  duration_ms: 1.9725
+  type: 'test'
+  ...
+# Subtest: UT-EVAL-07: 门禁评估：基线回退超过容忍值拦截
+ok 42 - UT-EVAL-07: 门禁评估：基线回退超过容忍值拦截
+  ---
+  duration_ms: 1.7043
+  type: 'test'
+  ...
+# Subtest: UT-EVAL-08: 门禁评估：版本不兼容时 template 失败、live 模式 warn
+ok 43 - UT-EVAL-08: 门禁评估：版本不兼容时 template 失败、live 模式 warn
+  ---
+  duration_ms: 0.9988
+  type: 'test'
+  ...
+# Subtest: UT-EVAL-09: runner 执行器在 live 模式下模板分不达标仍标记失败
+ok 44 - UT-EVAL-09: runner 执行器在 live 模式下模板分不达标仍标记失败
+  ---
+  duration_ms: 4.7211
+  type: 'test'
+  ...
+# Subtest: UT-EVAL-10: runner 取消时抛出 AbortError
+ok 45 - UT-EVAL-10: runner 取消时抛出 AbortError
+  ---
+  duration_ms: 1.7024
+  type: 'test'
+  ...
+# {"level":30,"time":1795360560962,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbmt7_0cbau5","method":"GET","path":"/api/v1/harness/eval/suites","status":401,"duration_ms":8}
+# Subtest: IT-EVAL-01: 未认证访问评测套件返回 401
+ok 46 - IT-EVAL-01: 未认证访问评测套件返回 401
+  ---
+  duration_ms: 30.2113
+  type: 'test'
+  ...
+# {"level":30,"time":1795360560986,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbmts_l43788","method":"GET","path":"/api/v1/harness/eval/suites","status":200,"duration_ms":9}
+# {"level":30,"time":1795360561008,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbmui_ud5oyb","method":"GET","path":"/api/v1/harness/eval/suites/core","status":200,"duration_ms":6}
+# Subtest: IT-EVAL-02: 获取套件列表与详情返回 200 及 core 12 条用例
+ok 47 - IT-EVAL-02: 获取套件列表与详情返回 200 及 core 12 条用例
+  ---
+  duration_ms: 44.7219
+  type: 'test'
+  ...
+# {"level":30,"time":1795360561035,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbmv5_gahw4z","method":"POST","path":"/api/v1/harness/eval/runs","status":400,"duration_ms":10}
+# Subtest: IT-EVAL-03: 传递非法 mode 参数返回 400 校验错误
+ok 48 - IT-EVAL-03: 传递非法 mode 参数返回 400 校验错误
+  ---
+  duration_ms: 24.382
+  type: 'test'
+  ...
+# {"level":30,"time":1795360561076,"service":"sciencex-backend","request_id":"req_mwrzbmvq_yzr1oq","event":"eval_run_created","run_id":"evr_mwrzbmvvrvrp","suite_id":"core","mode":"template","owner_id":"u1"}
+# {"level":30,"time":1795360561081,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbmvq_yzr1oq","method":"POST","path":"/api/v1/harness/eval/runs","status":200,"duration_ms":35}
+# {"level":30,"time":1795360561084,"service":"sciencex-backend","request_id":"req_mwrzbmvq_yzr1oq","event":"eval_run_started","run_id":"evr_mwrzbmvvrvrp","total":12,"prompt_version":"2026-10-04.v1"}
+# {"level":30,"time":1795360561085,"service":"sciencex-backend","request_id":"req_mwrzbmvq_yzr1oq","event":"eval_case_done","run_id":"evr_mwrzbmvvrvrp","case_id":"ablation","status":"passed","score":1,"latency_ms":1}
+# {"level":30,"time":1795360561087,"service":"sciencex-backend","request_id":"req_mwrzbmvq_yzr1oq","event":"eval_case_done","run_id":"evr_mwrzbmvvrvrp","case_id":"seeds","status":"passed","score":1,"latency_ms":1}
+# {"level":30,"time":1795360561087,"service":"sciencex-backend","request_id":"req_mwrzbmvq_yzr1oq","event":"eval_case_done","run_id":"evr_mwrzbmvvrvrp","case_id":"significance","status":"passed","score":1,"latency_ms":1}
+# {"level":30,"time":1795360561088,"service":"sciencex-backend","request_id":"req_mwrzbmvq_yzr1oq","event":"eval_case_done","run_id":"evr_mwrzbmvvrvrp","case_id":"survey","status":"passed","score":1,"latency_ms":1}
+# {"level":30,"time":1795360561088,"service":"sciencex-backend","request_id":"req_mwrzbmvq_yzr1oq","event":"eval_case_done","run_id":"evr_mwrzbmvvrvrp","case_id":"dedup","status":"passed","score":1,"latency_ms":1}
+# {"level":30,"time":1795360561088,"service":"sciencex-backend","request_id":"req_mwrzbmvq_yzr1oq","event":"eval_case_done","run_id":"evr_mwrzbmvvrvrp","case_id":"citation","status":"passed","score":1,"latency_ms":1}
+# {"level":30,"time":1795360561089,"service":"sciencex-backend","request_id":"req_mwrzbmvq_yzr1oq","event":"eval_case_done","run_id":"evr_mwrzbmvvrvrp","case_id":"missing-evidence","status":"passed","score":1,"latency_ms":1}
+# {"level":30,"time":1795360561089,"service":"sciencex-backend","request_id":"req_mwrzbmvq_yzr1oq","event":"eval_case_done","run_id":"evr_mwrzbmvvrvrp","case_id":"page","status":"passed","score":1,"latency_ms":1}
+# {"level":30,"time":1795360561090,"service":"sciencex-backend","request_id":"req_mwrzbmvq_yzr1oq","event":"eval_case_done","run_id":"evr_mwrzbmvvrvrp","case_id":"polish","status":"passed","score":1,"latency_ms":1}
+# {"level":30,"time":1795360561090,"service":"sciencex-backend","request_id":"req_mwrzbmvq_yzr1oq","event":"eval_case_done","run_id":"evr_mwrzbmvvrvrp","case_id":"translation","status":"passed","score":1,"latency_ms":1}
+# {"level":30,"time":1795360561091,"service":"sciencex-backend","request_id":"req_mwrzbmvq_yzr1oq","event":"eval_case_done","run_id":"evr_mwrzbmvvrvrp","case_id":"topic","status":"passed","score":1,"latency_ms":1}
+# {"level":30,"time":1795360561091,"service":"sciencex-backend","request_id":"req_mwrzbmvq_yzr1oq","event":"eval_case_done","run_id":"evr_mwrzbmvvrvrp","case_id":"insufficient","status":"passed","score":1,"latency_ms":1}
+# {"level":30,"time":1795360561127,"service":"sciencex-backend","request_id":"req_mwrzbmvq_yzr1oq","event":"eval_run_finished","run_id":"evr_mwrzbmvvrvrp","status":"passed","average_score":1,"gate_status":"passed","duration_ms":8}
+# {"level":30,"time":1795360561211,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbn03_c34lx8","method":"GET","path":"/api/v1/harness/eval/runs/evr_mwrzbmvvrvrp","status":200,"duration_ms":7}
+# {"level":30,"time":1795360561226,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbn0m_7th5db","method":"GET","path":"/api/v1/harness/eval/runs","status":200,"duration_ms":4}
+# Subtest: IT-EVAL-04 & IT-EVAL-05: 模板模式运行评测成功并通过门禁
+ok 49 - IT-EVAL-04 & IT-EVAL-05: 模板模式运行评测成功并通过门禁
+  ---
+  duration_ms: 190.7178
+  type: 'test'
+  ...
+# {"level":30,"time":1795360561263,"service":"sciencex-backend","request_id":"req_mwrzbn15_wpq887","event":"eval_run_created","run_id":"evr_mwrzbn1bzbcw","suite_id":"failing-fixture","mode":"template","owner_id":"u1"}
+# {"level":30,"time":1795360561266,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbn15_wpq887","method":"POST","path":"/api/v1/harness/eval/runs","status":200,"duration_ms":25}
+# {"level":30,"time":1795360561268,"service":"sciencex-backend","request_id":"req_mwrzbn15_wpq887","event":"eval_run_started","run_id":"evr_mwrzbn1bzbcw","total":1,"prompt_version":"2026-10-04.v1"}
+# {"level":30,"time":1795360561269,"service":"sciencex-backend","request_id":"req_mwrzbn15_wpq887","event":"eval_case_done","run_id":"evr_mwrzbn1bzbcw","case_id":"must-fail","status":"failed","score":0,"latency_ms":1}
+# {"level":30,"time":1795360561307,"service":"sciencex-backend","request_id":"req_mwrzbn15_wpq887","event":"eval_run_finished","run_id":"evr_mwrzbn1bzbcw","status":"failed","average_score":0,"gate_status":"failed","duration_ms":1}
+# {"level":30,"time":1795360561397,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbn5d_vp9a75","method":"GET","path":"/api/v1/harness/eval/runs/evr_mwrzbn1bzbcw","status":200,"duration_ms":4}
+# Subtest: IT-EVAL-06: 失败夹具套件运行导致门禁失败并列出用例 ID
+ok 50 - IT-EVAL-06: 失败夹具套件运行导致门禁失败并列出用例 ID
+  ---
+  duration_ms: 172.4789
+  type: 'test'
+  ...
+# {"level":30,"time":1795360561431,"service":"sciencex-backend","request_id":"req_mwrzbn5u_dd4949","event":"eval_run_created","run_id":"evr_mwrzbn5yh5hg","suite_id":"core","mode":"template","owner_id":"u1"}
+# {"level":30,"time":1795360561433,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbn5u_dd4949","method":"POST","path":"/api/v1/harness/eval/runs","status":200,"duration_ms":24}
+# {"level":30,"time":1795360561434,"service":"sciencex-backend","request_id":"req_mwrzbn5u_dd4949","event":"eval_run_started","run_id":"evr_mwrzbn5yh5hg","total":12,"prompt_version":"2026-10-04.v1"}
+# {"level":30,"time":1795360561435,"service":"sciencex-backend","request_id":"req_mwrzbn5u_dd4949","event":"eval_case_done","run_id":"evr_mwrzbn5yh5hg","case_id":"ablation","status":"passed","score":1,"latency_ms":1}
+# {"level":30,"time":1795360561435,"service":"sciencex-backend","request_id":"req_mwrzbn5u_dd4949","event":"eval_case_done","run_id":"evr_mwrzbn5yh5hg","case_id":"seeds","status":"passed","score":1,"latency_ms":1}
+# {"level":30,"time":1795360561435,"service":"sciencex-backend","request_id":"req_mwrzbn5u_dd4949","event":"eval_case_done","run_id":"evr_mwrzbn5yh5hg","case_id":"significance","status":"passed","score":1,"latency_ms":1}
+# {"level":30,"time":1795360561435,"service":"sciencex-backend","request_id":"req_mwrzbn5u_dd4949","event":"eval_case_done","run_id":"evr_mwrzbn5yh5hg","case_id":"survey","status":"passed","score":1,"latency_ms":1}
+# {"level":30,"time":1795360561435,"service":"sciencex-backend","request_id":"req_mwrzbn5u_dd4949","event":"eval_case_done","run_id":"evr_mwrzbn5yh5hg","case_id":"dedup","status":"passed","score":1,"latency_ms":1}
+# {"level":30,"time":1795360561435,"service":"sciencex-backend","request_id":"req_mwrzbn5u_dd4949","event":"eval_case_done","run_id":"evr_mwrzbn5yh5hg","case_id":"citation","status":"passed","score":1,"latency_ms":1}
+# {"level":30,"time":1795360561436,"service":"sciencex-backend","request_id":"req_mwrzbn5u_dd4949","event":"eval_case_done","run_id":"evr_mwrzbn5yh5hg","case_id":"missing-evidence","status":"passed","score":1,"latency_ms":1}
+# {"level":30,"time":1795360561436,"service":"sciencex-backend","request_id":"req_mwrzbn5u_dd4949","event":"eval_case_done","run_id":"evr_mwrzbn5yh5hg","case_id":"page","status":"passed","score":1,"latency_ms":1}
+# {"level":30,"time":1795360561436,"service":"sciencex-backend","request_id":"req_mwrzbn5u_dd4949","event":"eval_case_done","run_id":"evr_mwrzbn5yh5hg","case_id":"polish","status":"passed","score":1,"latency_ms":1}
+# {"level":30,"time":1795360561436,"service":"sciencex-backend","request_id":"req_mwrzbn5u_dd4949","event":"eval_case_done","run_id":"evr_mwrzbn5yh5hg","case_id":"translation","status":"passed","score":1,"latency_ms":1}
+# {"level":30,"time":1795360561436,"service":"sciencex-backend","request_id":"req_mwrzbn5u_dd4949","event":"eval_case_done","run_id":"evr_mwrzbn5yh5hg","case_id":"topic","status":"passed","score":1,"latency_ms":1}
+# {"level":30,"time":1795360561436,"service":"sciencex-backend","request_id":"req_mwrzbn5u_dd4949","event":"eval_case_done","run_id":"evr_mwrzbn5yh5hg","case_id":"insufficient","status":"passed","score":1,"latency_ms":1}
+# {"level":30,"time":1795360561449,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbn6r_c1nero","method":"POST","path":"/api/v1/harness/eval/runs/evr_mwrzbn5yh5hg/cancel","status":400,"duration_ms":5}
+# {"level":30,"time":1795360561484,"service":"sciencex-backend","request_id":"req_mwrzbn5u_dd4949","event":"eval_run_finished","run_id":"evr_mwrzbn5yh5hg","status":"passed","average_score":1,"gate_status":"passed","duration_ms":2}
+# Subtest: IT-EVAL-07: 取消运行测试
+ok 51 - IT-EVAL-07: 取消运行测试
+  ---
+  duration_ms: 110.9773
+  type: 'test'
+  ...
+# {"level":30,"time":1795360561530,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbn8w_7s4rwd","method":"POST","path":"/api/v1/harness/eval/runs/evr_mwrzbn1bzbcw/baseline","status":400,"duration_ms":10}
+# {"level":30,"time":1795360561548,"service":"sciencex-backend","request_id":"req_mwrzbn9k_q7d5ih","event":"eval_baseline_created","baseline_id":"evb_mwrzbn9nd1ce","run_id":"evr_mwrzbn5yh5hg","suite_id":"core","label":"test-core-baseline"}
+# {"level":30,"time":1795360561550,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbn9k_q7d5ih","method":"POST","path":"/api/v1/harness/eval/runs/evr_mwrzbn5yh5hg/baseline","status":200,"duration_ms":6}
+# {"level":30,"time":1795360561561,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbn9w_kvm6jq","method":"GET","path":"/api/v1/harness/eval/gates","status":200,"duration_ms":5}
+# Subtest: IT-EVAL-08 & IT-EVAL-09 & IT-EVAL-10: 基线建立、未通过拦截与基线回归拦截
+ok 52 - IT-EVAL-08 & IT-EVAL-09 & IT-EVAL-10: 基线建立、未通过拦截与基线回归拦截
+  ---
+  duration_ms: 50.8073
+  type: 'test'
+  ...
+# {"level":30,"time":1795360561605,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbna8_wcls68","method":"GET","path":"/api/v1/openapi.json","status":200,"duration_ms":37}
+# Subtest: IT-EVAL-11: OpenAPI 文档包含 10 个新增路由且 SSE 为 text/event-stream
+ok 53 - IT-EVAL-11: OpenAPI 文档包含 10 个新增路由且 SSE 为 text/event-stream
+  ---
+  duration_ms: 50.2157
+  type: 'test'
+  ...
+# {"level":30,"time":1795360561660,"service":"sciencex-backend","event":"eval_run_created","run_id":"evr_mwrzbnbk1npo","suite_id":"core","mode":"template","owner_id":"u1"}
+# {"level":30,"time":1795360561663,"service":"sciencex-backend","event":"eval_run_started","run_id":"evr_mwrzbnbk1npo","total":12,"prompt_version":"2026-10-04.v1"}
+# {"level":30,"time":1795360561664,"service":"sciencex-backend","event":"eval_case_done","run_id":"evr_mwrzbnbk1npo","case_id":"ablation","status":"passed","score":1,"latency_ms":1}
+# {"level":30,"time":1795360561664,"service":"sciencex-backend","event":"eval_case_done","run_id":"evr_mwrzbnbk1npo","case_id":"seeds","status":"passed","score":1,"latency_ms":1}
+# {"level":30,"time":1795360561664,"service":"sciencex-backend","event":"eval_case_done","run_id":"evr_mwrzbnbk1npo","case_id":"significance","status":"passed","score":1,"latency_ms":1}
+# {"level":30,"time":1795360561664,"service":"sciencex-backend","event":"eval_case_done","run_id":"evr_mwrzbnbk1npo","case_id":"survey","status":"passed","score":1,"latency_ms":1}
+# {"level":30,"time":1795360561664,"service":"sciencex-backend","event":"eval_case_done","run_id":"evr_mwrzbnbk1npo","case_id":"dedup","status":"passed","score":1,"latency_ms":1}
+# {"level":30,"time":1795360561664,"service":"sciencex-backend","event":"eval_case_done","run_id":"evr_mwrzbnbk1npo","case_id":"citation","status":"passed","score":1,"latency_ms":1}
+# {"level":30,"time":1795360561664,"service":"sciencex-backend","event":"eval_case_done","run_id":"evr_mwrzbnbk1npo","case_id":"missing-evidence","status":"passed","score":1,"latency_ms":1}
+# {"level":30,"time":1795360561664,"service":"sciencex-backend","event":"eval_case_done","run_id":"evr_mwrzbnbk1npo","case_id":"page","status":"passed","score":1,"latency_ms":1}
+# {"level":30,"time":1795360561664,"service":"sciencex-backend","event":"eval_case_done","run_id":"evr_mwrzbnbk1npo","case_id":"polish","status":"passed","score":1,"latency_ms":1}
+# {"level":30,"time":1795360561664,"service":"sciencex-backend","event":"eval_case_done","run_id":"evr_mwrzbnbk1npo","case_id":"translation","status":"passed","score":1,"latency_ms":1}
+# {"level":30,"time":1795360561664,"service":"sciencex-backend","event":"eval_case_done","run_id":"evr_mwrzbnbk1npo","case_id":"topic","status":"passed","score":1,"latency_ms":1}
+# {"level":30,"time":1795360561664,"service":"sciencex-backend","event":"eval_case_done","run_id":"evr_mwrzbnbk1npo","case_id":"insufficient","status":"passed","score":1,"latency_ms":1}
+# {"level":30,"time":1795360561673,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbnd0_epffdu","method":"GET","path":"/api/v1/harness/eval/runs/evr_mwrzbnbk1npo/stream","status":200,"duration_ms":5}
+# Subtest: IT-EVAL-12: SSE 进度流连接与事件推送
+ok 54 - IT-EVAL-12: SSE 进度流连接与事件推送
+  ---
+  duration_ms: 61.8294
+  type: 'test'
+  ...
+# {"level":40,"time":1795360561711,"service":"sciencex-backend","event":"eval_persist_failed","run_id":"evr_mwrzbnbk1npo","err":{"type":"Error","message":"ENOENT: no such file or directory, rename 'C:\\\\Users\\\\ADMINI~1\\\\AppData\\\\Local\\\\Temp\\\\sciencex-eval-test-29764\\\\store.json.29764.b24954b6-7811-4fcc-a55d-0f27fef2b002.tmp' -> 'C:\\\\Users\\\\ADMINI~1\\\\AppData\\\\Local\\\\Temp\\\\sciencex-eval-test-29764\\\\store.json'","stack":"Error: ENOENT: no such file or directory, rename 'C:\\\\Users\\\\ADMINI~1\\\\AppData\\\\Local\\\\Temp\\\\sciencex-eval-test-29764\\\\store.json.29764.b24954b6-7811-4fcc-a55d-0f27fef2b002.tmp' -> 'C:\\\\Users\\\\ADMINI~1\\\\AppData\\\\Local\\\\Temp\\\\sciencex-eval-test-29764\\\\store.json'\\n    at async Object.rename (node:internal/fs/promises:778:10)\\n    at async E:\\\\Code\\\\AI\\\\Start\\\\Web\\\\Science\\\\backend\\\\src\\\\lib\\\\persistence.js:21:9","errno":-4058,"code":"ENOENT","syscall":"rename","path":"C:\\\\Users\\\\ADMINI~1\\\\AppData\\\\Local\\\\Temp\\\\sciencex-eval-test-29764\\\\store.json.29764.b24954b6-7811-4fcc-a55d-0f27fef2b002.tmp","dest":"C:\\\\Users\\\\ADMINI~1\\\\AppData\\\\Local\\\\Temp\\\\sciencex-eval-test-29764\\\\store.json"},"msg":"评测完成持久化失败"}
+# {"level":30,"time":1795360561712,"service":"sciencex-backend","event":"eval_run_finished","run_id":"evr_mwrzbnbk1npo","status":"passed","average_score":1,"gate_status":"passed","duration_ms":2}
+# Subtest: 并发 persist 按入队次序串行写入，最终内容为最后一次快照
+ok 55 - 并发 persist 按入队次序串行写入，最终内容为最后一次快照
+  ---
+  duration_ms: 15.1351
+  type: 'test'
+  ...
+# Subtest: 单次写入失败会向调用者 reject，但不阻塞队列后续写入
+ok 56 - 单次写入失败会向调用者 reject，但不阻塞队列后续写入
+  ---
+  duration_ms: 3.6588
+  type: 'test'
+  ...
+# Subtest: 快照序列化异常直接 reject，不污染队列
+ok 57 - 快照序列化异常直接 reject，不污染队列
+  ---
+  duration_ms: 1.1439
+  type: 'test'
+  ...
+# Subtest: 真实磁盘并发写：文件始终为完整 JSON，无半写损坏
+ok 58 - 真实磁盘并发写：文件始终为完整 JSON，无半写损坏
+  ---
+  duration_ms: 508.9308
+  type: 'test'
+  ...
+# Subtest: store.persist 并发调用共享同一队列且全部成功
+ok 59 - store.persist 并发调用共享同一队列且全部成功
+  ---
+  duration_ms: 272.2258
+  type: 'test'
+  ...
+# {"level":30,"time":1795360561069,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbmqc_f6dg5n","method":"POST","path":"/api/v1/auth/login","status":200,"duration_ms":216}
+# {"level":30,"time":1795360561129,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbmxs_w9c1g7","method":"POST","path":"/api/v1/auth/login","status":400,"duration_ms":9}
+# Subtest: 登录缺少字段返回 40011 参数校验失败并携带字段明细
+ok 60 - 登录缺少字段返回 40011 参数校验失败并携带字段明细
+  ---
+  duration_ms: 335.6834
+  type: 'test'
+  ...
+# {"level":30,"time":1795360561161,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbmys_o1gpav","method":"POST","path":"/api/v1/auth/register","status":400,"duration_ms":4}
+# {"level":30,"time":1795360561177,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbmz8_6bq4jt","method":"POST","path":"/api/v1/auth/register","status":400,"duration_ms":4}
+# Subtest: 注册校验失败返回中文可读提示（不再只剩“参数校验失败”）
+ok 61 - 注册校验失败返回中文可读提示（不再只剩“参数校验失败”）
+  ---
+  duration_ms: 39.2947
+  type: 'test'
+  ...
+# {"level":30,"time":1795360561330,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbmzt_h9tr50","method":"POST","path":"/api/v1/auth/register","status":200,"duration_ms":137}
+# {"level":30,"time":1795360561474,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbn3x_uyrjl0","method":"POST","path":"/api/v1/auth/login","status":200,"duration_ms":133}
+# {"level":30,"time":1795360561491,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbn80_ou2dqm","method":"POST","path":"/api/v1/auth/register","status":400,"duration_ms":3}
+# Subtest: 注册→登录闭环可用（6 位密码、邮箱大小写归一）
+ok 62 - 注册→登录闭环可用（6 位密码、邮箱大小写归一）
+  ---
+  duration_ms: 314.3541
+  type: 'test'
+  ...
+# {"level":30,"time":1795360561516,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbn8e_tkgtie","method":"POST","path":"/api/v1/projects","status":200,"duration_ms":14}
+# Subtest: 未声明字段被契约白名单剔除（防批量赋值）
+ok 63 - 未声明字段被契约白名单剔除（防批量赋值）
+  ---
+  duration_ms: 23.3621
+  type: 'test'
+  ...
+# {"level":30,"time":1795360561653,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbn96_v4gkqq","method":"POST","path":"/api/v1/documents/upload","status":200,"duration_ms":123}
+# {"level":30,"time":1795360561670,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbncx_4zm2dp","method":"GET","path":"/api/v1/documents","status":200,"duration_ms":6}
+# {"level":30,"time":1795360561683,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbnda_g8ol4e","method":"GET","path":"/api/v1/documents/d_mwrzbn9n05yt","status":200,"duration_ms":4}
+# {"level":30,"time":1795360561696,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbndl_tzwnu2","method":"DELETE","path":"/api/v1/documents/d_mwrzbn9n05yt","status":200,"duration_ms":6}
+# Subtest: 文档上传（Markdown 文本）→ 列表 → 详情 → 删除全链路
+ok 64 - 文档上传（Markdown 文本）→ 列表 → 详情 → 删除全链路
+  ---
+  duration_ms: 179.7809
+  type: 'test'
+  ...
+# {"level":50,"time":1795360561712,"service":"sciencex-backend","request_id":"req_mwrzbne2_6a5hvr","event":"unhandled_error","method":"POST","path":"/api/v1/documents/upload","status":400,"code":40011,"err":{"type":"Error","message":"文件内容与声明格式不符或文件已损坏","stack":"Error: 文件内容与声明格式不符或文件已损坏\\n    at invalid (E:\\\\Code\\\\AI\\\\Start\\\\Web\\\\Science\\\\backend\\\\src\\\\lib\\\\upload.js:16:24)\\n    at Object.inspectFile (E:\\\\Code\\\\AI\\\\Start\\\\Web\\\\Science\\\\backend\\\\src\\\\lib\\\\upload.js:53:23)\\n    at E:\\\\Code\\\\AI\\\\Start\\\\Web\\\\Science\\\\backend\\\\src\\\\routes\\\\documents.js:92:10\\n    at E:\\\\Code\\\\AI\\\\Start\\\\Web\\\\Science\\\\backend\\\\src\\\\lib\\\\respond.js:22:46\\n    at E:\\\\Code\\\\AI\\\\Start\\\\Web\\\\Science\\\\backend\\\\src\\\\lib\\\\respond.js:22:46\\n    at Layer.handle [as handle_request] (E:\\\\Code\\\\AI\\\\Start\\\\Web\\\\Science\\\\backend\\\\node_modules\\\\express\\\\lib\\\\router\\\\layer.js:95:5)\\n    at next (E:\\\\Code\\\\AI\\\\Start\\\\Web\\\\Science\\\\backend\\\\node_modules\\\\express\\\\lib\\\\router\\\\route.js:149:13)\\n    at E:\\\\Code\\\\AI\\\\Start\\\\Web\\\\Science\\\\backend\\\\src\\\\lib\\\\validation.js:25:5\\n    at Layer.handle [as handle_request] (E:\\\\Code\\\\AI\\\\Start\\\\Web\\\\Science\\\\backend\\\\node_modules\\\\express\\\\lib\\\\router\\\\layer.js:95:5)\\n    at next (E:\\\\Code\\\\AI\\\\Start\\\\Web\\\\Science\\\\backend\\\\node_modules\\\\express\\\\lib\\\\router\\\\route.js:149:13)","statusCode":400,"businessCode":40011,"publicMessage":"文件内容与声明格式不符或文件已损坏"},"msg":"文件内容与声明格式不符或文件已损坏"}
+# {"level":30,"time":1795360561715,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbne2_6a5hvr","method":"POST","path":"/api/v1/documents/upload","status":400,"duration_ms":9}
+# Subtest: 文档上传拒绝伪装扩展名（内容嗅探，B7）
+ok 65 - 文档上传拒绝伪装扩展名（内容嗅探，B7）
+  ---
+  duration_ms: 19.2133
+  type: 'test'
+  ...
+# {"level":30,"time":1795360561729,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbnek_yvjeux","method":"POST","path":"/api/v1/experiments","status":200,"duration_ms":5}
+# {"level":30,"time":1795360561741,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbnev_bfosnx","method":"POST","path":"/api/v1/experiments/e_mwrzbnenujy3/runs","status":200,"duration_ms":6}
+# {"level":30,"time":1795360561750,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbnf5_f28l8z","method":"GET","path":"/api/v1/experiments/e_mwrzbnenujy3","status":200,"duration_ms":5}
+# Subtest: 实验创建 → 运行调度 → 详情契约
+ok 66 - 实验创建 → 运行调度 → 详情契约
+  ---
+  duration_ms: 34.5689
+  type: 'test'
+  ...
+# {"level":30,"time":1795360561764,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbnfk_ti1jrg","method":"GET","path":"/api/v1/gpu/nodes","status":200,"duration_ms":4}
+# {"level":30,"time":1795360561787,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbng5_lj3cxc","method":"GET","path":"/api/v1/journals","status":200,"duration_ms":6}
+# Subtest: GPU 节点与期刊返回带 source=demo 打标（B8）
+ok 67 - GPU 节点与期刊返回带 source=demo 打标（B8）
+  ---
+  duration_ms: 38.255
+  type: 'test'
+  ...
+# {"level":30,"time":1795360561803,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbngm_xpu15p","method":"POST","path":"/api/v1/submission-tracks","status":200,"duration_ms":5}
+# {"level":30,"time":1795360561812,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbngw_qr8gam","method":"PATCH","path":"/api/v1/submission-tracks/st_mwrzbngpugks","status":200,"duration_ms":4}
+# {"level":30,"time":1795360561820,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbnh4_67eumk","method":"DELETE","path":"/api/v1/submission-tracks/st_mwrzbngpugks","status":200,"duration_ms":4}
+# Subtest: 投稿追踪：关注 → 更新状态 → 取消
+ok 68 - 投稿追踪：关注 → 更新状态 → 取消
+  ---
+  duration_ms: 30.406
+  type: 'test'
+  ...
+# {"level":30,"time":1795360561830,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbnhf_e89ds1","method":"POST","path":"/api/v1/submission-tracks","status":404,"duration_ms":4}
+# Subtest: 不存在的期刊返回 40003 而不是 500
+ok 69 - 不存在的期刊返回 40003 而不是 500
+  ---
+  duration_ms: 9.8832
+  type: 'test'
+  ...
+# {"level":30,"time":1795360561860,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbnhp_dq5bqp","method":"GET","path":"/api/v1/openapi.json","status":200,"duration_ms":23}
+# Subtest: GET /openapi.json 与运行时契约同源
+ok 70 - GET /openapi.json 与运行时契约同源
+  ---
+  duration_ms: 34.8932
+  type: 'test'
+  ...
+# Subtest: 不同 scope 的限流桶互相隔离，同一用户不同接口不互踩（B3）
+ok 71 - 不同 scope 的限流桶互相隔离，同一用户不同接口不互踩（B3）
+  ---
+  duration_ms: 1.4522
+  type: 'test'
+  ...
+# Subtest: 限流优先按签名令牌识别 userId，共享 IP 不误伤（B3）
+ok 72 - 限流优先按签名令牌识别 userId，共享 IP 不误伤（B3）
+  ---
+  duration_ms: 1.3452
+  type: 'test'
+  ...
+# Subtest: 超限返回 429 + 42901 并携带 Retry-After
+ok 73 - 超限返回 429 + 42901 并携带 Retry-After
+  ---
+  duration_ms: 2.9631
+  type: 'test'
+  ...
+# {"level":30,"time":1795360561883,"service":"sciencex-backend","event":"request","request_id":"req_mwrzbnix_5tduar","method":"GET","path":"/api/v1/health","status":200,"duration_ms":3}
+# Subtest: X-Request-Id 全链路透传（B5 日志关联键）
+ok 74 - X-Request-Id 全链路透传（B5 日志关联键）
+  ---
+  duration_ms: 10.7463
+  type: 'test'
+  ...
+1..74
+# tests 74
+# suites 0
+# pass 71
+# fail 0
+# cancelled 0
+# skipped 3
+# todo 0
+# duration_ms 24224.9728
+✅ 后端自动化测试（74 条） — 通过
+
+▶ 前端类型检查
+  $ npm run typecheck
+
+> sciencex-frontend@1.0.0 typecheck
+> tsc --noEmit
+
+✅ 前端类型检查 — 通过
+
+▶ 前端生产构建
+  $ npm run build
+
+> sciencex-frontend@1.0.0 build
+> tsc --noEmit && vite build
+
+vite v5.4.21 building for production...
+transforming...
+✓ 114 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                           0.72 kB │ gzip:  0.51 kB
+dist/assets/early_scholar-DQYjzQsD.jpg  801.83 kB
+dist/assets/grad_student-DCVXkh-w.jpg   833.32 kB
+dist/assets/lab_pi-ksAcnjBT.jpg         840.68 kB
+dist/assets/Quality-DAsqT_qO.css          3.22 kB │ gzip:  0.95 kB
+dist/assets/Analysis-BSrRjCDB.css        10.65 kB │ gzip:  2.82 kB
+dist/assets/index-B23aOuLq.css           38.41 kB │ gzip:  8.89 kB
+dist/assets/Landing-8DYo3j8q.css         39.42 kB │ gzip:  9.11 kB
+dist/assets/alipay-CTz8HHN6.js            1.78 kB │ gzip:  1.03 kB
+dist/assets/TaskRunner-B7RtlKig.js        1.95 kB │ gzip:  1.00 kB
+dist/assets/Markdown-BoQc-lIx.js          2.41 kB │ gzip:  0.91 kB
+dist/assets/AddModelModal-67qb7x9E.js     4.97 kB │ gzip:  2.46 kB
+dist/assets/charts-BLT72_RU.js            5.43 kB │ gzip:  2.06 kB
+dist/assets/Meeting--bCgHVaR.js           7.32 kB │ gzip:  2.89 kB
+dist/assets/Experiment-B5Eh9jHD.js       12.18 kB │ gzip:  3.82 kB
+dist/assets/Writing-BEZv4_Fq.js          12.67 kB │ gzip:  4.70 kB
+dist/assets/Projects-uhsjNiWL.js         13.27 kB │ gzip:  4.53 kB
+dist/assets/Analysis-_9ixYSTN.js         13.57 kB │ gzip:  5.49 kB
+dist/assets/Login-Ddrnuf44.js            13.87 kB │ gzip:  5.01 kB
+dist/assets/Submission-CILf7-WK.js       18.51 kB │ gzip:  6.10 kB
+dist/assets/Topic-dPXS1grP.js            19.00 kB │ gzip:  8.48 kB
+dist/assets/Reproduce-Zn0AK8bg.js        21.26 kB │ gzip:  8.99 kB
+dist/assets/Review-Cst7bC5w.js           24.91 kB │ gzip:  8.72 kB
+dist/assets/Landing-BzDTXpVR.js          33.51 kB │ gzip: 14.95 kB
+dist/assets/Account-BlkaBXiP.js          40.36 kB │ gzip: 13.95 kB
+dist/assets/Quality-CCDURGBo.js          41.42 kB │ gzip: 12.38 kB
+dist/assets/index-Dkry0XaO.js            44.34 kB │ gzip: 16.30 kB
+dist/assets/Chat-DBc9LF6M.js             55.92 kB │ gzip: 17.86 kB
+dist/assets/Reader-BW3d2m_q.js           88.20 kB │ gzip: 32.87 kB
+dist/assets/vendor-react-Cpr7rgVM.js    164.73 kB │ gzip: 53.76 kB
+✓ built in 3.96s
+✅ 前端生产构建 — 通过
+
+校验汇总：6/6 项通过
+全部通过，可按 README 第五节启动前后端进行人工验收。

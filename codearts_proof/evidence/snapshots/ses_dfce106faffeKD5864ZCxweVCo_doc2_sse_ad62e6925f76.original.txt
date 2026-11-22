@@ -1,0 +1,902 @@
+retry: 3000
+
+id: 1
+event: start
+data: {"message_id":"msg_mwrtqmssstbo","model":"DeepSeek-Flash","fallback":false,"mode":"live","retrieval":{"mode":"fulltext-fallback","degraded":true,"reranked":false}}
+
+id: 2
+event: delta
+data: {"text":"你这"}
+
+id: 3
+event: delta
+data: {"text":"条问题"}
+
+id: 4
+event: delta
+data: {"text":"的字符出"}
+
+id: 5
+event: delta
+data: {"text":"现了编码乱"}
+
+id: 6
+event: delta
+data: {"text":"码（显示"}
+
+id: 7
+event: delta
+data: {"text":"为 `�"}
+
+id: 8
+event: delta
+data: {"text":"�ƪ���"}
+
+id: 9
+event: delta
+data: {"text":"ĵĺ��Ĺ"}
+
+id: 10
+event: delta
+data: {"text":"��"}
+
+id: 11
+event: delta
+data: {"text":"��"}
+
+id: 12
+event: delta
+data: {"text":"�ʲô�"}
+
+id: 13
+event: delta
+data: {"text":"�`）"}
+
+id: 14
+event: delta
+data: {"text":"。按字形"}
+
+id: 15
+event: delta
+data: {"text":"推测，你想"}
+
+id: 16
+event: delta
+data: {"text":"问的可能"}
+
+id: 17
+event: delta
+data: {"text":"是「这篇"}
+
+id: 18
+event: delta
+data: {"text":"文档的核心"}
+
+id: 19
+event: delta
+data: {"text":"功能"}
+
+id: 20
+event: delta
+data: {"text":"/核"}
+
+id: 21
+event: delta
+data: {"text":"心贡献是什"}
+
+id: 22
+event: delta
+data: {"text":"么？」"}
+
+id: 23
+event: delta
+data: {"text":"。我按这个"}
+
+id: 24
+event: delta
+data: {"text":"意思"}
+
+id: 25
+event: delta
+data: {"text":"回答。\n\n"}
+
+id: 26
+event: delta
+data: {"text":"**结论："}
+
+id: 27
+event: delta
+data: {"text":"无法从"}
+
+id: 28
+event: delta
+data: {"text":"当前"}
+
+id: 29
+event: delta
+data: {"text":"可读正文判"}
+
+id: 30
+event: delta
+data: {"text":"断该文献"}
+
+id: 31
+event: delta
+data: {"text":"的核心功能"}
+
+id: 32
+event: delta
+data: {"text":"或贡"}
+
+id: 33
+event: delta
+data: {"text":"献，因为"}
+
+id: 34
+event: delta
+data: {"text":"正文未提及"}
+
+id: 35
+event: delta
+data: {"text":"论文"}
+
+id: 36
+event: delta
+data: {"text":"的实"}
+
+id: 37
+event: delta
+data: {"text":"质研究"}
+
+id: 38
+event: delta
+data: {"text":"内容。**"}
+
+id: 39
+event: delta
+data: {"text":"\n\n依据"}
+
+id: 40
+event: delta
+data: {"text":"如下：\n"}
+
+id: 41
+event: delta
+data: {"text":"\n1. "}
+
+id: 42
+event: delta
+data: {"text":"根据「1"}
+
+id: 43
+event: delta
+data: {"text":". "}
+
+id: 44
+event: delta
+data: {"text":"文档"}
+
+id: 45
+event: delta
+data: {"text":"概览 "}
+
+id: 46
+event: delta
+data: {"text":"(Doc"}
+
+id: 47
+event: delta
+data: {"text":"ume"}
+
+id: 48
+event: delta
+data: {"text":"nt Ov"}
+
+id: 49
+event: delta
+data: {"text":"ervie"}
+
+id: 50
+event: delta
+data: {"text":"w)"}
+
+id: 51
+event: delta
+data: {"text":"」，该文件"}
+
+id: 52
+event: delta
+data: {"text":"虽然"}
+
+id: 53
+event: delta
+data: {"text":"已导入 S"}
+
+id: 54
+event: delta
+data: {"text":"cie"}
+
+id: 55
+event: delta
+data: {"text":"nce"}
+
+id: 56
+event: delta
+data: {"text":"X 文献"}
+
+id: 57
+event: delta
+data: {"text":"解析系"}
+
+id: 58
+event: delta
+data: {"text":"统（格式 "}
+
+id: 59
+event: delta
+data: {"text":"PD"}
+
+id: 60
+event: delta
+data: {"text":"F，"}
+
+id: 61
+event: delta
+data: {"text":"体积 "}
+
+id: 62
+event: delta
+data: {"text":"1536"}
+
+id: 63
+event: delta
+data: {"text":" K"}
+
+id: 64
+event: delta
+data: {"text":"B），但*"}
+
+id: 65
+event: delta
+data: {"text":"*「该"}
+
+id: 66
+event: delta
+data: {"text":"文件未能提"}
+
+id: 67
+event: delta
+data: {"text":"取到有效"}
+
+id: 68
+event: delta
+data: {"text":"文本层，已"}
+
+id: 69
+event: delta
+data: {"text":"启用降级"}
+
+id: 70
+event: delta
+data: {"text":"阅读视图"}
+
+id: 71
+event: delta
+data: {"text":"」**。也"}
+
+id: 72
+event: delta
+data: {"text":"就是说"}
+
+id: 73
+event: delta
+data: {"text":"，当前"}
+
+id: 74
+event: delta
+data: {"text":"正文并不是"}
+
+id: 75
+event: delta
+data: {"text":"论文本身"}
+
+id: 76
+event: delta
+data: {"text":"的章节、"}
+
+id: 77
+event: delta
+data: {"text":"方法或"}
+
+id: 78
+event: delta
+data: {"text":"结论，"}
+
+id: 79
+event: delta
+data: {"text":"而是"}
+
+id: 80
+event: delta
+data: {"text":"系统对解"}
+
+id: 81
+event: delta
+data: {"text":"析状态的说"}
+
+id: 82
+event: delta
+data: {"text":"明。\n\n"}
+
+id: 83
+event: delta
+data: {"text":"2. 根据"}
+
+id: 84
+event: delta
+data: {"text":"「2. 可"}
+
+id: 85
+event: delta
+data: {"text":"阅读"}
+
+id: 86
+event: delta
+data: {"text":"信息 "}
+
+id: 87
+event: delta
+data: {"text":"(Ex"}
+
+id: 88
+event: delta
+data: {"text":"tra"}
+
+id: 89
+event: delta
+data: {"text":"ct"}
+
+id: 90
+event: delta
+data: {"text":"ed Co"}
+
+id: 91
+event: delta
+data: {"text":"nt"}
+
+id: 92
+event: delta
+data: {"text":"en"}
+
+id: 93
+event: delta
+data: {"text":"t)」，*"}
+
+id: 94
+event: delta
+data: {"text":"*「当"}
+
+id: 95
+event: delta
+data: {"text":"前视图为"}
+
+id: 96
+event: delta
+data: {"text":"降级"}
+
+id: 97
+event: delta
+data: {"text":"模式。"}
+
+id: 98
+event: delta
+data: {"text":"系统已"}
+
+id: 99
+event: delta
+data: {"text":"保留"}
+
+id: 100
+event: delta
+data: {"text":"文件的元"}
+
+id: 101
+event: delta
+data: {"text":"信息"}
+
+id: 102
+event: delta
+data: {"text":"与可提取"}
+
+id: 103
+event: delta
+data: {"text":"片段"}
+
+id: 104
+event: delta
+data: {"text":"」**"}
+
+id: 105
+event: delta
+data: {"text":"，并明确"}
+
+id: 106
+event: delta
+data: {"text":"说明："}
+
+id: 107
+event: delta
+data: {"text":"若需完整的"}
+
+id: 108
+event: delta
+data: {"text":"结构化正文"}
+
+id: 109
+event: delta
+data: {"text":"（章节"}
+
+id: 110
+event: delta
+data: {"text":"、段落"}
+
+id: 111
+event: delta
+data: {"text":"、图表引用"}
+
+id: 112
+event: delta
+data: {"text":"），"}
+
+id: 113
+event: delta
+data: {"text":"需参考「原"}
+
+id: 114
+event: delta
+data: {"text":"文档预览"}
+
+id: 115
+event: delta
+data: {"text":"」中的处理"}
+
+id: 116
+event: delta
+data: {"text":"建议。因此"}
+
+id: 117
+event: delta
+data: {"text":"，关"}
+
+id: 118
+event: delta
+data: {"text":"于 HT"}
+
+id: 119
+event: delta
+data: {"text":"Net"}
+
+id: 120
+event: delta
+data: {"text":" 的"}
+
+id: 121
+event: delta
+data: {"text":"网络结构"}
+
+id: 122
+event: delta
+data: {"text":"、微"}
+
+id: 123
+event: delta
+data: {"text":"表情识别"}
+
+id: 124
+event: delta
+data: {"text":"方法、"}
+
+id: 125
+event: delta
+data: {"text":"数据"}
+
+id: 126
+event: delta
+data: {"text":"集、实验指"}
+
+id: 127
+event: delta
+data: {"text":"标、创新点"}
+
+id: 128
+event: delta
+data: {"text":"等，**正"}
+
+id: 129
+event: delta
+data: {"text":"文均未提"}
+
+id: 130
+event: delta
+data: {"text":"及*"}
+
+id: 131
+event: delta
+data: {"text":"*。\n"}
+
+id: 132
+event: delta
+data: {"text":"\n3."}
+
+id: 133
+event: delta
+data: {"text":" 当"}
+
+id: 134
+event: delta
+data: {"text":"前正"}
+
+id: 135
+event: delta
+data: {"text":"文中唯一"}
+
+id: 136
+event: delta
+data: {"text":"可确认的信"}
+
+id: 137
+event: delta
+data: {"text":"息仅"}
+
+id: 138
+event: delta
+data: {"text":"为文"}
+
+id: 139
+event: delta
+data: {"text":"档层面"}
+
+id: 140
+event: delta
+data: {"text":"的元"}
+
+id: 141
+event: delta
+data: {"text":"信息与处理"}
+
+id: 142
+event: delta
+data: {"text":"建议：\n "}
+
+id: 143
+event: delta
+data: {"text":"  - 文"}
+
+id: 144
+event: delta
+data: {"text":"档标"}
+
+id: 145
+event: delta
+data: {"text":"题："}
+
+id: 146
+event: delta
+data: {"text":"《HTNe"}
+
+id: 147
+event: delta
+data: {"text":"t微"}
+
+id: 148
+event: delta
+data: {"text":"表情识"}
+
+id: 149
+event: delta
+data: {"text":"别 中文翻"}
+
+id: 150
+event: delta
+data: {"text":"译版》；"}
+
+id: 151
+event: delta
+data: {"text":"\n "}
+
+id: 152
+event: delta
+data: {"text":"  - "}
+
+id: 153
+event: delta
+data: {"text":"格式：P"}
+
+id: 154
+event: delta
+data: {"text":"DF；体"}
+
+id: 155
+event: delta
+data: {"text":"积："}
+
+id: 156
+event: delta
+data: {"text":"153"}
+
+id: 157
+event: delta
+data: {"text":"6 K"}
+
+id: 158
+event: delta
+data: {"text":"B；"}
+
+id: 159
+event: delta
+data: {"text":"\n   -"}
+
+id: 160
+event: delta
+data: {"text":" 未能提取"}
+
+id: 161
+event: delta
+data: {"text":"有效文"}
+
+id: 162
+event: delta
+data: {"text":"本层"}
+
+id: 163
+event: delta
+data: {"text":"，处于"}
+
+id: 164
+event: delta
+data: {"text":"降级"}
+
+id: 165
+event: delta
+data: {"text":"阅读视图；"}
+
+id: 166
+event: delta
+data: {"text":"\n  "}
+
+id: 167
+event: delta
+data: {"text":" - "}
+
+id: 168
+event: delta
+data: {"text":"可在左"}
+
+id: 169
+event: delta
+data: {"text":"栏右上角切"}
+
+id: 170
+event: delta
+data: {"text":"换「原"}
+
+id: 171
+event: delta
+data: {"text":"文档"}
+
+id: 172
+event: delta
+data: {"text":"」模式"}
+
+id: 173
+event: delta
+data: {"text":"查看原"}
+
+id: 174
+event: delta
+data: {"text":"始文件；"}
+
+id: 175
+event: delta
+data: {"text":"\n  "}
+
+id: 176
+event: delta
+data: {"text":" - "}
+
+id: 177
+event: delta
+data: {"text":"扫描件"}
+
+id: 178
+event: delta
+data: {"text":" PDF"}
+
+id: 179
+event: delta
+data: {"text":" 建议先"}
+
+id: 180
+event: delta
+data: {"text":"经 OC"}
+
+id: 181
+event: delta
+data: {"text":"R 转换后"}
+
+id: 182
+event: delta
+data: {"text":"再导入，以"}
+
+id: 183
+event: delta
+data: {"text":"获得可划"}
+
+id: 184
+event: delta
+data: {"text":"词、"}
+
+id: 185
+event: delta
+data: {"text":"可翻"}
+
+id: 186
+event: delta
+data: {"text":"译的结构化"}
+
+id: 187
+event: delta
+data: {"text":"正文"}
+
+id: 188
+event: delta
+data: {"text":"。\n\n"}
+
+id: 189
+event: delta
+data: {"text":"因此，"}
+
+id: 190
+event: delta
+data: {"text":"若你想了解"}
+
+id: 191
+event: delta
+data: {"text":"这篇文献的"}
+
+id: 192
+event: delta
+data: {"text":"核心贡献"}
+
+id: 193
+event: delta
+data: {"text":"，目前"}
+
+id: 194
+event: delta
+data: {"text":"只能"}
+
+id: 195
+event: delta
+data: {"text":"：**"}
+
+id: 196
+event: delta
+data: {"text":"切换到「"}
+
+id: 197
+event: delta
+data: {"text":"原文档"}
+
+id: 198
+event: delta
+data: {"text":"」模式"}
+
+id: 199
+event: delta
+data: {"text":"直接"}
+
+id: 200
+event: delta
+data: {"text":"阅读原"}
+
+id: 201
+event: delta
+data: {"text":"始 PDF"}
+
+id: 202
+event: delta
+data: {"text":"，或先对"}
+
+id: 203
+event: delta
+data: {"text":"该扫描件"}
+
+id: 204
+event: delta
+data: {"text":"做 OC"}
+
+id: 205
+event: delta
+data: {"text":"R 后再"}
+
+id: 206
+event: delta
+data: {"text":"重新导入*"}
+
+id: 207
+event: delta
+data: {"text":"*。"}
+
+id: 208
+event: delta
+data: {"text":"在完成这"}
+
+id: 209
+event: delta
+data: {"text":"一步"}
+
+id: 210
+event: delta
+data: {"text":"之前，我"}
+
+id: 211
+event: delta
+data: {"text":"不能"}
+
+id: 212
+event: delta
+data: {"text":"依据现有"}
+
+id: 213
+event: delta
+data: {"text":"正文对 "}
+
+id: 214
+event: delta
+data: {"text":"HT"}
+
+id: 215
+event: delta
+data: {"text":"Ne"}
+
+id: 216
+event: delta
+data: {"text":"t 的"}
+
+id: 217
+event: delta
+data: {"text":"方法、"}
+
+id: 218
+event: delta
+data: {"text":"性能或结"}
+
+id: 219
+event: delta
+data: {"text":"论作任何"}
+
+id: 220
+event: delta
+data: {"text":"具体说明"}
+
+id: 221
+event: delta
+data: {"text":"——这些"}
+
+id: 222
+event: delta
+data: {"text":"内容"}
+
+id: 223
+event: delta
+data: {"text":"正文未提"}
+
+id: 224
+event: delta
+data: {"text":"及。"}
+
+id: 225
+event: done
+data: {"message_id":"msg_mwrtqmssstbo","tokens":1466,"usage_status":"reported","fallback":false,"mode":"live"}
+

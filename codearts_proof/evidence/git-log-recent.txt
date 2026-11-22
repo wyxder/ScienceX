@@ -1,0 +1,30 @@
+12ccb7b feat: 新增华为云协议适配与一键复现校验，补全区域赛评分与码道使用证明
+0278e6b docs: 更新README同步Harness评测、支付宝支付与74条测试等最新进展
+60dac48 fix: 文献 Agent 改为基于文档全文回答并修复 PDF 解析参数超长失败
+f7f17f8 feat: AI 工作台默认 DeepSeek V4.1 Flash 并新增长期事实库总开关（默认关闭）
+ae0a486 chore: 新增每两次代码修改自动提交并同步的协作规则
+f2ba253 fix: 修复订阅订单收银台卡死与支付宝支付回跳核销异常
+6ba90d2 docs: 新增项目十大问题与解决方案面试复盘文档
+04edab5 docs: 新增Harness技术应用全流程文档与全景架构图
+32331b8 feat: add evaluation harness and quality dashboard UI components
+f3a96c2 feat: add Alipay payment integration and account billing management UI
+23973ab feat: integrate Alipay payment SDK and configuration module
+5d4f144 Merge branch 'main' of https://github.com/wyxpro/ScienceX
+993b2a6 feat: add alipay integration skills and reference documentation
+a4c7296 Update README.md
+7fc8536 docs: 简历1新增项目代码复现章节（本地四条命令/测试评测/双部署/可复现性设计）
+d204750 docs: 新增数据库对接方案与账户数据持久化实施指南（现状分析/六方案对比/首选Supabase/11步操作教程）
+79d709f docs: 简历1新增多模态/RAG/Agent/多智能体/Skills/MCP/评测七大AI能力专项亮点
+3fece4d docs: 新增简历项目经历文档（AI产品经理与AI全栈各10个STAR亮点）
+12dd605 docs: 新增路演答辩产品与技术补充问题独立速答手册（Q31-Q39）
+bf7f16b docs: 路演手册新增产品与技术补充问答Q31-Q39（豆包差异、数字口径、评审团编排、RAG防幻觉、隐私、解析、复现），README移除失效截图
+360735c Update README.md
+76451ca docs: README收录测试用例与结果完整内容（新增第七节并重排后续章节编号）
+d73b35b feat: 专家评审团五角色Agent接入DeepSeek V4.1 Flash实时评审，支持上传论文文档建稿与五角色合议流程可视化弹窗
+442e976 docs: 新增参赛提交物汇总文档（架构图+工作流程图+测试结果一页整合）
+90ea58d docs: 评分自评报告删除一二节重复表格（内容已含在表格图中）
+319e2d7 Merge remote-tracking branch 'origin/main' into dev
+b25b1df docs: 新增参赛交付物测试用例与结果文档——55条自动化用例+12条AI质量评测全量明细
+c3e0460 fix: 移动端AI工作台默认DeepSeek V4.1 Flash并消除只读环境持久化导致的生成中断提示
+7fd6d26 feat: AI工作台深度检索进度条与四处交互体验修复
+afbd2ae Merge remote-tracking branch 'origin/main' into dev

@@ -1,0 +1,545 @@
+12ccb7b | 2026-11-22 | feat: 新增华为云协议适配与一键复现校验，补全区域赛评分与码道使用证明
+
+ README.md                                 |  61 ++++-
+ backend/shared/api-schemas.js             |   2 +-
+ backend/src/ai/providers.js               |   2 +-
+ backend/test/ai-services.test.js          |   5 +-
+ docs/submissions/码道使用实录.md          | 188 +++++++++++++++
+ docs/华为云服务集成方案.md                | 129 +++++++++++
+ docs/复现指南.md                          | 159 +++++++++++++
+ frontend/src/pages/chat/AddModelModal.tsx |   5 +-
+ scripts/verify.mjs                        |  47 ++++
+ 区域赛评分.md                             | 365 ++++++++++++++++++++++++++++++
+ 10 files changed, 956 insertions(+), 7 deletions(-)
+0278e6b | 2026-11-22 | docs: 更新README同步Harness评测、支付宝支付与74条测试等最新进展
+
+ README.md | 159 +++++++++++++++++++++++++++++++++++++++++---------------------
+ 1 file changed, 105 insertions(+), 54 deletions(-)
+60dac48 | 2026-11-22 | fix: 文献 Agent 改为基于文档全文回答并修复 PDF 解析参数超长失败
+
+ backend/src/ai/prompts/index.js                |  5 ++
+ backend/src/ai/rag.js                          |  3 +-
+ backend/src/lib/parser.js                      | 52 +++++++++++++----
+ backend/src/routes/documents.js                | 35 ++++++++++-
+ frontend/src/api/client.ts                     | 80 +++++++++++++-------------
+ frontend/src/pages/reader/ReaderAgentPanel.tsx |  3 +-
+ frontend/src/pages/reader/readerShared.ts      |  3 +-
+ 7 files changed, 125 insertions(+), 56 deletions(-)
+f7f17f8 | 2026-11-22 | feat: AI 工作台默认 DeepSeek V4.1 Flash 并新增长期事实库总开关（默认关闭）
+
+ backend/shared/api-schemas.js            |  25 +++++---
+ backend/src/lib/agents/lingxiEngine.js   |  36 +++++++----
+ backend/src/routes/chat.js               |  15 ++++-
+ frontend/src/pages/Chat.tsx              | 100 +++++++++++++++----------------
+ frontend/src/pages/chat/MemoryDrawer.tsx |  44 ++++++++++++--
+ 5 files changed, 145 insertions(+), 75 deletions(-)
+ae0a486 | 2026-11-22 | chore: 新增每两次代码修改自动提交并同步的协作规则
+
+ AGENTS.md | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+f2ba253 | 2026-11-22 | fix: 修复订阅订单收银台卡死与支付宝支付回跳核销异常
+
+ backend/src/routes/account.js                 |   1 +
+ backend/src/routes/payment.js                 | 162 +++++++++++++++++++++-----
+ frontend/src/pages/Account.tsx                |  76 +++++++-----
+ frontend/src/pages/account/BillingSection.tsx |   7 +-
+ frontend/src/pages/landing/LandingPricing.tsx |  56 +++++----
+ frontend/src/utils/alipay.ts                  | 105 +++++++++++++++++
+ 6 files changed, 328 insertions(+), 79 deletions(-)
+6ba90d2 | 2026-10-30 | docs: 新增项目十大问题与解决方案面试复盘文档
+
+ 解决.md | 382 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 382 insertions(+)
+04edab5 | 2026-10-27 | docs: 新增Harness技术应用全流程文档与全景架构图
+
+ Harness应用.md                | 501 ++++++++++++++++++++++++++++++++++++++++++
+ docs/harness-architecture.svg | 192 ++++++++++++++++
+ 2 files changed, 693 insertions(+)
+32331b8 | 2026-10-23 | feat: add evaluation harness and quality dashboard UI components
+
+ .github/workflows/ci.yml                           |    9 +-
+ backend/.env.example                               |   21 +
+ .../tmp/coverage-10224-1791059254783-0.json        |    1 -
+ .../tmp/coverage-13136-1791059262989-0.json        |    1 -
+ .../tmp/coverage-24024-1792729403837-0.json        |    1 +
+ .../tmp/coverage-26564-1791059255019-0.json        |    1 -
+ .../tmp/coverage-26600-1791059255698-0.json        |    1 -
+ .../tmp/coverage-28132-1791059272177-0.json        |    1 -
+ .../tmp/coverage-29248-1791059254451-0.json        |    1 -
+ .../tmp/coverage-33860-1792729412189-0.json        |    1 +
+ ...-0.json => coverage-34024-1792729402357-0.json} |    2 +-
+ .../tmp/coverage-4556-1792729404264-0.json         |    1 +
+ .../tmp/coverage-55412-1792729405108-0.json        |    1 +
+ .../tmp/coverage-55964-1792729406771-0.json        |    1 +
+ .../tmp/coverage-58688-1792729403051-0.json        |    1 +
+ .../tmp/coverage-74764-1792729421466-0.json        |    1 +
+ backend/eval/run.js                                |  191 +-
+ backend/eval/suites/.gitkeep                       |    1 +
+ backend/package.json                               |    4 +-
+ backend/shared/api-schemas.js                      |   31 +
+ backend/src/harness/eval/config.js                 |   65 +
+ backend/src/harness/eval/gate.js                   |  188 +
+ backend/src/harness/eval/runner.js                 |  111 +
+ backend/src/harness/eval/scorer.js                 |   20 +
+ backend/src/harness/eval/service.js                |  878 ++++
+ backend/src/harness/eval/suites.js                 |  176 +
+ backend/src/lib/openapi.js                         |   13 +-
+ backend/src/lib/store.js                           |    5 +
+ backend/src/routes/harness.js                      |   98 +
+ backend/src/server.js                              |    2 +
+ backend/test/fixtures/eval-suites/failing.json     |   15 +
+ backend/test/harness.eval.test.js                  |  450 +++
+ docs/Harness.md                                    | 1565 ++++++++
+ docs/Harness1.md                                   | 4225 ++++++++++++++++++++
+ docs/面试.md                                       |  825 ++++
+ frontend/src/api/client.ts                         |   81 +
+ frontend/src/api/eval.ts                           |   48 +
+ .../src/components/quality/BaselineGatePanel.tsx   |  232 ++
+ frontend/src/components/quality/EvalRunDetail.tsx  |  829 ++++
+ frontend/src/components/quality/EvalRunList.tsx    |  367 ++
+ .../src/components/quality/QualityDashboard.tsx    |  333 ++
+ frontend/src/components/quality/RunEvalModal.tsx   |  251 ++
+ frontend/src/layouts/AppLayout.tsx                 |    2 +
+ frontend/src/pages/Quality.tsx                     |  204 +
+ frontend/src/router/index.tsx                      |    2 +
+ frontend/src/styles/quality.css                    |  232 ++
+ frontend/src/types/eval.ts                         |  248 ++
+ 47 files changed, 11699 insertions(+), 38 deletions(-)
+f3a96c2 | 2026-10-19 | feat: add Alipay payment integration and account billing management UI
+
+ backend/src/lib/store.js                      |   9 +-
+ backend/src/routes/account.js                 |   2 +-
+ backend/src/routes/payment.js                 |  94 ++++---
+ frontend/src/components/Icon.tsx              |   1 +
+ frontend/src/pages/Account.tsx                | 358 +++++++++++++++++++++++---
+ frontend/src/pages/account/BillingSection.tsx |  23 +-
+ frontend/src/pages/landing/LandingPricing.tsx | 336 +++++++++++++++++++++++-
+ 7 files changed, 720 insertions(+), 103 deletions(-)
+23973ab | 2026-10-19 | feat: integrate Alipay payment SDK and configuration module
+
+ .agents/skills/alipay-aipay-pre/SKILL.md           |   94 -
+ .agents/skills/alipay-aipay-pre/VERSION            |    1 -
+ .../references/integration/flow.md                 |  620 ------
+ .../integration/modules/alipay-sdk-reminder.md     |  281 ---
+ .../references/integration/modules/checklist.md    |  154 --
+ .../csharp/1-通用接口/异步通知处理代码示例.md      |  199 --
+ .../1-通用接口/统一收单交易关闭接口代码示例.md     |   68 -
+ .../1-通用接口/统一收单交易查询接口代码示例.md     |   83 -
+ .../1-通用接口/统一收单交易退款接口代码示例.md     |   80 -
+ .../1-通用接口/统一收单交易退款查询接口代码示例.md |   73 -
+ .../统一收单下单并支付页面接口代码示例.md          |   62 -
+ .../csharp/3-APP支付/APP支付接口代码示例.md        |  132 --
+ .../csharp/4-按量付费/A2MPaymentDemo.md            |  640 ------
+ .../java/1-通用接口/异步通知处理代码示例.md        |  184 --
+ .../1-通用接口/统一收单交易关闭接口代码示例.md     |   72 -
+ .../1-通用接口/统一收单交易查询接口代码示例.md     |   96 -
+ .../1-通用接口/统一收单交易退款接口代码示例.md     |   81 -
+ .../1-通用接口/统一收单交易退款查询接口代码示例.md |   77 -
+ .../统一收单下单并支付页面接口代码示例.md          |   69 -
+ .../java/3-APP支付/APP支付接口代码示例.md          |  138 --
+ .../java/4-按量付费/A2MPaymentDemoController.md    |  623 ------
+ .../nodejs/1-通用接口/异步通知处理代码示例.md      |  135 --
+ .../1-通用接口/统一收单交易关闭接口代码示例.md     |   51 -
+ .../1-通用接口/统一收单交易查询接口代码示例.md     |   63 -
+ .../1-通用接口/统一收单交易退款接口代码示例.md     |   59 -
+ .../1-通用接口/统一收单交易退款查询接口代码示例.md |   54 -
+ .../统一收单下单并支付页面接口代码示例.md          |   84 -
+ .../nodejs/3-APP支付/APP支付接口代码示例.md        |   71 -
+ .../nodejs/4-按量付费/A2MPaymentDemo.md            |  498 -----
+ .../php/1-通用接口/异步通知处理代码示例.md         |  157 --
+ .../php/1-通用接口/统一收单交易关闭接口代码示例.md |   59 -
+ .../php/1-通用接口/统一收单交易查询接口代码示例.md |   73 -
+ .../php/1-通用接口/统一收单交易退款接口代码示例.md |   69 -
+ .../1-通用接口/统一收单交易退款查询接口代码示例.md |   65 -
+ .../统一收单下单并支付页面接口代码示例.md          |   59 -
+ .../php/3-APP支付/APP支付接口代码示例.md           |  110 -
+ .../code-examples/php/4-按量付费/A2MPaymentDemo.md |  806 --------
+ .../python/1-通用接口/异步通知处理代码示例.md      |  128 --
+ .../1-通用接口/统一收单交易关闭接口代码示例.md     |   57 -
+ .../1-通用接口/统一收单交易查询接口代码示例.md     |   70 -
+ .../1-通用接口/统一收单交易退款接口代码示例.md     |   65 -
+ .../1-通用接口/统一收单交易退款查询接口代码示例.md |   62 -
+ .../统一收单下单并支付页面接口代码示例.md          |   51 -
+ .../python/3-APP支付/APP支付接口代码示例.md        |   47 -
+ .../python/4-按量付费/A2MPaymentDemo.md            |  541 -----
+ .../interface-contract/aipay-interface-contract.md |   52 -
+ .../apppay-interface-contract.md                   |   45 -
+ .../interface-contract/common-trade-contract.md    |   42 -
+ .../interface-contract/notify-url-contract.md      |   68 -
+ .../webpay-interface-contract.md                   |   44 -
+ .../integration/modules/interface-guide.md         |   61 -
+ .../integration/modules/product-decision.md        |   73 -
+ .../modules/sandbox/a2m-sandbox-test.md            |  235 ---
+ .../modules/sandbox/alipay-sandbox-tool.md         |  142 --
+ .../modules/sandbox/sandbox-setup-guide.md         |  239 ---
+ .../modules/scripts/local_402_sandbox_pay.py       |  900 ---------
+ .../integration/modules/scripts/sandbox_config.sh  |  351 ----
+ .../integration/modules/troubleshooting-flow.md    |   28 -
+ .../references/normal/alipay-cli-env.md            |  171 --
+ .../references/normal/conversation-telemetry.md    |  103 -
+ .../references/normal/full-process-routing.md      |   93 -
+ .../references/normal/integration-worker.md        |   90 -
+ .../references/normal/json/customer-messages.json  |    1 -
+ .../references/normal/json/managed-jq-assets.json  |    1 -
+ .../references/normal/json/policy-rules.json       |    1 -
+ .../references/normal/json/release-channel.json    |    1 -
+ .../references/normal/rejection-guide.md           |   41 -
+ .../references/normal/scripts/agent_platform.mjs   |   43 -
+ .../references/normal/scripts/alipay_cli_env.mjs   |   43 -
+ .../references/normal/scripts/alipay_cli_env.sh    |   55 -
+ .../normal/scripts/alipay_cli_refresh.mjs          |  138 --
+ .../normal/scripts/auth_runtime_runner.mjs         |   63 -
+ .../normal/scripts/checklist_sections.mjs          |   43 -
+ .../references/normal/scripts/common.sh            |  375 ----
+ .../normal/scripts/conversation_telemetry.mjs      |  105 -
+ .../references/normal/scripts/detect_dev_tool.sh   |   79 -
+ .../references/normal/scripts/flow_loader.mjs      |  237 ---
+ .../normal/scripts/integration_context_runner.mjs  |  151 --
+ .../normal/scripts/integration_message_runner.mjs  | 1456 --------------
+ .../normal/scripts/interaction_reply.mjs           |  140 --
+ .../references/normal/scripts/managed_jq.mjs       |  215 --
+ .../normal/scripts/onboarding_discovery_runner.mjs |  390 ----
+ .../normal/scripts/onboarding_message_runner.mjs   | 1444 -------------
+ .../normal/scripts/onboarding_recovery_runner.mjs  |  103 -
+ .../references/normal/scripts/open_official_url.sh |  213 --
+ .../references/normal/scripts/platform_compat.mjs  |   42 -
+ .../references/normal/scripts/preview_runtime.mjs  |  182 --
+ .../normal/scripts/project_route_inspector.sh      |  132 --
+ .../normal/scripts/python_script_runner.mjs        |   63 -
+ .../normal/scripts/render_customer_message.mjs     | 1794 -----------------
+ .../references/normal/scripts/runtime.mjs          |  323 ---
+ .../references/normal/scripts/self_update.mjs      |  410 ----
+ .../references/normal/scripts/session_skill.mjs    |   98 -
+ .../references/normal/scripts/telemetry.mjs        | 2111 --------------------
+ .../normal/scripts/windows/access-native.mjs       |    3 -
+ .../normal/scripts/windows/architecture.mjs        |    6 -
+ .../normal/scripts/windows/bin/alipay-cli          |    4 -
+ .../normal/scripts/windows/bootstrap-node.ps1      |  172 --
+ .../normal/scripts/windows/cli-install.mjs         |   51 -
+ .../normal/scripts/windows/cli-process.mjs         |   11 -
+ .../normal/scripts/windows/execution.mjs           |   51 -
+ .../normal/scripts/windows/git-discovery.mjs       |   49 -
+ .../normal/scripts/windows/git-install.mjs         |   41 -
+ .../references/normal/scripts/windows/host.mjs     |   31 -
+ .../references/normal/scripts/windows/policy.json  |   18 -
+ .../normal/scripts/windows/preflight.mjs           |  212 --
+ .../references/normal/scripts/windows/prepare.mjs  |  153 --
+ .../references/normal/scripts/windows/probe.sh     |   14 -
+ .../normal/scripts/windows/python-execution.mjs    |   38 -
+ .../normal/scripts/windows/python-runtime.mjs      |   86 -
+ .../references/normal/scripts/windows/routing.mjs  |   99 -
+ .../normal/scripts/windows/shell_helpers.sh        |   83 -
+ .../references/normal/scripts/windows/winget.mjs   |   13 -
+ .../references/normal/self-update.md               |   15 -
+ .../references/normal/telemetry.md                 |   70 -
+ .../references/normal/windows-environment.md       |   87 -
+ .../references/onboarding/assets/keygen.html       |  927 ---------
+ .../alipay-aipay-pre/references/onboarding/flow.md |  611 ------
+ .../references/onboarding/modules/app-release.md   |   90 -
+ .../references/onboarding/modules/authorization.md |   43 -
+ .../onboarding/modules/error-handling.md           |   62 -
+ .../references/onboarding/modules/product-sign.md  |   49 -
+ .../references/onboarding/modules/scripts/app.sh   | 1486 --------------
+ .../onboarding/modules/scripts/ar_sign_apply.sh    |  335 ----
+ .../references/onboarding/modules/scripts/auth.sh  | 1041 ----------
+ .../modules/scripts/download_key_tool.sh           |    4 -
+ .../onboarding/modules/scripts/error_handler.sh    |  841 --------
+ .../references/onboarding/modules/scripts/mcc.sh   | 1085 ----------
+ .../onboarding/modules/scripts/network_retry.sh    |  135 --
+ .../modules/scripts/query_sign_status.sh           |  105 -
+ .../onboarding/modules/scripts/service.sh          |  528 -----
+ .../modules/scripts/sign_status_parser.sh          |   58 -
+ .../modules/scripts/upload_screenshots.sh          |  208 --
+ .../modules/scripts/upload_special_license.sh      |  195 --
+ .../onboarding/modules/service-registration.md     |   40 -
+ .../alipay-aipay-pre/references/runtime-entry.md   |  108 -
+ .gitignore                                         |    3 +
+ backend/.env.example                               |   15 +
+ backend/src/lib/alipay.js                          |   45 +-
+ 139 files changed, 44 insertions(+), 29768 deletions(-)
+5d4f144 | 2026-10-19 | Merge branch 'main' of https://github.com/wyxpro/ScienceX
+993b2a6 | 2026-10-19 | feat: add alipay integration skills and reference documentation
+
+ .agents/skills/alipay-aipay-pre/SKILL.md           |   94 +
+ .agents/skills/alipay-aipay-pre/VERSION            |    1 +
+ .../references/integration/flow.md                 |  620 ++++++
+ .../integration/modules/alipay-sdk-reminder.md     |  281 +++
+ .../references/integration/modules/checklist.md    |  154 ++
+ .../csharp/1-通用接口/异步通知处理代码示例.md      |  199 ++
+ .../1-通用接口/统一收单交易关闭接口代码示例.md     |   68 +
+ .../1-通用接口/统一收单交易查询接口代码示例.md     |   83 +
+ .../1-通用接口/统一收单交易退款接口代码示例.md     |   80 +
+ .../1-通用接口/统一收单交易退款查询接口代码示例.md |   73 +
+ .../统一收单下单并支付页面接口代码示例.md          |   62 +
+ .../csharp/3-APP支付/APP支付接口代码示例.md        |  132 ++
+ .../csharp/4-按量付费/A2MPaymentDemo.md            |  640 ++++++
+ .../java/1-通用接口/异步通知处理代码示例.md        |  184 ++
+ .../1-通用接口/统一收单交易关闭接口代码示例.md     |   72 +
+ .../1-通用接口/统一收单交易查询接口代码示例.md     |   96 +
+ .../1-通用接口/统一收单交易退款接口代码示例.md     |   81 +
+ .../1-通用接口/统一收单交易退款查询接口代码示例.md |   77 +
+ .../统一收单下单并支付页面接口代码示例.md          |   69 +
+ .../java/3-APP支付/APP支付接口代码示例.md          |  138 ++
+ .../java/4-按量付费/A2MPaymentDemoController.md    |  623 ++++++
+ .../nodejs/1-通用接口/异步通知处理代码示例.md      |  135 ++
+ .../1-通用接口/统一收单交易关闭接口代码示例.md     |   51 +
+ .../1-通用接口/统一收单交易查询接口代码示例.md     |   63 +
+ .../1-通用接口/统一收单交易退款接口代码示例.md     |   59 +
+ .../1-通用接口/统一收单交易退款查询接口代码示例.md |   54 +
+ .../统一收单下单并支付页面接口代码示例.md          |   84 +
+ .../nodejs/3-APP支付/APP支付接口代码示例.md        |   71 +
+ .../nodejs/4-按量付费/A2MPaymentDemo.md            |  498 +++++
+ .../php/1-通用接口/异步通知处理代码示例.md         |  157 ++
+ .../php/1-通用接口/统一收单交易关闭接口代码示例.md |   59 +
+ .../php/1-通用接口/统一收单交易查询接口代码示例.md |   73 +
+ .../php/1-通用接口/统一收单交易退款接口代码示例.md |   69 +
+ .../1-通用接口/统一收单交易退款查询接口代码示例.md |   65 +
+ .../统一收单下单并支付页面接口代码示例.md          |   59 +
+ .../php/3-APP支付/APP支付接口代码示例.md           |  110 +
+ .../code-examples/php/4-按量付费/A2MPaymentDemo.md |  806 ++++++++
+ .../python/1-通用接口/异步通知处理代码示例.md      |  128 ++
+ .../1-通用接口/统一收单交易关闭接口代码示例.md     |   57 +
+ .../1-通用接口/统一收单交易查询接口代码示例.md     |   70 +
+ .../1-通用接口/统一收单交易退款接口代码示例.md     |   65 +
+ .../1-通用接口/统一收单交易退款查询接口代码示例.md |   62 +
+ .../统一收单下单并支付页面接口代码示例.md          |   51 +
+ .../python/3-APP支付/APP支付接口代码示例.md        |   47 +
+ .../python/4-按量付费/A2MPaymentDemo.md            |  541 +++++
+ .../interface-contract/aipay-interface-contract.md |   52 +
+ .../apppay-interface-contract.md                   |   45 +
+ .../interface-contract/common-trade-contract.md    |   42 +
+ .../interface-contract/notify-url-contract.md      |   68 +
+ .../webpay-interface-contract.md                   |   44 +
+ .../integration/modules/interface-guide.md         |   61 +
+ .../integration/modules/product-decision.md        |   73 +
+ .../modules/sandbox/a2m-sandbox-test.md            |  235 +++
+ .../modules/sandbox/alipay-sandbox-tool.md         |  142 ++
+ .../modules/sandbox/sandbox-setup-guide.md         |  239 +++
+ .../modules/scripts/local_402_sandbox_pay.py       |  900 +++++++++
+ .../integration/modules/scripts/sandbox_config.sh  |  351 ++++
+ .../integration/modules/troubleshooting-flow.md    |   28 +
+ .../references/normal/alipay-cli-env.md            |  171 ++
+ .../references/normal/conversation-telemetry.md    |  103 +
+ .../references/normal/full-process-routing.md      |   93 +
+ .../references/normal/integration-worker.md        |   90 +
+ .../references/normal/json/customer-messages.json  |    1 +
+ .../references/normal/json/managed-jq-assets.json  |    1 +
+ .../references/normal/json/policy-rules.json       |    1 +
+ .../references/normal/json/release-channel.json    |    1 +
+ .../references/normal/rejection-guide.md           |   41 +
+ .../references/normal/scripts/agent_platform.mjs   |   43 +
+ .../references/normal/scripts/alipay_cli_env.mjs   |   43 +
+ .../references/normal/scripts/alipay_cli_env.sh    |   55 +
+ .../normal/scripts/alipay_cli_refresh.mjs          |  138 ++
+ .../normal/scripts/auth_runtime_runner.mjs         |   63 +
+ .../normal/scripts/checklist_sections.mjs          |   43 +
+ .../references/normal/scripts/common.sh            |  375 ++++
+ .../normal/scripts/conversation_telemetry.mjs      |  105 +
+ .../references/normal/scripts/detect_dev_tool.sh   |   79 +
+ .../references/normal/scripts/flow_loader.mjs      |  237 +++
+ .../normal/scripts/integration_context_runner.mjs  |  151 ++
+ .../normal/scripts/integration_message_runner.mjs  | 1456 ++++++++++++++
+ .../normal/scripts/interaction_reply.mjs           |  140 ++
+ .../references/normal/scripts/managed_jq.mjs       |  215 ++
+ .../normal/scripts/onboarding_discovery_runner.mjs |  390 ++++
+ .../normal/scripts/onboarding_message_runner.mjs   | 1444 +++++++++++++
+ .../normal/scripts/onboarding_recovery_runner.mjs  |  103 +
+ .../references/normal/scripts/open_official_url.sh |  213 ++
+ .../references/normal/scripts/platform_compat.mjs  |   42 +
+ .../references/normal/scripts/preview_runtime.mjs  |  182 ++
+ .../normal/scripts/project_route_inspector.sh      |  132 ++
+ .../normal/scripts/python_script_runner.mjs        |   63 +
+ .../normal/scripts/render_customer_message.mjs     | 1794 +++++++++++++++++
+ .../references/normal/scripts/runtime.mjs          |  323 +++
+ .../references/normal/scripts/self_update.mjs      |  410 ++++
+ .../references/normal/scripts/session_skill.mjs    |   98 +
+ .../references/normal/scripts/telemetry.mjs        | 2111 ++++++++++++++++++++
+ .../normal/scripts/windows/access-native.mjs       |    3 +
+ .../normal/scripts/windows/architecture.mjs        |    6 +
+ .../normal/scripts/windows/bin/alipay-cli          |    4 +
+ .../normal/scripts/windows/bootstrap-node.ps1      |  172 ++
+ .../normal/scripts/windows/cli-install.mjs         |   51 +
+ .../normal/scripts/windows/cli-process.mjs         |   11 +
+ .../normal/scripts/windows/execution.mjs           |   51 +
+ .../normal/scripts/windows/git-discovery.mjs       |   49 +
+ .../normal/scripts/windows/git-install.mjs         |   41 +
+ .../references/normal/scripts/windows/host.mjs     |   31 +
+ .../references/normal/scripts/windows/policy.json  |   18 +
+ .../normal/scripts/windows/preflight.mjs           |  212 ++
+ .../references/normal/scripts/windows/prepare.mjs  |  153 ++
+ .../references/normal/scripts/windows/probe.sh     |   14 +
+ .../normal/scripts/windows/python-execution.mjs    |   38 +
+ .../normal/scripts/windows/python-runtime.mjs      |   86 +
+ .../references/normal/scripts/windows/routing.mjs  |   99 +
+ .../normal/scripts/windows/shell_helpers.sh        |   83 +
+ .../references/normal/scripts/windows/winget.mjs   |   13 +
+ .../references/normal/self-update.md               |   15 +
+ .../references/normal/telemetry.md                 |   70 +
+ .../references/normal/windows-environment.md       |   87 +
+ .../references/onboarding/assets/keygen.html       |  927 +++++++++
+ .../alipay-aipay-pre/references/onboarding/flow.md |  611 ++++++
+ .../references/onboarding/modules/app-release.md   |   90 +
+ .../references/onboarding/modules/authorization.md |   43 +
+ .../onboarding/modules/error-handling.md           |   62 +
+ .../references/onboarding/modules/product-sign.md  |   49 +
+ .../references/onboarding/modules/scripts/app.sh   | 1486 ++++++++++++++
+ .../onboarding/modules/scripts/ar_sign_apply.sh    |  335 ++++
+ .../references/onboarding/modules/scripts/auth.sh  | 1041 ++++++++++
+ .../modules/scripts/download_key_tool.sh           |    4 +
+ .../onboarding/modules/scripts/error_handler.sh    |  841 ++++++++
+ .../references/onboarding/modules/scripts/mcc.sh   | 1085 ++++++++++
+ .../onboarding/modules/scripts/network_retry.sh    |  135 ++
+ .../modules/scripts/query_sign_status.sh           |  105 +
+ .../onboarding/modules/scripts/service.sh          |  528 +++++
+ .../modules/scripts/sign_status_parser.sh          |   58 +
+ .../modules/scripts/upload_screenshots.sh          |  208 ++
+ .../modules/scripts/upload_special_license.sh      |  195 ++
+ .../onboarding/modules/service-registration.md     |   40 +
+ .../alipay-aipay-pre/references/runtime-entry.md   |  108 +
+ .agents/skills/alipay-aipay/SKILL.md               |  104 +
+ .agents/skills/alipay-aipay/VERSION                |    1 +
+ .../alipay-aipay/references/integration/flow.md    |  602 ++++++
+ .../integration/modules/alipay-sdk-reminder.md     |  281 +++
+ .../references/integration/modules/checklist.md    |  154 ++
+ .../csharp/1-通用接口/异步通知处理代码示例.md      |  199 ++
+ .../1-通用接口/统一收单交易关闭接口代码示例.md     |   68 +
+ .../1-通用接口/统一收单交易查询接口代码示例.md     |   83 +
+ .../1-通用接口/统一收单交易退款接口代码示例.md     |   80 +
+ .../1-通用接口/统一收单交易退款查询接口代码示例.md |   73 +
+ .../统一收单下单并支付页面接口代码示例.md          |   62 +
+ .../csharp/3-APP支付/APP支付接口代码示例.md        |  132 ++
+ .../csharp/4-按量付费/A2MPaymentDemo.md            |  640 ++++++
+ .../java/1-通用接口/异步通知处理代码示例.md        |  184 ++
+ .../1-通用接口/统一收单交易关闭接口代码示例.md     |   72 +
+ .../1-通用接口/统一收单交易查询接口代码示例.md     |   96 +
+ .../1-通用接口/统一收单交易退款接口代码示例.md     |   81 +
+ .../1-通用接口/统一收单交易退款查询接口代码示例.md |   77 +
+ .../统一收单下单并支付页面接口代码示例.md          |   69 +
+ .../java/3-APP支付/APP支付接口代码示例.md          |  138 ++
+ .../java/4-按量付费/A2MPaymentDemoController.md    |  623 ++++++
+ .../nodejs/1-通用接口/异步通知处理代码示例.md      |  135 ++
+ .../1-通用接口/统一收单交易关闭接口代码示例.md     |   51 +
+ .../1-通用接口/统一收单交易查询接口代码示例.md     |   63 +
+ .../1-通用接口/统一收单交易退款接口代码示例.md     |   59 +
+ .../1-通用接口/统一收单交易退款查询接口代码示例.md |   54 +
+ .../统一收单下单并支付页面接口代码示例.md          |   84 +
+ .../nodejs/3-APP支付/APP支付接口代码示例.md        |   71 +
+ .../nodejs/4-按量付费/A2MPaymentDemo.md            |  498 +++++
+ .../php/1-通用接口/异步通知处理代码示例.md         |  157 ++
+ .../php/1-通用接口/统一收单交易关闭接口代码示例.md |   59 +
+ .../php/1-通用接口/统一收单交易查询接口代码示例.md |   73 +
+ .../php/1-通用接口/统一收单交易退款接口代码示例.md |   69 +
+ .../1-通用接口/统一收单交易退款查询接口代码示例.md |   65 +
+ .../统一收单下单并支付页面接口代码示例.md          |   59 +
+ .../php/3-APP支付/APP支付接口代码示例.md           |  110 +
+ .../code-examples/php/4-按量付费/A2MPaymentDemo.md |  806 ++++++++
+ .../python/1-通用接口/异步通知处理代码示例.md      |  128 ++
+ .../1-通用接口/统一收单交易关闭接口代码示例.md     |   57 +
+ .../1-通用接口/统一收单交易查询接口代码示例.md     |   70 +
+ .../1-通用接口/统一收单交易退款接口代码示例.md     |   65 +
+ .../1-通用接口/统一收单交易退款查询接口代码示例.md |   62 +
+ .../统一收单下单并支付页面接口代码示例.md          |   51 +
+ .../python/3-APP支付/APP支付接口代码示例.md        |   47 +
+ .../python/4-按量付费/A2MPaymentDemo.md            |  541 +++++
+ .../interface-contract/aipay-interface-contract.md |   52 +
+ .../apppay-interface-contract.md                   |   45 +
+ .../interface-contract/common-trade-contract.md    |   42 +
+ .../interface-contract/notify-url-contract.md      |   68 +
+ .../webpay-interface-contract.md                   |   44 +
+ .../integration/modules/interface-guide.md         |   61 +
+ .../integration/modules/product-decision.md        |   73 +
+ .../modules/sandbox/a2m-sandbox-test.md            |  235 +++
+ .../modules/sandbox/alipay-sandbox-tool.md         |  142 ++
+ .../modules/sandbox/sandbox-setup-guide.md         |  239 +++
+ .../modules/scripts/local_402_sandbox_pay.py       |  900 +++++++++
+ .../integration/modules/scripts/sandbox_config.sh  |  347 ++++
+ .../integration/modules/troubleshooting-flow.md    |   28 +
+ .../references/normal/alipay-cli-env.md            |  169 ++
+ .../references/normal/full-process-routing.md      |   92 +
+ .../references/normal/integration-worker.md        |   90 +
+ .../references/normal/json/customer-messages.json  |    1 +
+ .../references/normal/json/managed-jq-assets.json  |    1 +
+ .../references/normal/json/policy-rules.json       |    1 +
+ .../references/normal/json/release-channel.json    |    1 +
+ .../references/normal/rejection-guide.md           |   41 +
+ .../references/normal/scripts/agent_platform.mjs   |   43 +
+ .../references/normal/scripts/alipay_cli_env.mjs   |   34 +
+ .../references/normal/scripts/alipay_cli_env.sh    |   55 +
+ .../normal/scripts/alipay_cli_refresh.mjs          |  129 ++
+ .../normal/scripts/auth_runtime_runner.mjs         |   60 +
+ .../references/normal/scripts/channel_offer.mjs    |  329 +++
+ .../normal/scripts/checklist_sections.mjs          |   43 +
+ .../references/normal/scripts/common.sh            |  365 ++++
+ .../references/normal/scripts/detect_dev_tool.sh   |   79 +
+ .../references/normal/scripts/flow_loader.mjs      |  237 +++
+ .../normal/scripts/integration_context_runner.mjs  |  151 ++
+ .../normal/scripts/integration_message_runner.mjs  | 1456 ++++++++++++++
+ .../normal/scripts/interaction_reply.mjs           |  140 ++
+ .../references/normal/scripts/managed_jq.mjs       |  215 ++
+ .../normal/scripts/onboarding_discovery_runner.mjs |  382 ++++
+ .../normal/scripts/onboarding_message_runner.mjs   | 1425 +++++++++++++
+ .../normal/scripts/onboarding_recovery_runner.mjs  |  100 +
+ .../references/normal/scripts/open_official_url.sh |  207 ++
+ .../references/normal/scripts/platform_compat.mjs  |   42 +
+ .../normal/scripts/project_route_inspector.sh      |  132 ++
+ .../normal/scripts/python_script_runner.mjs        |   58 +
+ .../normal/scripts/render_customer_message.mjs     | 1788 +++++++++++++++++
+ .../references/normal/scripts/runtime.mjs          |  273 +++
+ .../references/normal/scripts/self_update.mjs      |  410 ++++
+ .../references/normal/scripts/session_skill.mjs    |   98 +
+ .../references/normal/scripts/telemetry.mjs        | 1769 ++++++++++++++++
+ .../normal/scripts/windows/architecture.ps1        |   55 +
+ .../normal/scripts/windows/bootstrap-node.ps1      |  172 ++
+ .../alipay-aipay/references/normal/self-update.md  |   15 +
+ .../alipay-aipay/references/normal/telemetry.md    |   62 +
+ .../alipay-aipay/references/onboarding/flow.md     |  577 ++++++
+ .../references/onboarding/modules/app-release.md   |   88 +
+ .../references/onboarding/modules/authorization.md |   43 +
+ .../onboarding/modules/error-handling.md           |   62 +
+ .../references/onboarding/modules/product-sign.md  |   49 +
+ .../references/onboarding/modules/scripts/app.sh   | 1485 ++++++++++++++
+ .../onboarding/modules/scripts/ar_sign_apply.sh    |  331 +++
+ .../references/onboarding/modules/scripts/auth.sh  | 1040 ++++++++++
+ .../modules/scripts/download_key_tool.sh           |  174 ++
+ .../onboarding/modules/scripts/error_handler.sh    |  841 ++++++++
+ .../references/onboarding/modules/scripts/mcc.sh   | 1085 ++++++++++
+ .../onboarding/modules/scripts/network_retry.sh    |  135 ++
+ .../modules/scripts/query_sign_status.sh           |  105 +
+ .../onboarding/modules/scripts/service.sh          |  528 +++++
+ .../modules/scripts/sign_status_parser.sh          |   58 +
+ .../modules/scripts/upload_screenshots.sh          |  208 ++
+ .../modules/scripts/upload_special_license.sh      |  195 ++
+ .../onboarding/modules/service-registration.md     |   40 +
+ .../alipay-aipay/references/runtime-entry.md       |   89 +
+ .gitignore                                         |    3 +-
+ .workbuddy/memory/2026-10-11.md                    |   14 +
+ .workbuddy/memory/2026-10-12.md                    |   15 +
+ backend/.gitignore                                 |    1 +
+ backend/package-lock.json                          |  430 ++++
+ backend/package.json                               |    1 +
+ backend/src/lib/alipay.js                          |  164 ++
+ backend/src/routes/payment.js                      |  305 +++
+ backend/src/server.js                              |    3 +
+ AGENTS.md => docs/AGENTS.md                        |    0
+ License.md => docs/License.md                      |    0
+ docs/PRD.md                                        |  510 ++---
+ docs/PRD1.md                                       |  250 ---
+ ai.md => docs/ai.md                                |    0
+ docs/iamge/home.png                                |  Bin 0 -> 1116052 bytes
+ docs/iamge/pay.png                                 |  Bin 0 -> 294993 bytes
+ docs/iamge/product.png                             |  Bin 0 -> 399800 bytes
+ docs/商业化.md                                     |  209 ++
+ 数据库.md => docs/数据库.md                        |    0
+ 简历1.md => docs/简历1.md                          |    0
+ 评分.md => docs/评分.md                            |    0
+ docs/运营.md                                       |  255 +++
+ prd.md                                             |  288 ---
+ 274 files changed, 58729 insertions(+), 850 deletions(-)
+a4c7296 | 2026-10-16 | Update README.md
+
+ README.md | 2 ++
+ 1 file changed, 2 insertions(+)
+7fc8536 | 2026-10-05 | docs: 简历1新增项目代码复现章节（本地四条命令/测试评测/双部署/可复现性设计）
+
+ 简历1.md | 74 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 73 insertions(+), 1 deletion(-)

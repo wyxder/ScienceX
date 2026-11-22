@@ -1,0 +1,1614 @@
+retry: 3000
+
+id: 1
+event: start
+data: {"message_id":"msg_mwrtnnkbzwoa","model":"DeepSeek-Flash","fallback":false,"mode":"live","retrieval":{"mode":"fulltext-fallback","degraded":true,"reranked":false}}
+
+id: 2
+event: delta
+data: {"text":"这篇文献的"}
+
+id: 3
+event: delta
+data: {"text":"核心"}
+
+id: 4
+event: delta
+data: {"text":"贡献是"}
+
+id: 5
+event: delta
+data: {"text":"：作为一篇"}
+
+id: 6
+event: delta
+data: {"text":"微表"}
+
+id: 7
+event: delta
+data: {"text":"情识别（M"}
+
+id: 8
+event: delta
+data: {"text":"ER）综"}
+
+id: 9
+event: delta
+data: {"text":"述，它系"}
+
+id: 10
+event: delta
+data: {"text":"统梳理"}
+
+id: 11
+event: delta
+data: {"text":"了2"}
+
+id: 12
+event: delta
+data: {"text":"01"}
+
+id: 13
+event: delta
+data: {"text":"0—2"}
+
+id: 14
+event: delta
+data: {"text":"025年"}
+
+id: 15
+event: delta
+data: {"text":"间21"}
+
+id: 16
+event: delta
+data: {"text":"4篇"}
+
+id: 17
+event: delta
+data: {"text":"论文，并"}
+
+id: 18
+event: delta
+data: {"text":"建立了统一"}
+
+id: 19
+event: delta
+data: {"text":"的分类框架"}
+
+id: 20
+event: delta
+data: {"text":"与评测基准"}
+
+id: 21
+event: delta
+data: {"text":"。具体"}
+
+id: 22
+event: delta
+data: {"text":"可概括为以"}
+
+id: 23
+event: delta
+data: {"text":"下几点：\n"}
+
+id: 24
+event: delta
+data: {"text":"\n1"}
+
+id: 25
+event: delta
+data: {"text":". **系"}
+
+id: 26
+event: delta
+data: {"text":"统综述"}
+
+id: 27
+event: delta
+data: {"text":"与分类框架"}
+
+id: 28
+event: delta
+data: {"text":"**  "}
+
+id: 29
+event: delta
+data: {"text":"\n  "}
+
+id: 30
+event: delta
+data: {"text":" 正"}
+
+id: 31
+event: delta
+data: {"text":"文在“In"}
+
+id: 32
+event: delta
+data: {"text":"trodu"}
+
+id: 33
+event: delta
+data: {"text":"cti"}
+
+id: 34
+event: delta
+data: {"text":"on”"}
+
+id: 35
+event: delta
+data: {"text":"中指出，"}
+
+id: 36
+event: delta
+data: {"text":"该综"}
+
+id: 37
+event: delta
+data: {"text":"述分析2"}
+
+id: 38
+event: delta
+data: {"text":"01"}
+
+id: 39
+event: delta
+data: {"text":"0—"}
+
+id: 40
+event: delta
+data: {"text":"2025"}
+
+id: 41
+event: delta
+data: {"text":"年的2"}
+
+id: 42
+event: delta
+data: {"text":"14篇论文"}
+
+id: 43
+event: delta
+data: {"text":"，并沿*"}
+
+id: 44
+event: delta
+data: {"text":"*fe"}
+
+id: 45
+event: delta
+data: {"text":"atur"}
+
+id: 46
+event: delta
+data: {"text":"e ex"}
+
+id: 47
+event: delta
+data: {"text":"tr"}
+
+id: 48
+event: delta
+data: {"text":"ac"}
+
+id: 49
+event: delta
+data: {"text":"tion"}
+
+id: 50
+event: delta
+data: {"text":"、te"}
+
+id: 51
+event: delta
+data: {"text":"mpora"}
+
+id: 52
+event: delta
+data: {"text":"l mod"}
+
+id: 53
+event: delta
+data: {"text":"el"}
+
+id: 54
+event: delta
+data: {"text":"in"}
+
+id: 55
+event: delta
+data: {"text":"g、rec"}
+
+id: 56
+event: delta
+data: {"text":"ognit"}
+
+id: 57
+event: delta
+data: {"text":"io"}
+
+id: 58
+event: delta
+data: {"text":"n "}
+
+id: 59
+event: delta
+data: {"text":"pro"}
+
+id: 60
+event: delta
+data: {"text":"toco"}
+
+id: 61
+event: delta
+data: {"text":"l**三个"}
+
+id: 62
+event: delta
+data: {"text":"维度对方"}
+
+id: 63
+event: delta
+data: {"text":"法进行"}
+
+id: 64
+event: delta
+data: {"text":"分类"}
+
+id: 65
+event: delta
+data: {"text":"。\n\n2"}
+
+id: 66
+event: delta
+data: {"text":". *"}
+
+id: 67
+event: delta
+data: {"text":"*梳理"}
+
+id: 68
+event: delta
+data: {"text":"方法演进趋"}
+
+id: 69
+event: delta
+data: {"text":"势**  "}
+
+id: 70
+event: delta
+data: {"text":"\n   "}
+
+id: 71
+event: delta
+data: {"text":"在“Met"}
+
+id: 72
+event: delta
+data: {"text":"hod T"}
+
+id: 73
+event: delta
+data: {"text":"axono"}
+
+id: 74
+event: delta
+data: {"text":"my”"}
+
+id: 75
+event: delta
+data: {"text":"中，将M"}
+
+id: 76
+event: delta
+data: {"text":"ER方"}
+
+id: 77
+event: delta
+data: {"text":"法划分"}
+
+id: 78
+event: delta
+data: {"text":"为：\n "}
+
+id: 79
+event: delta
+data: {"text":"  -"}
+
+id: 80
+event: delta
+data: {"text":" 手工特征"}
+
+id: 81
+event: delta
+data: {"text":"时代（"}
+
+id: 82
+event: delta
+data: {"text":"2010"}
+
+id: 83
+event: delta
+data: {"text":"—20"}
+
+id: 84
+event: delta
+data: {"text":"16"}
+
+id: 85
+event: delta
+data: {"text":"）："}
+
+id: 86
+event: delta
+data: {"text":"以**"}
+
+id: 87
+event: delta
+data: {"text":"LBP-T"}
+
+id: 88
+event: delta
+data: {"text":"OP**及"}
+
+id: 89
+event: delta
+data: {"text":"其变体"}
+
+id: 90
+event: delta
+data: {"text":"为主"}
+
+id: 91
+event: delta
+data: {"text":"；\n  "}
+
+id: 92
+event: delta
+data: {"text":" -"}
+
+id: 93
+event: delta
+data: {"text":" 深度"}
+
+id: 94
+event: delta
+data: {"text":"学习时"}
+
+id: 95
+event: delta
+data: {"text":"代（201"}
+
+id: 96
+event: delta
+data: {"text":"6—2"}
+
+id: 97
+event: delta
+data: {"text":"021）"}
+
+id: 98
+event: delta
+data: {"text":"：包括"}
+
+id: 99
+event: delta
+data: {"text":"**C"}
+
+id: 100
+event: delta
+data: {"text":"NN"}
+
+id: 101
+event: delta
+data: {"text":"-RN"}
+
+id: 102
+event: delta
+data: {"text":"N pip"}
+
+id: 103
+event: delta
+data: {"text":"el"}
+
+id: 104
+event: delta
+data: {"text":"ines、"}
+
+id: 105
+event: delta
+data: {"text":"3D"}
+
+id: 106
+event: delta
+data: {"text":"-C"}
+
+id: 107
+event: delta
+data: {"text":"NNs"}
+
+id: 108
+event: delta
+data: {"text":"、att"}
+
+id: 109
+event: delta
+data: {"text":"ent"}
+
+id: 110
+event: delta
+data: {"text":"ion-"}
+
+id: 111
+event: delta
+data: {"text":"aug"}
+
+id: 112
+event: delta
+data: {"text":"me"}
+
+id: 113
+event: delta
+data: {"text":"nted "}
+
+id: 114
+event: delta
+data: {"text":"ne"}
+
+id: 115
+event: delta
+data: {"text":"twor"}
+
+id: 116
+event: delta
+data: {"text":"ks*"}
+
+id: 117
+event: delta
+data: {"text":"*；\n "}
+
+id: 118
+event: delta
+data: {"text":"  "}
+
+id: 119
+event: delta
+data: {"text":"- "}
+
+id: 120
+event: delta
+data: {"text":"Trans"}
+
+id: 121
+event: delta
+data: {"text":"form"}
+
+id: 122
+event: delta
+data: {"text":"er"}
+
+id: 123
+event: delta
+data: {"text":"时代（"}
+
+id: 124
+event: delta
+data: {"text":"2021至"}
+
+id: 125
+event: delta
+data: {"text":"今）："}
+
+id: 126
+event: delta
+data: {"text":"包括*"}
+
+id: 127
+event: delta
+data: {"text":"*V"}
+
+id: 128
+event: delta
+data: {"text":"isi"}
+
+id: 129
+event: delta
+data: {"text":"on Tr"}
+
+id: 130
+event: delta
+data: {"text":"an"}
+
+id: 131
+event: delta
+data: {"text":"sfo"}
+
+id: 132
+event: delta
+data: {"text":"rmers"}
+
+id: 133
+event: delta
+data: {"text":"、opt"}
+
+id: 134
+event: delta
+data: {"text":"ical-"}
+
+id: 135
+event: delta
+data: {"text":"flo"}
+
+id: 136
+event: delta
+data: {"text":"w-gui"}
+
+id: 137
+event: delta
+data: {"text":"de"}
+
+id: 138
+event: delta
+data: {"text":"d at"}
+
+id: 139
+event: delta
+data: {"text":"tent"}
+
+id: 140
+event: delta
+data: {"text":"io"}
+
+id: 141
+event: delta
+data: {"text":"n、"}
+
+id: 142
+event: delta
+data: {"text":"AU-pr"}
+
+id: 143
+event: delta
+data: {"text":"ior i"}
+
+id: 144
+event: delta
+data: {"text":"nje"}
+
+id: 145
+event: delta
+data: {"text":"cti"}
+
+id: 146
+event: delta
+data: {"text":"on*"}
+
+id: 147
+event: delta
+data: {"text":"*，"}
+
+id: 148
+event: delta
+data: {"text":"以及**g"}
+
+id: 149
+event: delta
+data: {"text":"raph"}
+
+id: 150
+event: delta
+data: {"text":"-ba"}
+
+id: 151
+event: delta
+data: {"text":"sed "}
+
+id: 152
+event: delta
+data: {"text":"AU r"}
+
+id: 153
+event: delta
+data: {"text":"ea"}
+
+id: 154
+event: delta
+data: {"text":"so"}
+
+id: 155
+event: delta
+data: {"text":"nin"}
+
+id: 156
+event: delta
+data: {"text":"g*"}
+
+id: 157
+event: delta
+data: {"text":"*。"}
+
+id: 158
+event: delta
+data: {"text":"  \n "}
+
+id: 159
+event: delta
+data: {"text":"  并"}
+
+id: 160
+event: delta
+data: {"text":"总结出一"}
+
+id: 161
+event: delta
+data: {"text":"致发现"}
+
+id: 162
+event: delta
+data: {"text":"：引"}
+
+id: 163
+event: delta
+data: {"text":"入**"}
+
+id: 164
+event: delta
+data: {"text":"AU "}
+
+id: 165
+event: delta
+data: {"text":"pr"}
+
+id: 166
+event: delta
+data: {"text":"iors*"}
+
+id: 167
+event: delta
+data: {"text":"*可带来"}
+
+id: 168
+event: delta
+data: {"text":"**3"}
+
+id: 169
+event: delta
+data: {"text":"—8 U"}
+
+id: 170
+event: delta
+data: {"text":"F1 po"}
+
+id: 171
+event: delta
+data: {"text":"in"}
+
+id: 172
+event: delta
+data: {"text":"ts**的"}
+
+id: 173
+event: delta
+data: {"text":"提升。"}
+
+id: 174
+event: delta
+data: {"text":"\n\n"}
+
+id: 175
+event: delta
+data: {"text":"3. *"}
+
+id: 176
+event: delta
+data: {"text":"*统一"}
+
+id: 177
+event: delta
+data: {"text":"数据集、"}
+
+id: 178
+event: delta
+data: {"text":"协议与"}
+
+id: 179
+event: delta
+data: {"text":"基准**"}
+
+id: 180
+event: delta
+data: {"text":"  \n "}
+
+id: 181
+event: delta
+data: {"text":"  正文涉"}
+
+id: 182
+event: delta
+data: {"text":"及*"}
+
+id: 183
+event: delta
+data: {"text":"*SMI"}
+
+id: 184
+event: delta
+data: {"text":"C、CA"}
+
+id: 185
+event: delta
+data: {"text":"SME"}
+
+id: 186
+event: delta
+data: {"text":" II、S"}
+
+id: 187
+event: delta
+data: {"text":"AM"}
+
+id: 188
+event: delta
+data: {"text":"M*"}
+
+id: 189
+event: delta
+data: {"text":"*三个基准"}
+
+id: 190
+event: delta
+data: {"text":"数据集，并"}
+
+id: 191
+event: delta
+data: {"text":"讨论*"}
+
+id: 192
+event: delta
+data: {"text":"*le"}
+
+id: 193
+event: delta
+data: {"text":"ave-"}
+
+id: 194
+event: delta
+data: {"text":"one-s"}
+
+id: 195
+event: delta
+data: {"text":"ubj"}
+
+id: 196
+event: delta
+data: {"text":"ec"}
+
+id: 197
+event: delta
+data: {"text":"t-o"}
+
+id: 198
+event: delta
+data: {"text":"ut ("}
+
+id: 199
+event: delta
+data: {"text":"LOS"}
+
+id: 200
+event: delta
+data: {"text":"O)**"}
+
+id: 201
+event: delta
+data: {"text":"与**"}
+
+id: 202
+event: delta
+data: {"text":"hol"}
+
+id: 203
+event: delta
+data: {"text":"d-out"}
+
+id: 204
+event: delta
+data: {"text":" w"}
+
+id: 205
+event: delta
+data: {"text":"it"}
+
+id: 206
+event: delta
+data: {"text":"h s"}
+
+id: 207
+event: delta
+data: {"text":"ub"}
+
+id: 208
+event: delta
+data: {"text":"ject-"}
+
+id: 209
+event: delta
+data: {"text":"ind"}
+
+id: 210
+event: delta
+data: {"text":"epe"}
+
+id: 211
+event: delta
+data: {"text":"ndent"}
+
+id: 212
+event: delta
+data: {"text":" spl"}
+
+id: 213
+event: delta
+data: {"text":"its*"}
+
+id: 214
+event: delta
+data: {"text":"*两种协议"}
+
+id: 215
+event: delta
+data: {"text":"，主"}
+
+id: 216
+event: delta
+data: {"text":"张*"}
+
+id: 217
+event: delta
+data: {"text":"*LOSO"}
+
+id: 218
+event: delta
+data: {"text":"**应"}
+
+id: 219
+event: delta
+data: {"text":"作为标准报"}
+
+id: 220
+event: delta
+data: {"text":"告协"}
+
+id: 221
+event: delta
+data: {"text":"议，"}
+
+id: 222
+event: delta
+data: {"text":"以消除s"}
+
+id: 223
+event: delta
+data: {"text":"ub"}
+
+id: 224
+event: delta
+data: {"text":"ject"}
+
+id: 225
+event: delta
+data: {"text":" leak"}
+
+id: 226
+event: delta
+data: {"text":"age。"}
+
+id: 227
+event: delta
+data: {"text":"  \n"}
+
+id: 228
+event: delta
+data: {"text":"  "}
+
+id: 229
+event: delta
+data: {"text":" 在"}
+
+id: 230
+event: delta
+data: {"text":"“Exp"}
+
+id: 231
+event: delta
+data: {"text":"er"}
+
+id: 232
+event: delta
+data: {"text":"iment"}
+
+id: 233
+event: delta
+data: {"text":"s a"}
+
+id: 234
+event: delta
+data: {"text":"nd B"}
+
+id: 235
+event: delta
+data: {"text":"ench"}
+
+id: 236
+event: delta
+data: {"text":"mar"}
+
+id: 237
+event: delta
+data: {"text":"k”中，"}
+
+id: 238
+event: delta
+data: {"text":"作者在"}
+
+id: 239
+event: delta
+data: {"text":"统一LO"}
+
+id: 240
+event: delta
+data: {"text":"SO"}
+
+id: 241
+event: delta
+data: {"text":"协议下"}
+
+id: 242
+event: delta
+data: {"text":"重新"}
+
+id: 243
+event: delta
+data: {"text":"实现**1"}
+
+id: 244
+event: delta
+data: {"text":"4 re"}
+
+id: 245
+event: delta
+data: {"text":"pr"}
+
+id: 246
+event: delta
+data: {"text":"esent"}
+
+id: 247
+event: delta
+data: {"text":"at"}
+
+id: 248
+event: delta
+data: {"text":"ive"}
+
+id: 249
+event: delta
+data: {"text":" me"}
+
+id: 250
+event: delta
+data: {"text":"thod"}
+
+id: 251
+event: delta
+data: {"text":"s*"}
+
+id: 252
+event: delta
+data: {"text":"*，报"}
+
+id: 253
+event: delta
+data: {"text":"告最"}
+
+id: 254
+event: delta
+data: {"text":"佳方法结"}
+
+id: 255
+event: delta
+data: {"text":"合*"}
+
+id: 256
+event: delta
+data: {"text":"*R"}
+
+id: 257
+event: delta
+data: {"text":"AFT"}
+
+id: 258
+event: delta
+data: {"text":" o"}
+
+id: 259
+event: delta
+data: {"text":"ptica"}
+
+id: 260
+event: delta
+data: {"text":"l fl"}
+
+id: 261
+event: delta
+data: {"text":"ow "}
+
+id: 262
+event: delta
+data: {"text":"fea"}
+
+id: 263
+event: delta
+data: {"text":"tur"}
+
+id: 264
+event: delta
+data: {"text":"es*"}
+
+id: 265
+event: delta
+data: {"text":"*与*"}
+
+id: 266
+event: delta
+data: {"text":"*AU-"}
+
+id: 267
+event: delta
+data: {"text":"aw"}
+
+id: 268
+event: delta
+data: {"text":"are"}
+
+id: 269
+event: delta
+data: {"text":" Tra"}
+
+id: 270
+event: delta
+data: {"text":"nsf"}
+
+id: 271
+event: delta
+data: {"text":"orm"}
+
+id: 272
+event: delta
+data: {"text":"er"}
+
+id: 273
+event: delta
+data: {"text":"**，在"}
+
+id: 274
+event: delta
+data: {"text":"CASME"}
+
+id: 275
+event: delta
+data: {"text":" II上达"}
+
+id: 276
+event: delta
+data: {"text":"到**U"}
+
+id: 277
+event: delta
+data: {"text":"F1=0."}
+
+id: 278
+event: delta
+data: {"text":"78"}
+
+id: 279
+event: delta
+data: {"text":"2、"}
+
+id: 280
+event: delta
+data: {"text":"UA"}
+
+id: 281
+event: delta
+data: {"text":"R=0."}
+
+id: 282
+event: delta
+data: {"text":"769"}
+
+id: 283
+event: delta
+data: {"text":"**。\n"}
+
+id: 284
+event: delta
+data: {"text":"\n4. "}
+
+id: 285
+event: delta
+data: {"text":"**"}
+
+id: 286
+event: delta
+data: {"text":"揭示关键"}
+
+id: 287
+event: delta
+data: {"text":"挑战"}
+
+id: 288
+event: delta
+data: {"text":"与未来方向"}
+
+id: 289
+event: delta
+data: {"text":"** "}
+
+id: 290
+event: delta
+data: {"text":" \n"}
+
+id: 291
+event: delta
+data: {"text":"  "}
+
+id: 292
+event: delta
+data: {"text":" 正文"}
+
+id: 293
+event: delta
+data: {"text":"指出"}
+
+id: 294
+event: delta
+data: {"text":"三大"}
+
+id: 295
+event: delta
+data: {"text":"挑战：*"}
+
+id: 296
+event: delta
+data: {"text":"*data"}
+
+id: 297
+event: delta
+data: {"text":" sca"}
+
+id: 298
+event: delta
+data: {"text":"rci"}
+
+id: 299
+event: delta
+data: {"text":"ty"}
+
+id: 300
+event: delta
+data: {"text":"、c"}
+
+id: 301
+event: delta
+data: {"text":"lass "}
+
+id: 302
+event: delta
+data: {"text":"imbal"}
+
+id: 303
+event: delta
+data: {"text":"an"}
+
+id: 304
+event: delta
+data: {"text":"ce、cr"}
+
+id: 305
+event: delta
+data: {"text":"oss-"}
+
+id: 306
+event: delta
+data: {"text":"data"}
+
+id: 307
+event: delta
+data: {"text":"se"}
+
+id: 308
+event: delta
+data: {"text":"t g"}
+
+id: 309
+event: delta
+data: {"text":"ene"}
+
+id: 310
+event: delta
+data: {"text":"rali"}
+
+id: 311
+event: delta
+data: {"text":"zati"}
+
+id: 312
+event: delta
+data: {"text":"on**"}
+
+id: 313
+event: delta
+data: {"text":"。跨"}
+
+id: 314
+event: delta
+data: {"text":"数据集"}
+
+id: 315
+event: delta
+data: {"text":"实验显示"}
+
+id: 316
+event: delta
+data: {"text":"性能显著下"}
+
+id: 317
+event: delta
+data: {"text":"降**1"}
+
+id: 318
+event: delta
+data: {"text":"2—20"}
+
+id: 319
+event: delta
+data: {"text":" p"}
+
+id: 320
+event: delta
+data: {"text":"oi"}
+
+id: 321
+event: delta
+data: {"text":"nts"}
+
+id: 322
+event: delta
+data: {"text":"**，表"}
+
+id: 323
+event: delta
+data: {"text":"明对数据"}
+
+id: 324
+event: delta
+data: {"text":"集特定"}
+
+id: 325
+event: delta
+data: {"text":"光照和"}
+
+id: 326
+event: delta
+data: {"text":"受试者人"}
+
+id: 327
+event: delta
+data: {"text":"口统计"}
+
+id: 328
+event: delta
+data: {"text":"存在过"}
+
+id: 329
+event: delta
+data: {"text":"拟合。未"}
+
+id: 330
+event: delta
+data: {"text":"来方"}
+
+id: 331
+event: delta
+data: {"text":"向包"}
+
+id: 332
+event: delta
+data: {"text":"括**g"}
+
+id: 333
+event: delta
+data: {"text":"enera"}
+
+id: 334
+event: delta
+data: {"text":"ti"}
+
+id: 335
+event: delta
+data: {"text":"ve "}
+
+id: 336
+event: delta
+data: {"text":"au"}
+
+id: 337
+event: delta
+data: {"text":"gment"}
+
+id: 338
+event: delta
+data: {"text":"atio"}
+
+id: 339
+event: delta
+data: {"text":"n（"}
+
+id: 340
+event: delta
+data: {"text":"di"}
+
+id: 341
+event: delta
+data: {"text":"ffus"}
+
+id: 342
+event: delta
+data: {"text":"io"}
+
+id: 343
+event: delta
+data: {"text":"n-ba"}
+
+id: 344
+event: delta
+data: {"text":"sed M"}
+
+id: 345
+event: delta
+data: {"text":"E syn"}
+
+id: 346
+event: delta
+data: {"text":"thes"}
+
+id: 347
+event: delta
+data: {"text":"is）、"}
+
+id: 348
+event: delta
+data: {"text":"self-"}
+
+id: 349
+event: delta
+data: {"text":"su"}
+
+id: 350
+event: delta
+data: {"text":"pervi"}
+
+id: 351
+event: delta
+data: {"text":"se"}
+
+id: 352
+event: delta
+data: {"text":"d pre"}
+
+id: 353
+event: delta
+data: {"text":"-t"}
+
+id: 354
+event: delta
+data: {"text":"raini"}
+
+id: 355
+event: delta
+data: {"text":"ng、i"}
+
+id: 356
+event: delta
+data: {"text":"nter"}
+
+id: 357
+event: delta
+data: {"text":"pr"}
+
+id: 358
+event: delta
+data: {"text":"etabl"}
+
+id: 359
+event: delta
+data: {"text":"e AU "}
+
+id: 360
+event: delta
+data: {"text":"reaso"}
+
+id: 361
+event: delta
+data: {"text":"ning"}
+
+id: 362
+event: delta
+data: {"text":"、re"}
+
+id: 363
+event: delta
+data: {"text":"al-ti"}
+
+id: 364
+event: delta
+data: {"text":"me o"}
+
+id: 365
+event: delta
+data: {"text":"n-"}
+
+id: 366
+event: delta
+data: {"text":"de"}
+
+id: 367
+event: delta
+data: {"text":"vice "}
+
+id: 368
+event: delta
+data: {"text":"inf"}
+
+id: 369
+event: delta
+data: {"text":"er"}
+
+id: 370
+event: delta
+data: {"text":"ence"}
+
+id: 371
+event: delta
+data: {"text":"**以及"}
+
+id: 372
+event: delta
+data: {"text":"**mu"}
+
+id: 373
+event: delta
+data: {"text":"lt"}
+
+id: 374
+event: delta
+data: {"text":"imoda"}
+
+id: 375
+event: delta
+data: {"text":"l f"}
+
+id: 376
+event: delta
+data: {"text":"us"}
+
+id: 377
+event: delta
+data: {"text":"ion w"}
+
+id: 378
+event: delta
+data: {"text":"ith "}
+
+id: 379
+event: delta
+data: {"text":"phys"}
+
+id: 380
+event: delta
+data: {"text":"iolo"}
+
+id: 381
+event: delta
+data: {"text":"gic"}
+
+id: 382
+event: delta
+data: {"text":"al si"}
+
+id: 383
+event: delta
+data: {"text":"gn"}
+
+id: 384
+event: delta
+data: {"text":"als**"}
+
+id: 385
+event: delta
+data: {"text":"。\n\n"}
+
+id: 386
+event: delta
+data: {"text":"因此"}
+
+id: 387
+event: delta
+data: {"text":"，该文献的"}
+
+id: 388
+event: delta
+data: {"text":"核心贡"}
+
+id: 389
+event: delta
+data: {"text":"献不"}
+
+id: 390
+event: delta
+data: {"text":"是提出单"}
+
+id: 391
+event: delta
+data: {"text":"一新模型"}
+
+id: 392
+event: delta
+data: {"text":"，而是提"}
+
+id: 393
+event: delta
+data: {"text":"供M"}
+
+id: 394
+event: delta
+data: {"text":"ER领"}
+
+id: 395
+event: delta
+data: {"text":"域的**"}
+
+id: 396
+event: delta
+data: {"text":"趋势总结"}
+
+id: 397
+event: delta
+data: {"text":"、方"}
+
+id: 398
+event: delta
+data: {"text":"法分类、"}
+
+id: 399
+event: delta
+data: {"text":"统一基"}
+
+id: 400
+event: delta
+data: {"text":"准复现和"}
+
+id: 401
+event: delta
+data: {"text":"挑战展"}
+
+id: 402
+event: delta
+data: {"text":"望**。"}
+
+id: 403
+event: done
+data: {"message_id":"msg_mwrtnnkbzwoa","tokens":2650,"usage_status":"reported","fallback":false,"mode":"live"}
+
