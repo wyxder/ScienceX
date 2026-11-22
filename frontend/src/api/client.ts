@@ -66,7 +66,7 @@ export function setToken(token: string, refreshToken?: string): void {
       memoryRefreshToken = refreshToken;
       sessionStorage.setItem('sx_refresh_token', refreshToken);
     }
-  } catch (_) {}
+  } catch (_) { }
 }
 
 export function clearToken(): void {
@@ -75,7 +75,7 @@ export function clearToken(): void {
   try {
     sessionStorage.removeItem('sx_token');
     sessionStorage.removeItem('sx_refresh_token');
-  } catch (_) {}
+  } catch (_) { }
 }
 
 /* ---------- 401 认证拦截与静默 Token 续期 (F3 & F4) ---------- */
@@ -101,7 +101,7 @@ async function attemptTokenRefresh(): Promise<string | null> {
       setToken(json.data.token, json.data.refresh_token);
       return json.data.token;
     }
-  } catch (_) {}
+  } catch (_) { }
   return null;
 }
 
@@ -337,7 +337,7 @@ export async function chatStream(payload: ChatCompletionPayload, handlers: SSEHa
   }
 }
 
-export async function docChatStream(docId: string, messages: DocChatMessage[], handlers: SSEHandlers, signal?: AbortSignal): Promise<void> {
+export async function docChatStream(docId: string, messages: DocChatMessage[], handlers: SSEHandlers, signal?: AbortSignal, model?: string): Promise<void> {
   const token = getToken();
   try {
     const res = await fetchWithAuth(`${BASE}/documents/${docId}/chat`, {
@@ -347,7 +347,7 @@ export async function docChatStream(docId: string, messages: DocChatMessage[], h
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...(lastReceivedEventIds.get(`doc:${docId}`) ? { 'Last-Event-ID': lastReceivedEventIds.get(`doc:${docId}`)! } : {}),
       },
-      body: JSON.stringify({ messages }),
+      body: JSON.stringify({ messages, ...(model ? { model } : {}) }),
       signal,
     });
 
@@ -510,41 +510,41 @@ export function uploadDocument(file: File, opts: { onProgress: (p: UploadProgres
     const base64 = await readFileAsBase64(file, (f) => emit('reading', 1 + 24 * f));
     if (aborted) throw Object.assign(new Error('已取消上传'), { name: 'AbortError' });
     const bodyOf = (token: string) => new Promise<any>((resolve, reject) => {
-        const req = new XMLHttpRequest();
-        xhr = req;
-        req.open('POST', `${BASE}/documents/upload`);
-        req.setRequestHeader('Content-Type', 'application/json');
-        if (token) req.setRequestHeader('Authorization', `Bearer ${token}`);
-        req.upload.onprogress = (e) => {
-          if (!e.lengthComputable) return;
-          const ratio = e.loaded / (e.total || 1);
-          if (ratio >= 1) startParseDecay();
-          else emit('uploading', 25 + 50 * ratio, true);
-        };
-        req.onerror = () => reject(new ApiError(50003, '上传连接异常，请检查后端服务是否在运行'));
-        req.onabort = () => reject(Object.assign(new Error('已取消上传'), { name: 'AbortError' }));
-        req.onload = () => {
-          stopTimers();
-          let json: any = null;
-          try {
-            json = JSON.parse(req.responseText);
-          } catch {
-            reject(new ApiError(50001, `解析响应失败 (HTTP ${req.status})`));
-            return;
-          }
-          if (req.status === 401) {
-            reject(Object.assign(new Error('unauthorized'), { name: 'UnauthorizedError' }));
-            return;
-          }
-          if (!json || json.code !== 0) {
-            reject(new ApiError(json?.code || req.status * 100, json?.message || `上传失败 (HTTP ${req.status})`));
-            return;
-          }
-          emit('done', 100, true);
-          resolve(json.data);
-        };
-        req.send(JSON.stringify({ file_name: file.name, file_content: base64, mime: file.type || '', project_id: projectId }));
-      });
+      const req = new XMLHttpRequest();
+      xhr = req;
+      req.open('POST', `${BASE}/documents/upload`);
+      req.setRequestHeader('Content-Type', 'application/json');
+      if (token) req.setRequestHeader('Authorization', `Bearer ${token}`);
+      req.upload.onprogress = (e) => {
+        if (!e.lengthComputable) return;
+        const ratio = e.loaded / (e.total || 1);
+        if (ratio >= 1) startParseDecay();
+        else emit('uploading', 25 + 50 * ratio, true);
+      };
+      req.onerror = () => reject(new ApiError(50003, '上传连接异常，请检查后端服务是否在运行'));
+      req.onabort = () => reject(Object.assign(new Error('已取消上传'), { name: 'AbortError' }));
+      req.onload = () => {
+        stopTimers();
+        let json: any = null;
+        try {
+          json = JSON.parse(req.responseText);
+        } catch {
+          reject(new ApiError(50001, `解析响应失败 (HTTP ${req.status})`));
+          return;
+        }
+        if (req.status === 401) {
+          reject(Object.assign(new Error('unauthorized'), { name: 'UnauthorizedError' }));
+          return;
+        }
+        if (!json || json.code !== 0) {
+          reject(new ApiError(json?.code || req.status * 100, json?.message || `上传失败 (HTTP ${req.status})`));
+          return;
+        }
+        emit('done', 100, true);
+        resolve(json.data);
+      };
+      req.send(JSON.stringify({ file_name: file.name, file_content: base64, mime: file.type || '', project_id: projectId }));
+    });
     try {
       return await bodyOf(getToken());
     } catch (err: any) {

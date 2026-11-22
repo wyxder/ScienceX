@@ -205,7 +205,8 @@ export default function ReaderAgentPanel({ docId, isMobile, widthPercent, draggi
             toast('对话失败，请重试', 'err');
           },
         },
-        controller.signal
+        controller.signal,
+        selectedModel
       );
     } finally {
       if (chatAbortRef.current === controller) chatAbortRef.current = null;

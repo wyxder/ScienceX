@@ -11,7 +11,7 @@
  *     figures:[{id,label,caption,ref}], text, meta }
  */
 
-const { execFile } = require('child_process');
+const { spawn } = require('child_process');
 const crypto = require('crypto');
 const fs = require('fs');
 const os = require('os');
@@ -201,7 +201,7 @@ function extractFigures(sections, rawText) {
 
 const PY_PDF_EXTRACTOR = `
 import base64, json, sys, tempfile, os
-data = base64.b64decode(sys.argv[1])
+data = base64.b64decode(sys.stdin.read().strip())
 tmp = os.path.join(tempfile.gettempdir(), 'sx-' + os.urandom(6).hex() + '.pdf')
 open(tmp, 'wb').write(data)
 out = {'ok': False, 'pages': [], 'meta': {}}
@@ -256,32 +256,64 @@ function pythonCandidates() {
   return [...new Set(list)];
 }
 
-function runPython(script, args, timeout = 45000, { accept } = {}) {
+function runPython(script, args, timeout = 45000, { accept, input } = {}) {
   return new Promise((resolve) => {
     const candidates = pythonCandidates();
     let index = 0;
     const tryNext = () => {
       if (index >= candidates.length) return resolve(null);
       const bin = candidates[index++];
-      execFile(bin, ['-c', script, ...args], { timeout, maxBuffer: 256 * 1024 * 1024, windowsHide: true }, (err, stdout) => {
-        if (err || !stdout) return tryNext();
+      let child;
+      try {
+        child = spawn(bin, ['-c', script, ...args], { windowsHide: true });
+      } catch {
+        return tryNext();
+      }
+
+      let stdout = '';
+      let settled = false;
+      const finish = (parsed) => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        try {
+          child.kill();
+        } catch { }
+        if (parsed === null || parsed === undefined) return tryNext();
+        resolve(parsed);
+      };
+
+      const timer = setTimeout(() => finish(null), timeout);
+
+      child.stdout.setEncoding('utf8');
+      child.stdout.on('data', (chunk) => { stdout += chunk; });
+      child.stderr.on('data', () => { });
+      child.on('error', () => finish(null));
+      child.on('close', () => {
         let parsed;
         try {
           parsed = JSON.parse(String(stdout).trim().split('\n').pop());
         } catch {
-          return tryNext();
+          return finish(null);
         }
-        // 解释器能跑但缺少所需依赖时（ok:false）继续尝试下一个候选解释器
-        if (typeof accept === 'function' && !accept(parsed)) return tryNext();
-        resolve(parsed);
+        if (typeof accept === 'function' && !accept(parsed)) return finish(null);
+        finish(parsed);
       });
+
+      if (input !== undefined) {
+        child.stdin.on('error', () => { });
+        child.stdin.end(input);
+      }
     };
     tryNext();
   });
 }
 
 async function extractPdf(buffer) {
-  const result = await runPython(PY_PDF_EXTRACTOR, [buffer.toString('base64')], 60000, { accept: (r) => r && r.ok && r.pages?.length });
+  const result = await runPython(PY_PDF_EXTRACTOR, [], 60000, {
+    input: buffer.toString('base64'),
+    accept: (r) => r && r.ok && r.pages?.length,
+  });
   if (result && result.ok && result.pages?.length) {
     const text = result.pages.map((p) => p.text || '').join('\n');
     return {

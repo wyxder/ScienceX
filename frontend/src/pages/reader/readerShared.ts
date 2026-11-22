@@ -36,13 +36,12 @@ export function readAsBase64(file: File): Promise<string> {
 
 /* AI模型选项列表（与后端内置模型保持一致，OpenAI Next 统一网关实测可用） */
 export const AI_MODELS = [
-  { id: 'deepseek-flash', name: 'DeepSeek V4.1 Flash', desc: '极速推理 · 3.1.1 文本核心引擎', badge: '闪电' },
+  { id: 'm-deepseek-flash', name: 'DeepSeek V4.1 Flash', desc: '极速推理 · 3.1.1 文本核心引擎', badge: '闪电' },
   { id: 'm-gpt-sol', name: 'GPT-6.1 Sol 顶刊精读', desc: '通用旗舰 · 全文架构深度推理', badge: '推荐' },
   { id: 'm-claude', name: 'Claude Sonnet 5', desc: '长篇文献精读 · 学术写作推敲', badge: '长文' },
   { id: 'm-deepseek', name: 'DeepSeek V4 Pro 深度推理', desc: '数学公式推导 · 逻辑严密反思', badge: '推理' },
   { id: 'm-kimi', name: 'Kimi K2.5 中文精读', desc: '256K 上下文 · 中文长文档剖析', badge: '中文' },
   { id: 'm-gemini', name: 'Gemini 3.8 Flash', desc: '1M 上下文 · 附录与图表跨页比对', badge: '超长' },
-  { id: 'm-deepseek-flash', name: 'DeepSeek-Flash 极速模式', desc: '极速响应 · 代码与算法细节剖析', badge: '极速' },
 ];
 
 /* 七段总结的标准 7 色彩条配置（完全对齐用户上传图） */

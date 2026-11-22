@@ -8,7 +8,8 @@ function embeddingConfig() {
   return { baseUrl, model, apiKey: process.env.EMBEDDING_API_KEY || '', fingerprint: hash(`${baseUrl}:${model}`) };
 }
 function chunksFromDocument(doc) {
-  if (doc.parse_meta?.engine === 'placeholder' || doc.parse_meta?.charCount === 0) return [];
+  // 仅占位解析（完全无正文）才判定不可检索；charCount=0 但仍有可读段落的降级文档保留切片
+  if (doc.parse_meta?.engine === 'placeholder') return [];
   return (doc.structured?.sections || []).flatMap((section) => (section.paragraphs || []).flatMap((paragraph, pi) => {
     const text = typeof paragraph === 'string' ? paragraph : paragraph.text || '';
     const chunks = [];

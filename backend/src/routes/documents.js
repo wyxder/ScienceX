@@ -235,6 +235,24 @@ router.get('/documents/:id/citation-graph', auth, (req, res) => {
   ok(res, { doc_id: doc.id, ...doc.citation_graph });
 });
 
+/**
+ * 拼接当前文档可读正文，作为检索未命中时的全文上下文兜底
+ */
+function buildDocumentFulltext(doc, maxChars = 12000) {
+  const sections = doc.structured?.sections || [];
+  const parts = sections
+    .map((section) => {
+      const paras = (section.paragraphs || [])
+        .map((p) => (typeof p === 'string' ? p : p?.text || ''))
+        .filter(Boolean);
+      if (!paras.length) return '';
+      return `## ${section.title || '正文'}\n${paras.join('\n')}`;
+    })
+    .filter(Boolean);
+  const text = (parts.length ? parts.join('\n\n') : String(doc.text || '')).trim();
+  return text.slice(0, maxChars);
+}
+
 /* ---------- 论文问答（SSE + 引用溯源） REQ-READ-03 ---------- */
 router.post('/documents/:id/chat', auth, asyncHandler(async (req, res) => {
   const doc = store.documents.find((d) => d.id === req.params.id && canAccess(d, req.user.id));
@@ -251,11 +269,24 @@ router.post('/documents/:id/chat', auth, asyncHandler(async (req, res) => {
     const old = new Map((doc.rag_chunks || []).map((c) => [c.id, c]));
     for (const c of chunks) if (old.get(c.id)?.text === c.text) Object.assign(c, old.get(c.id));
     const retrieval = chunks.length ? await rag.retrieve(chunks, query, { topK: 5, userId: req.user.id, model, signal: abort.signal }) : { items: [], mode: 'unavailable', degraded: true };
+
+    // 检索未命中时不再直接拒绝，改用当前文档的全文上下文回答
+    const fulltext = retrieval.items.length ? '' : buildDocumentFulltext(doc);
+    const promptMessages = retrieval.items.length
+      ? prompts.render('document', { title: doc.title, items: retrieval.items, messages: questionMessages })
+      : fulltext
+        ? prompts.render('documentFulltext', { title: doc.title, text: fulltext, messages: questionMessages })
+        : null;
+    const retrievalMode = retrieval.items.length ? retrieval.mode : (fulltext ? 'fulltext-fallback' : 'unavailable');
+    const retrievalDegraded = retrievalMode !== 'vector';
+
     doc.rag_chunks = chunks;
     await store.persist();
-    const result = retrieval.items.length ? await ai.generateResponse(prompts.render('document', { title: doc.title, items: retrieval.items, messages: questionMessages }), { scene: 'document', model, userId: req.user.id, signal: abort.signal }) : { text: '文档没有可用于回答此问题的有效片段，请上传可解析的正文或调整问题。', model: 'unavailable', fallback: true };
+    const result = promptMessages
+      ? await ai.generateResponse(promptMessages, { scene: 'document', model, userId: req.user.id, signal: abort.signal })
+      : { text: '当前文档还没有可读取的正文（可能是扫描件或解析未完成），请在左侧切换到「原文档」确认内容，或上传可解析的文本版 PDF/DOCX。', model: 'unavailable', fallback: true };
     await ai.streamText(res, result.text, {
-      model: result.model, usage: result.usage, fallback: !!result.fallback, retrieval: { mode: retrieval.mode, degraded: retrieval.degraded, reranked: retrieval.reranked },
+      model: result.model, usage: result.usage, fallback: !!result.fallback, retrieval: { mode: retrievalMode, degraded: retrievalDegraded, reranked: retrieval.reranked },
       beforeStream: (send) => retrieval.items.forEach((c) => send('reference', { doc_id: doc.id, chunk_id: c.id, page: c.page, section: c.section, page_verified: c.page_verified, title: doc.title, text: c.text, score: c.score })),
     });
   } finally { res.removeListener('close', close); }
