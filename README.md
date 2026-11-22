@@ -1,7 +1,7 @@
 # AI软件赛道-ScienceX-ScienceX
 # 🧪 ScienceX-智能科研AI工作台
 
-![React](https://img.shields.io/badge/React-18.3-61DAFB?style=flat-square&logo=react&logoColor=black) ![TypeScript](https://img.shields.io/badge/TypeScript-5.5-3178C6?style=flat-square&logo=typescript&logoColor=white) ![Vite](https://img.shields.io/badge/Vite-5.4-646CFF?style=flat-square&logo=vite&logoColor=white) ![Node.js](https://img.shields.io/badge/Node.js-18%2B-339933?style=flat-square&logo=node.js&logoColor=white) ![Express](https://img.shields.io/badge/Express-4.19-000000?style=flat-square&logo=express&logoColor=white) ![SSE](https://img.shields.io/badge/Stream-SSE-FF6B6B?style=flat-square) ![OpenAI](https://img.shields.io/badge/LLM-OpenAI_Compatible-412991?style=flat-square&logo=openai&logoColor=white) ![Zod](https://img.shields.io/badge/Validation-Zod-3E67B1?style=flat-square) ![MCP](https://img.shields.io/badge/Tools-MCP_SDK-8A2BE2?style=flat-square) ![Test](https://img.shields.io/badge/Tests-Node--test%20%C2%B7%20c8-CC3F34?style=flat-square) ![CI](https://img.shields.io/badge/CI-GitHub_Actions-2088FF?style=flat-square&logo=githubactions&logoColor=white) ![Deploy](https://img.shields.io/badge/Deploy-Vercel%20%C2%B7%20Docker-000000?style=flat-square&logo=vercel&logoColor=white) ![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
+![React](https://img.shields.io/badge/React-18.3-61DAFB?style=flat-square&logo=react&logoColor=black) ![TypeScript](https://img.shields.io/badge/TypeScript-5.5-3178C6?style=flat-square&logo=typescript&logoColor=white) ![Vite](https://img.shields.io/badge/Vite-5.4-646CFF?style=flat-square&logo=vite&logoColor=white) ![Node.js](https://img.shields.io/badge/Node.js-18%2B-339933?style=flat-square&logo=node.js&logoColor=white) ![Express](https://img.shields.io/badge/Express-4.19-000000?style=flat-square&logo=express&logoColor=white) ![SSE](https://img.shields.io/badge/Stream-SSE-FF6B6B?style=flat-square) ![OpenAI](https://img.shields.io/badge/LLM-OpenAI_Compatible-412991?style=flat-square&logo=openai&logoColor=white) ![Zod](https://img.shields.io/badge/Validation-Zod-3E67B1?style=flat-square) ![MCP](https://img.shields.io/badge/Tools-MCP_SDK-8A2BE2?style=flat-square) ![Alipay](https://img.shields.io/badge/Payment-Alipay-1677FF?style=flat-square&logo=alipay&logoColor=white) ![Harness](https://img.shields.io/badge/Eval-Harness_%C2%B7_Baseline_Gate-5B8DEF?style=flat-square) ![Test](https://img.shields.io/badge/Tests-Node--test%20%C2%B7%20c8-CC3F34?style=flat-square) ![CI](https://img.shields.io/badge/CI-GitHub_Actions-2088FF?style=flat-square&logo=githubactions&logoColor=white) ![Deploy](https://img.shields.io/badge/Deploy-Vercel%20%C2%B7%20Docker-000000?style=flat-square&logo=vercel&logoColor=white) ![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
 
 ---
 
@@ -23,10 +23,10 @@
 
 ### 📊 项目规模速览（实测统计）
 
-- **后端源码**：`backend/src` 约 5,200 行 JavaScript，含 7 个路由模块、12 个 AI 子模块、14 个基础库
-- **前端源码**：`frontend/src` 约 16,600 行 TypeScript/TSX，含 13+ 业务页面、11 个通用组件
-- **接口总量**：约 **70 个 REST/SSE 端点**，统一 `/api/v1` 前缀与响应契约
-- **工程化**：5 个后端测试套件 + AI 质量回归评测（eval）+ GitHub Actions CI + Vercel/Docker 双部署路径 + MIT 开源协议
+- **后端源码**：`backend/src` 约 8,300 行 JavaScript，含 9 个路由模块、14 个 AI 子模块、17 个基础库与 Harness 评测引擎
+- **前端源码**：`frontend/src` 约 21,400 行 TypeScript/TSX，含 15 个业务页面、15 个通用/质量看板组件
+- **接口总量**：约 **110 个 REST/SSE 端点**（106 条唯一路径 + 健康检查/OpenAPI 等基础端点），统一 `/api/v1` 前缀与响应契约
+- **工程化**：6 个后端测试套件（74 条用例）+ Harness 质量评测与基线门禁 + GitHub Actions CI + Vercel/Docker 双部署路径 + MIT 开源协议
 
 ---
 
@@ -43,6 +43,7 @@
 | **可视化** | 自研 SVG 引擎 + 3D 力导向图谱 | — | `charts.tsx` 学术图表、`CitationGraph3D.tsx` 引用拓扑、`VirtualList` 长列表虚拟化 |
 | **实时通信** | Fetch ReadableStream SSE 解码器 | WHATWG 标准 | `client.ts` 中 `readSSE` 逐 Token 渲染 + `AbortController` 中断 |
 | **移动适配** | `useIsMobile` Hook + CSS 响应式 | ≤768px | 九大界面单列堆叠、scroll-snap 横向滑动、CSS order 重排 |
+| **质量中心** | 自研评测看板组件 | — | 质量看板 / 运行记录 / 基线与门禁三 Tab，逐题得分、失败原因与基线回归对比 |
 | **工程质量** | ESLint 9 + Prettier 3 + tsc --noEmit | — | `typecheck` / `lint` / `format:check` 三重卡口纳入 CI |
 
 ### 2. 后端技术栈 (Backend)
@@ -54,6 +55,9 @@
 | **鉴权体系** | HMAC-SHA256 无状态签名令牌 | `security.js` | `sx1.<payload>.<signature>` 格式，任何实例可离线验签，适配 Serverless 多实例 |
 | **流量治理** | rate-limiter-flexible + Redis 客户端 | 5.0.5 / 4.7.1 | 对话 30 次/分钟、写作与文献 60 次/分钟，按 userId/IP 双维度计数 |
 | **可观测性** | pino 结构化日志 + AsyncLocalStorage | 9.14 | `X-Request-Id` 全链路透传，访问日志含耗时与状态分类 |
+| **质量评测 Harness** | 套件 Schema + 正则评分 + 基线与门禁 | `src/harness/eval/` | suite 校验、template/live 双通道、逐题评分、基线回归拦截、SSE 进度 |
+| **订阅支付** | alipay-sdk + 异步通知验签 | 4.14.0 | 网页支付下单、notify 验签与金额/商户一致性校验、查询 / 退款 / 关单 |
+| **模型网关托管** | 用户自带模型 + SSRF 防护 | `lib/model-gateway.js` | 私有 OpenAI 兼容端点接入、连通性测试、公网 HTTPS 与内网地址拦截 |
 | **数据持久层** | JSON 文件 Store（`.data/store.json`） | `store.js` | 演示级持久化，写请求后异步落盘、失败只告警不炸进程 |
 | **文档解析** | 零依赖解析引擎 + fast-xml-parser | 5.11 | PDF / Word OOXML / Markdown / CAJ 四格式，PDF 可选委托 PyMuPDF |
 | **端口容错** | EADDRINUSE 自适应递增 | `server.js` | 默认 8787，冲突自动 +1 重试（上限 20 次）并写入 `.port` 供前端发现 |
@@ -69,6 +73,8 @@
 | **三层记忆引擎** | 短期 RAM + 滚动摘要 + 长期事实 | `ai/memory.js` | 从对话智能提取科研事实，跨会话注入课题组上下文 |
 | **RAG 检索增强** | 文本切片 + 确定性关键词评分 | `ai/rag.js` | 可演示入库/召回/引用字段（真实 Embedding 为演进目标） |
 | **MCP 工具生态** | @modelcontextprotocol/sdk | `ai/mcp.js` | 内置 arXiv 检索工具原型与 MCP 目录 |
+| **科研配图** | OpenAI 兼容生图网关 | `ai/image.js` | `gpt-image-2` 比例映射、CDN 直链 / b64 双通道、失败降级 |
+| **文本模态工具** | 翻译 / 润色 / 提示词增强 | `ai/textModality.js` · `ai/literature.js` | 学术中英翻译、术语对齐、结构化元提示词与多源文献检索 |
 | **容错与用量** | 重试/降级 + Token 用量统计 | `ai/resilience.js` · `ai/usage.js` | 网关故障自动降级，用量入账单可查 |
 | **质量评测** | 模板质量回归 Harness | `eval/run.js` + `eval/cases.json` | CI 中 `--check` 模式拦截 AI 输出质量回退 |
 
@@ -78,55 +84,64 @@
 
 ```text
 Science/
-├── PRD.md / TSD.md              # 产品需求文档 / 技术设计规范
-├── README.md / README1.md       # 项目文档 / 本分析报告
+├── docs/                        # PRD/TSD、Harness 全流程、路演答辩、测试与参赛提交物
+├── Harness应用.md               # Harness 技术应用全流程（评测/运行/交付三层）
+├── 解决.md                      # 10 个攻坚问题复盘（现象→根因→方案→结果）
+├── README.md                    # 项目文档（本文件）
 ├── vercel.json                  # Vercel 双服务部署配置（API rewrite 至 backend）
-├── .github/workflows/ci.yml     # GitHub Actions CI（测试+评测+类型+Lint+构建）
+├── .github/workflows/ci.yml     # GitHub Actions CI（测试+覆盖率+评测+类型+Lint+构建）
 │
 ├── backend/                     # 🔧 后端 API 服务 (Node.js + Express)
 │   ├── Dockerfile               # 生产容器镜像 (node:20-alpine)
-│   ├── .env.example             # 环境变量模板（网关密钥/HMAC主密钥等）
+│   ├── .env.example             # 环境变量模板（网关密钥/HMAC主密钥/支付宝等）
 │   ├── .port                    # 运行时自适应端口缓存（前端代理联动）
 │   ├── shared/api-schemas.js    # 前后端共享 Zod 契约
-│   ├── eval/                    # AI 模板质量回归评测（cases.json + run.js）
-│   ├── test/                    # 5 个测试套件（API/AI/持久化/路由契约/冒烟）
+│   ├── eval/                    # CLI 评测：cases.json + run.js + suites/
+│   ├── test/                    # 6 个测试套件（74 条用例）
 │   └── src/
-│       ├── server.js            # 入口：CORS白名单→请求追踪→限流→7路由装配→端口容错
-│       ├── ai/                  # AI 能力域（12 模块）
+│       ├── server.js            # 入口：CORS→请求追踪→限流→9 路由装配→端口容错
+│       ├── ai/                  # AI 能力域（14 模块）
 │       │   ├── config.js        #   网关配置中心        ├── client.js      #   OpenAI 兼容客户端
 │       │   ├── providers.js     #   多供应商适配        ├── prompts/       #   科研提示词库
 │       │   ├── memory.js        #   三层记忆引擎        ├── rag.js         #   检索增强
 │       │   ├── mcp.js           #   MCP 工具目录        ├── resilience.js  #   重试降级
 │       │   ├── streamAdapter.js #   SSE 流适配器        ├── usage.js       #   用量统计
+│       │   ├── image.js         #   科研配图生图        ├── textModality.js #  翻译/润色/增强
 │       │   └── fallbacks.js     #   无密钥演示模板回退
-│       └── lib/
-│           ├── agents/lingxiEngine.js  # ⭐ 灵犀引擎：8 类 Agent 编排核心
-│           ├── store.js         # JSON 持久化仓储（预置学术演示数据）
-│           ├── parser.js        # PDF/Word/MD/CAJ 多格式解析引擎
-│           ├── security.js      # HMAC 令牌签发验签 + 生产配置校验
-│           ├── rate-limit.js    # 滑动窗口限流中间件
-│           ├── access.js        # 多租户资源可见性规则
-│           ├── openapi.js       # Zod 契约 → OpenAPI 文档生成
-│           └── logger.js        # pino + ALS 链路上下文
-│       └── routes/              # 7 大业务路由模块（~70 端点）
+│       ├── harness/eval/        # ⭐ 评测 Harness：suites/scorer/runner/gate/service
+│       ├── lib/
+│       │   ├── agents/lingxiEngine.js  # ⭐ 灵犀引擎：8 类 Agent 编排核心
+│       │   ├── store.js         # JSON 持久化仓储（预置学术演示数据）
+│       │   ├── parser.js        # PDF/Word/MD/CAJ 多格式解析引擎
+│       │   ├── security.js      # HMAC 令牌签发验签 + 生产配置校验
+│       │   ├── model-gateway.js # 私有模型网关 + SSRF 防护
+│       │   ├── alipay.js        # 支付宝下单/查询/退款/验签封装
+│       │   ├── rate-limit.js    # 滑动窗口限流中间件
+│       │   ├── access.js        # 多租户资源可见性规则
+│       │   ├── openapi.js       # Zod 契约 → OpenAPI 文档生成
+│       │   └── logger.js        # pino + ALS 链路上下文
+│       └── routes/              # 9 大业务路由模块（约 110 端点）
 │           ├── account.js       #   认证/资料/模型托管/计费/用量
-│           ├── chat.js          #   对话中枢/会话/看板/Skills/MCP
-│           ├── literature.js    #   文献检索/选题/可行性/开题/任务流
+│           ├── chat.js          #   对话中枢/会话/记忆/看板/Skills/MCP
+│           ├── literature.js    #   文献检索/选题/可行性/开题
 │           ├── documents.js     #   文档解析/精读/引用图谱/知识库
 │           ├── research.js      #   实验/GPU/SOTA/图表/写作润色查重
 │           ├── dreampaper.js    #   论文复现流水线
-│           └── publish.js       #   期刊/投稿追踪/组会/专家评审团
+│           ├── publish.js       #   期刊/投稿追踪/组会/专家评审团
+│           ├── payment.js       #   支付宝网页支付/通知/查询/退款/关单
+│           └── harness.js       #   评测套件/运行/取消/基线/门禁/SSE
 │
 └── frontend/                    # 🎨 Web 前端 (React 18 + TS + Vite)
     ├── vite.config.ts           # 自动发现后端端口的代理配置
     ├── eslint.config.js         # ESLint 9 Flat Config
     └── src/
         ├── api/client.ts        # 统一 Fetch 封装 + readSSE 流解析器
+        ├── api/eval.ts          # 评测 Harness 前端 API
         ├── router/index.tsx     # 路由表 + 懒加载 + 登录守卫
         ├── stores/              # auth.tsx（认证）/ project.tsx（课题组）
-        ├── components/          # 11 个通用组件（3D图谱/图表/阅读器/任务流/虚拟列表…）
+        ├── components/          # 15 个通用/质量组件（3D图谱/图表/虚拟列表/评测看板…）
         ├── hooks/useIsMobile.ts # 移动端视口探测
-        └── pages/               # 13 个业务页面
+        └── pages/               # 15 个业务页面
             ├── Landing.tsx      #   🏠 官网（Hero/能力雷达/定价/口碑）
             ├── Chat.tsx         #   💬 对话工作台（8 模式/ReAct盒/规划卡/记忆抽屉）
             ├── Topic / Reader   #   💡📖 选题灵感 / 文献阅读（三栏/CAJ/引用图谱/RAG）
@@ -136,14 +151,15 @@ Science/
             ├── Writing          #   ✍️ 写作（Diff润色/翻译/查重降重）
             ├── Submission       #   📮 投稿（CCF期刊/截稿倒计时）
             ├── Meeting / Review #   🎤🧑‍⚖️ 组会汇报 / 专家评审团
-            └── Projects / Account  # 📁⚙️ 项目空间 / 个人设置
+            ├── Quality          #   🧪 质量中心（看板/运行记录/基线与门禁）
+            └── Projects / Account  # 📁⚙️ 项目空间 / 订阅支付与个人设置
 ```
 
 ---
 
 ## ⚡ 四、核心功能模块与工作流程
 
-### 1. 功能矩阵（12 大模块）
+### 1. 功能矩阵（13 大模块）
 
 ```
 🧪 ScienceX 科研工作台
@@ -157,8 +173,9 @@ Science/
 ├── 📮 投稿助手 ──────────── CCF 期刊大全 / 截稿倒计时 / 摘要契合度匹配 / 投稿追踪
 ├── 🎤 组会汇报 ──────────── PPTX 大纲生成 / 导师意见结构化提取为待办
 ├── 🧑‍⚖️ 专家评审团 ───────── 理论/方法/实验/写作/伦理 5 Agent 并行盲审 + 主审裁决报告
+├── 🧪 质量中心 ──────────── Harness 评测套件 / 逐题评分 / 运行历史 / 基线与门禁
 ├── 📁 项目空间 ──────────── 课题组多租户协作 / 资产关联 / 私有 RAG 知识库沉淀
-└── ⚙️ 账户中心 ─────────── 私有模型网关托管 / Token 用量明细 / 订阅计费 / 安全设置
+└── ⚙️ 账户中心 ─────────── 私有模型网关托管 / Token 用量明细 / 支付宝订阅支付 / 安全设置
 ```
 
 ### 2. 六层系统架构与请求链路
@@ -167,8 +184,9 @@ Science/
 flowchart LR
     Browser[🖥️ 浏览器 SPA<br/>React 18 + SSE 解码] --> Edge[☁️ Vercel 边缘层<br/>rewrite /api → backend]
     Edge --> MW[🧩 Express 中间件链<br/>CORS白名单 → X-Request-Id<br/>→ 限流 → HMAC 鉴权]
-    MW --> RT[📦 7 大路由模块<br/>chat / literature / documents<br/>research / dreampaper / publish / account]
+    MW --> RT[📦 9 大路由模块<br/>chat / literature / documents / research<br/>dreampaper / publish / account / payment / harness]
     RT --> GW[🤖 AI 模型层<br/>lingxiEngine + 网关 + 记忆 + RAG]
+    RT --> HC[🧪 评测 Harness<br/>套件 → 评分 → 门禁 → 基线]
     RT --> DB[(💾 JSON Store<br/>.data/store.json)]
     GW --> LLM[🌐 DeepSeek/Sophnet<br/>/ 私有 OpenAI 兼容端点]
     GW -.->|无密钥| FB[🎭 fallbacks 演示模板]
@@ -220,10 +238,12 @@ flowchart TD
 | :--- | :--- | :--- |
 | `DEEPSEEK_BASE_URL` | 模型网关端点 | Sophnet OpenAI 兼容端点 |
 | `DEEPSEEK_API_KEY` | 网关密钥（与 `OPENAI_API_KEY` 互备） | — （未配置则回退演示模板） |
-| `DEEPSEEK_MODEL` | 默认模型名 | `DeepSeek-Flash` |
+| `DEEPSEEK_MODEL` | 默认模型名 | `DeepSeek-Flash`（界面显示 DeepSeek V4.1 Flash） |
 | `SCIENCEX_MASTER_KEY` | HMAC 签名主密钥，**生产必须 ≥32 字符且多实例一致** | 随机生成 |
 | `CORS_ORIGINS` | 跨域白名单（逗号分隔） | `localhost:5173` |
 | `PORT` / `NODE_ENV` | 监听端口 / 环境标识 | `8787` / development |
+| `HARNESS_EVAL_ENABLED` / `HARNESS_EVAL_LIVE_ENABLED` | 质量中心开关 / 是否启用真实模型评测 | `true` / `false` |
+| `ALIPAY_APP_ID` / `ALIPAY_PRIVATE_KEY` / `ALIPAY_PUBLIC_KEY` | 支付宝应用配置（RSA2） | —（未配置时支付不可用） |
 
 ### 3. 本地开发启动（四条命令）
 
@@ -241,9 +261,9 @@ cd frontend && npm install && npm run dev
 
 ```bash
 cd backend
-npm test          # 5 个测试套件（API / AI 服务 / 持久化 / 路由契约 / 冒烟）
-npm run coverage  # c8 覆盖率卡口：lines 60% / functions 55% / branches 50%
-npm run eval:ai   # AI 模板质量回归评测
+npm test          # 6 个测试套件（API / AI 服务 / 持久化 / 路由契约 / Harness 评测 / AI 接入）
+npm run coverage  # c8 覆盖率卡口：lines 55% / functions 50% / branches 60%
+npm run eval:ai   # AI 模板质量回归评测（CLI，与质量中心共用套件）
 
 cd frontend
 npm run typecheck && npm run lint && npm run build
@@ -272,7 +292,7 @@ location /api/ {
 location / { root /var/www/sciencex/dist; try_files $uri /index.html; }
 ```
 
-**CI/CD**：每次 push/PR 至 `main`/`dev` 分支，GitHub Actions 自动执行「后端测试 ➔ AI 质量回归 ➔ 前端类型检查 ➔ Lint ➔ 构建」全链路验证。
+**CI/CD**：每次 push/PR 至 `main`/`dev` 分支，GitHub Actions 自动执行「后端测试 ➔ 覆盖率卡口 ➔ AI 质量回归 ➔ 前端类型检查 ➔ Lint ➔ 构建」六段全链路验证。
 
 ---
 
@@ -286,7 +306,7 @@ location / { root /var/www/sciencex/dist; try_files $uri /index.html; }
 
 错误码分级：`400xx` 参数/权限 · `401xx` 认证 · `500xx` 服务端。机器可读契约见 `GET /api/v1/openapi.json`（由 Zod 校验规则同源生成）。
 
-### 接口清单（按领域分组，共 ~70 端点）
+### 接口清单（按领域分组，共 ~110 端点）
 
 | 业务领域 | 方法 | 端点 | 描述 |
 | :--- | :---: | :--- | :--- |
@@ -295,6 +315,8 @@ location / { root /var/www/sciencex/dist; try_files $uri /index.html; }
 | | `GET/PATCH` | `/user/profile` | 个人资料与订阅套餐查询、更新 |
 | **模型网关** | `GET/POST/DELETE` | `/models` · `/models/:id/test` | 私有大模型接入、删除与连通性测试 |
 | **计费用量** | `GET` | `/usage` · `/billing/plans` · `/billing/subscription` · `/billing/orders` | Token 用量明细 / 套餐 / 订单 |
+| **订阅支付** | `POST` | `/payment/alipay/page-pay` · `/payment/alipay/notify` | 支付宝网页支付下单 / 异步通知验签 |
+| | `GET/POST` | `/payment/alipay/return` · `/query` · `/refund` · `/refund/query` · `/close` | 同步回跳中转 / 交易查询 / 退款 / 退款查询 / 关单 |
 | **对话中枢** | `POST` 🔥 | `/chat/completions` | **SSE 流式**对话（8 类 Agent 模式），限流 30 次/分钟 |
 | | `GET/POST/PATCH/DELETE` | `/conversations` · `/conversations/:id/messages` | 会话 CRUD 与历史消息 |
 | | `GET` | `/dashboard/summary` · `/skills` · `/mcp/recommend` | 科研看板聚合 / Skills / MCP 目录 |
@@ -317,14 +339,17 @@ location / { root /var/www/sciencex/dist; try_files $uri /index.html; }
 | | `POST` | `/deck/generate` · `/advice/extract` | 组会 PPTX 生成 / 导师意见待办化 |
 | **评审团** | `POST` 🔥 | `/review/council` | 5 角色 Agent 并行盲审 + 主审裁决（异步任务） |
 | | `GET` | `/review/reports` · `/projects` | 评审报告 / 课题组项目空间 |
+| **质量门禁** | `GET` | `/harness/eval/suites` · `/suites/:id` · `/overview` · `/gates` | 评测套件 / 质量看板 / 基线与门禁 |
+| | `POST` 🔥 | `/harness/eval/runs` · `/runs/:id/cancel` · `/runs/:id/baseline` | 发起评测（限流 3 次/分）/ 取消运行 / 提升为基线 |
+| | `GET` 🔥 | `/harness/eval/runs` · `/runs/:id` · `/runs/:id/stream` | 运行历史 / 运行详情 / **SSE 进度推送** |
 
 ---
 
 ## 📊 七、测试用例与结果
 
-> **交付说明**：本节为参赛交付物《测试用例与结果》的完整内容，覆盖后端全部自动化测试（55 用例）、AI 学术质量评测（12 用例）与人工功能验收（21 项）。明细文档见 [`docs/submissions/测试用例与结果.md`](docs/submissions/测试用例与结果.md)。
+> **交付说明**：本节为参赛交付物《测试用例与结果》的完整内容，覆盖后端全部自动化测试（74 用例）、AI 学术质量评测（12 用例）与人工功能验收（21 项）。明细文档见 [`docs/submissions/测试用例与结果.md`](docs/submissions/测试用例与结果.md)。
 > **执行方式**：自动化用例由 GitHub Actions 在每次推送时全量回归（Node.js 原生 test runner，无需人工干预）。
-> **最新结果**：✅ **55/55 全部通过**（涉及真实大模型 API 的 3 条用例在 CI 无密钥环境下自动跳过，属预期行为；配置密钥后自动启用）。
+> **最新结果**：✅ **74/74 全部通过**（涉及真实大模型 API 的 3 条用例在 CI 无密钥环境下自动跳过，属预期行为；配置密钥后自动启用）。
 
 ### 7.1 测试环境与结论摘要
 
@@ -332,10 +357,10 @@ location / { root /var/www/sciencex/dist; try_files $uri /index.html; }
 |---|---|
 | 测试框架 | Node.js 内置 `node:test` + `node:assert/strict`（零外部依赖） |
 | 执行环境 | GitHub Actions CI（ubuntu-latest，每次 push/PR 触发） |
-| 覆盖范围 | 单元 / 接口契约 / 权限隔离 / 安全防护 / 并发写 / 异步任务 / AI 服务 / 持久化 |
+| 覆盖范围 | 单元 / 接口契约 / 权限隔离 / 安全防护 / 并发写 / 异步任务 / AI 服务 / 持久化 / 评测 Harness 门禁 |
 | 测试数据库 | 每次运行创建临时目录（`SCIENCEX_DATA_DIR`），测试后销毁，不污染真实数据 |
 
-### 7.2 自动化测试用例明细（55 条）
+### 7.2 自动化测试用例明细（74 条）
 
 #### 7.2.1 API 接口与安全（api.test.js，16 条）
 
@@ -417,6 +442,30 @@ location / { root /var/www/sciencex/dist; try_files $uri /index.html; }
 | 54 | 真实磁盘并发写无半写损坏 | 真实文件系统并发写 | 文件始终为完整合法 JSON | ✅ 通过 |
 | 55 | 共享队列全部成功 | store 多处并发 persist | 共享同一队列且全部成功 | ✅ 通过 |
 
+#### 7.2.6 评测 Harness 与门禁（harness.eval.test.js，19 条）
+
+| # | 测试场景 | 输入 | 预期输出 | 实际结果 |
+|---|---|---|---|---|
+| 56 | 评分器正则三选二命中 | 命中 2/3 关键词的回答 | 得分 0.66，达标判定一致 | ✅ 通过 |
+| 57 | 非法正则表达式加载失败 | 套件含不合法正则 | 加载抛错并指出用例 ID | ✅ 通过 |
+| 58 | 重复 case id 校验失败 | 两条相同 ID 用例 | Schema 校验拒绝加载 | ✅ 通过 |
+| 59 | core 套件元数据正确 | 加载 `eval/cases.json` | 12 条用例、4 条红线、版本与评分器一致 | ✅ 通过 |
+| 60 | 文档场景模板适配 | `scene=document` 用例 | 返回"证据不足"确定性模板 | ✅ 通过 |
+| 61 | 无基线且单题低于门槛 | 模板分低于 `minimum` | 门禁 `failed` 并列出失败用例 | ✅ 通过 |
+| 62 | 基线回退超过容忍值 | 当前分低于基线且差值超阈值 | 门禁拦截并给出回归原因 | ✅ 通过 |
+| 63 | 版本不兼容判定 | prompt/套件版本与基线不一致 | template 模式失败、live 模式告警 | ✅ 通过 |
+| 64 | live 模式模板分不达标仍失败 | live 高分但模板分低于门槛 | 判定失败（live 不能抵消模板红线） | ✅ 通过 |
+| 65 | runner 取消抛 AbortError | 运行中触发取消 | 立即中止并抛出取消异常 | ✅ 通过 |
+| 66 | 未认证访问评测接口 | 无 token 请求套件列表 | HTTP 401 / `40101` | ✅ 通过 |
+| 67 | 套件列表与详情 | `GET /harness/eval/suites` 与 `/:id` | 200 + core 12 条用例元数据 | ✅ 通过 |
+| 68 | 非法 mode 参数 | 传入未声明的运行模式 | 400 字段级校验错误 | ✅ 通过 |
+| 69 | 模板模式运行并通过门禁 | 发起模板模式评测 | 运行完成、门禁 `passed`、逐题得分入库 | ✅ 通过 |
+| 70 | 失败夹具套件门禁失败 | 注入必然失败的套件 | 门禁失败并明确列出用例 ID | ✅ 通过 |
+| 71 | 取消运行 | 运行中调用 cancel | 状态转 `cancelled`，SSE 收到取消事件 | ✅ 通过 |
+| 72 | 基线建立与回归拦截 | 先提升基线，再跑低分运行 | 未通过运行禁止提升；回归运行被拦截 | ✅ 通过 |
+| 73 | OpenAPI 覆盖新增路由 | `GET /openapi.json` | 含 10 个 Harness 路由，SSE 声明 `text/event-stream` | ✅ 通过 |
+| 74 | SSE 进度流 | 订阅 `/runs/:id/stream` | 连接成功并按序推送进度事件 | ✅ 通过 |
+
 ### 7.3 AI 学术质量评测（eval/cases.json，12 用例）
 
 > 运行方式：`node backend/eval/run.js`（需配置 `DEEPSEEK_API_KEY`）。每题设定**关键词命中预期**与**最低得分线**，由评测脚本自动打分，低于分数线即判定不通过。该评测考核大模型的**学术严谨性与拒答诚实度**——尤其是"不知道要说不知道"，禁止编造。
@@ -444,9 +493,9 @@ location / { root /var/www/sciencex/dist; try_files $uri /index.html; }
 
 ### 7.5 测试结论
 
-1. **自动化回归**：55 条用例在 CI 全量通过（含权限隔离、SSRF/批量赋值/伪装上传等安全用例、并发持久化、AI 服务韧性）。
+1. **自动化回归**：74 条用例在 CI 全量通过（含权限隔离、SSRF/批量赋值/伪装上传等安全用例、并发持久化、AI 服务韧性与评测门禁）。
 2. **真实模型链路**：3 条真实大模型用例采用"有密钥自动启用、无密钥自动跳过"策略，保证 CI 稳定的同时支持现场真机验证。
-3. **AI 质量门禁**：12 条学术评测用例将"不许编造数据/引用/页码"作为强制项（命中 = 1），与本平台"可信科研"定位一致。
+3. **AI 质量门禁**：12 条学术评测用例将"不许编造数据/引用/页码"作为强制项（命中 = 1），并由 Harness 的基线与回归门禁持续守住。
 4. **可复现性**：所有用例随仓库交付（`backend/test/`、`backend/eval/`），评审方可克隆后本地执行 `npm test` 复现全部结果。
 
 ---
@@ -455,9 +504,9 @@ location / { root /var/www/sciencex/dist; try_files $uri /index.html; }
 
 | 评估维度 | 评级 | 依据 |
 | :--- | :---: | :--- |
-| **功能完备度** | ⭐⭐⭐⭐⭐ | 12 大模块 ~70 端点全链路打通，科研闭环真实可交互 |
+| **功能完备度** | ⭐⭐⭐⭐⭐ | 13 大模块 ~110 端点全链路打通，科研闭环真实可交互 |
 | **架构设计** | ⭐⭐⭐⭐⭐ | 六层分层清晰；Zod 契约与 OpenAPI 同源；HMAC 无状态鉴权适配 Serverless |
-| **工程规范** | ⭐⭐⭐⭐ | CI 五重卡口 + 覆盖率阈值 + AI 质量回归评测；中文语义化提交 56 次 |
+| **工程规范** | ⭐⭐⭐⭐⭐ | CI 六重卡口 + 覆盖率阈值 + Harness 质量门禁；中文语义化提交 180+ 次 |
 | **AI 深度** | ⭐⭐⭐⭐ | 8 类 Agent 模式 + 三层记忆真实实现；工具执行与向量检索仍为高保真模拟 |
 | **数据层成熟度** | ⭐⭐⭐ | JSON 文件持久化仅适合演示，无事务/并发保障（目标 PostgreSQL+Redis 未交付） |
 | **诚实性/文档** | ⭐⭐⭐⭐⭐ | README 明确区分「已交付 / 演示实现 / 目标能力」三级边界，无过度宣传 |
@@ -468,7 +517,7 @@ location / { root /var/www/sciencex/dist; try_files $uri /index.html; }
 
 ## 🏆 九、参赛评分自评分析
 
-> 依据大赛《评分维度与权重》《加分项与减分项》《建议提交（加分项）》三张评分标准，对 ScienceX 科研 AI 工作台当前仓库（截至 2026-10-03）进行逐项对照分析与自评。
+> 依据大赛《评分维度与权重》《加分项与减分项》《建议提交（加分项）》三张评分标准，对 ScienceX 科研 AI 工作台当前仓库（截至 2026-11-22）进行逐项对照分析与自评。
 
 ### 9.1 评分维度自评（满分 100 分）
 
@@ -476,8 +525,8 @@ location / { root /var/www/sciencex/dist; try_files $uri /index.html; }
 
 | 评分维度 | 分值 | 评分标准要点 | 项目实际情况与证据 | 自评得分 |
 | :--- | :---: | :--- | :--- | :---: |
-| **产品完成度** | 25 | 核心功能完整闭环、现场演示流畅无报错、交互流程清晰、异常兜底 | ✅ 覆盖「选题→文献→复现→实验→分析→写作→投稿→协作」全生命周期 12 个功能模块；✅ 官网+登录+工作台闭环可演示；✅ 异常兜底完善：无密钥回退演示模板、端口占用自增适配、PDF 解析多级降级、SSE 断流 `error` 事件；✅ 九大界面 ≤768px 移动端适配；⚠️ 部分能力为高保真模拟，已如实标注 | **22** |
-| **技术实现** | 20 | Prompt 工程精细、代码结构清晰模块化、错误处理和性能优化意识 | ✅ Prompt 工程：`dp-prompts.js` 复现流水线模板、8 类 Agent 编排模式各有独立 Prompt 策略、5 角色评审团人设 Prompt；✅ 代码结构：后端约 5,200 行按 `ai/ lib/ routes/` 分层，前端约 16,600 行按 `pages/components/hooks/stores/api` 组织；✅ 错误处理：统一响应封装、400xx/401xx/500xx/600xx 错误码分级、`X-Request-Id` 全链路追踪；✅ 性能优化：滑动窗口限流、VirtualList 虚拟滚动、SSE 逐 Token 流式渲染、Suspense 懒加载 | **18** |
+| **产品完成度** | 25 | 核心功能完整闭环、现场演示流畅无报错、交互流程清晰、异常兜底 | ✅ 覆盖「选题→文献→复现→实验→分析→写作→投稿→协作」全生命周期 13 个功能模块，并新增质量中心与支付宝订阅支付闭环；✅ 官网+登录+工作台闭环可演示；✅ 异常兜底完善：无密钥回退演示模板、端口占用自增适配、PDF 解析多级降级、SSE 断流 `error` 事件；✅ 九大界面 ≤768px 移动端适配；⚠️ 部分能力为高保真模拟，已如实标注 | **22** |
+| **技术实现** | 20 | Prompt 工程精细、代码结构清晰模块化、错误处理和性能优化意识 | ✅ Prompt 工程：`dp-prompts.js` 复现流水线模板、8 类 Agent 编排模式各有独立 Prompt 策略、5 角色评审团人设 Prompt；✅ 代码结构：后端约 8,300 行按 `ai/ harness/ lib/ routes/` 分层，前端约 21,400 行按 `pages/components/hooks/stores/api` 组织；✅ 错误处理：统一响应封装、400xx/401xx/500xx/600xx 错误码分级、`X-Request-Id` 全链路追踪；✅ 性能优化：滑动窗口限流、VirtualList 虚拟滚动、SSE 逐 Token 流式渲染、Suspense 懒加载 | **18** |
 | **商业价值** | 25 | 痛点来自真实企业/科研场景、明确付费方和目标用户、ROI 可量化、方案优于现有解决方式 | ✅ 痛点真实：科研工具割裂、重复粘贴、信息孤岛；✅ 付费方与定价明确：4 档订阅（免费 / Pro ¥19.9/月 / Team ¥199/月 / 企业定制）；✅ 差异化优势：支持 CAJ 中文文献解析、多 Agent 协同工作流、课题组三层记忆；✅ ROI 可量化口径见 PRD 与路演手册；⚠️ 尚无真实付费用户与收入数据 | **21** |
 | **创新** | 15 | Agent 架构、Prompt 策略、交互方式或行业切入角度有明显创新 | ✅ 灵犀引擎 8 类编排模式 + 三层记忆引擎跨会话沉淀；✅ 首创「多智能体专家评审团」5 角色并行盲审 + 主席对抗裁决；3D 力导向引用图谱、CodeAct 沙箱结果卡等科研专属交互；✅ 以「对话即工作台」中枢串联科研全周期；✅ 零依赖多格式解析引擎统一结构化 | **14** |
 | **网络投票** | 15 | 按得票排名区间折算 | 待比赛现场/线上投票结束后按实际排名折算，暂无法预估 | **待折算** |
@@ -491,9 +540,9 @@ location / { root /var/www/sciencex/dist; try_files $uri /index.html; }
 | :--- | :--- | :---: | :--- | :--- | :---: |
 | 加分 | 产品可实际部署 | +3 | 提供在线可访问的 Demo 链接 | ✅ 已上线：**https://ci.playe.top/**（`vercel.json` 双 service + `/api/*` 重写；HMAC-SHA256 无状态令牌适配 Serverless 多实例；演示账号 demo@sciencex.cn / 123456） | **已满足 +3** |
 | 加分 | 代码开源且 License 合规 | +2 | 使用 MIT/Apache 2.0 等 OSI 认证 License | ✅ 根目录 `LICENSE` 为 MIT License（OSI 认证），README 徽章栏已标注 License-MIT | **已满足 +2** |
-| 加分 | 测试覆盖 | +2 | 提供测试用例及通过记录 | ✅ `backend/test/` 约 15 个 API 用例 + AI 服务测试 + 冒烟测试；✅ `.github/workflows/ci.yml` 每次 push/PR 自动执行测试与构建，GitHub Actions 记录即通过凭证 | **已满足 +2** |
+| 加分 | 测试覆盖 | +2 | 提供测试用例及通过记录 | ✅ `backend/test/` 共 6 个套件 74 条用例（API 16 / 路由契约 15 / AI 服务 14 / AI 接入 5 / 持久化 5 / Harness 19）；✅ `.github/workflows/ci.yml` 每次 push/PR 自动执行测试、覆盖率与构建，GitHub Actions 记录即通过凭证 | **已满足 +2** |
 | 减分 | 超时 | -2 | 路演每超 30 秒扣 1 分 | ⚠️ 与现场发挥相关。已备 `ppt.md`（22 页）与 `路演.md`（30 问速查卡）辅助控时 | 现场控制 |
-| 减分 | 代码无提交历史 | -3 | Git 仓库无比赛期间的提交记录 | ✅ 近期 56 次提交（2026-08 以来），全部为中文语义化提交，持续覆盖比赛周期 | **无风险** |
+| 减分 | 代码无提交历史 | -3 | Git 仓库无比赛期间的提交记录 | ✅ 近期 180+ 次提交（2026-08 以来），全部为中文语义化提交，持续覆盖比赛周期 | **无风险** |
 | 减分 | API 调用造假 | 直接取消 | 发现硬编码或人工替代 AI | ⚠️ **重点自查项**：项目为「真实调用 + 演示回退」双轨——配置密钥后经 Sophnet 网关真实调用大模型；未配置时回退模板并已明确声明。路演时务必现场使用已配置密钥的环境演示真实流式生成，并主动亮出边界声明 | **需现场规避风险** |
 
 **加分小计：+7 / +7 满分达成（开源 License +2、测试覆盖 +2、在线 Demo 已上线 +3），详见 [`docs/加分.md`](docs/加分.md)**
@@ -504,7 +553,7 @@ location / { root /var/www/sciencex/dist; try_files $uri /index.html; }
 | :---: | :--- | :---: | :--- | :--- |
 | 1 | 系统架构图 | PNG/SVG | ✅ 已交付：[`docs/submissions/architecture.svg`](docs/submissions/architecture.svg)（六层组件 + 同步/流式/异步三类数据流） | 完成，随仓库提交 |
 | 2 | Agent 工作流程图 | PNG/SVG | ✅ 已交付：[`docs/submissions/agent-flow.svg`](docs/submissions/agent-flow.svg)（记忆注入→模式路由→8 模式→4 条工具链→SSE 总线→记忆回写闭环） | 完成，随仓库提交 |
-| 3 | 测试用例与结果 | Markdown/JSON | ✅ 已交付：[`docs/submissions/测试用例与结果.md`](docs/submissions/测试用例与结果.md)（55 条自动化用例 + 12 条 AI 质量评测 + 21 项人工验收，完整内容亦收录于本文第七节）+ GitHub Actions CI 持续记录 | 完成，可附 Actions 页截图 |
+| 3 | 测试用例与结果 | Markdown/JSON | ✅ 已交付：[`docs/submissions/测试用例与结果.md`](docs/submissions/测试用例与结果.md)（74 条自动化用例 + 12 条 AI 质量评测 + 21 项人工验收，完整内容亦收录于本文第七节）+ GitHub Actions CI 持续记录 | 完成，可附 Actions 页截图 |
 | 4 | 在线 Demo 链接 | URL | ✅ 已上线：**https://ci.playe.top/**（演示账号 demo@sciencex.cn / 123456） | 赛前再次人工验证可用性 |
 | 5 | 开源 License | 文件 | ✅ `LICENSE`（MIT）在仓库根目录；✅ `License.md` 开源许可证合规声明已补写 | 无需处理（对应加分 +2） |
 
@@ -512,7 +561,7 @@ location / { root /var/www/sciencex/dist; try_files $uri /index.html; }
 
 **自评汇总**：评分维度 75/85 + 加分项 +7（均达成）+ 减分项 0 = **预计总分 82 + 网络投票**。
 
-**核心优势**：① 产品广度与闭环完整度罕见（12 模块数据跨模块接力）；② 技术叙事扎实（8 类 Agent + 三层记忆 + 5 角色评审团）；③ 工程规范好（56 次中文语义化提交、CI 自动化，减分项全部无风险）。
+**核心优势**：① 产品广度与闭环完整度罕见（13 模块数据跨模块接力）；② 技术叙事扎实（8 类 Agent + 三层记忆 + 5 角色评审团 + Harness 质量门禁）；③ 工程规范好（180+ 次中文语义化提交、CI 自动化，减分项全部无风险）。
 
 **风险与改进优先级**（P0/P1 交付物已全部完成）：
 
@@ -531,8 +580,9 @@ location / { root /var/www/sciencex/dist; try_files $uri /index.html; }
 
 1. **闭环设计完备度高** —— 从开题直切文献、从文献直发复现、实验参数联动图表与写作，上下文全链路接力，彻底打破单点工具割裂。
 2. **灵犀多智能体引擎落地** —— Agent 不再是单轮问答：8 类编排模式 + 三层记忆使 AI 成为可规划、可推理、可沉淀的研究协作者；5 角色评审团提供对抗式盲审。
-3. **生产级治理骨架就位** —— HMAC 无状态鉴权、滑动窗口限流、X-Request-Id 链路追踪、统一错误码分级、Zod↔OpenAPI 契约同源、CI 质量卡口，演示原型具备了向生产平滑演进的全部接口契约。
+3. **生产级治理骨架就位** —— HMAC 无状态鉴权、滑动窗口限流、X-Request-Id 链路追踪、统一错误码分级、Zod↔OpenAPI 契约同源、CI 六重质量卡口，演示原型具备了向生产平滑演进的全部接口契约。
 4. **学术场景深度打磨** —— CAJ 中文文献解析、段落级 RAG 溯源、Diff 式润色对比、3D 引用图谱、九界面移动适配，均对准科研人员真实工作习惯。
+5. **质量与商业闭环补齐** —— Harness 评测中心把"什么算合格"写成套件、评分与基线门禁；支付宝网页支付打通"下单 → 验签 → 开通权益 → 退款/关单"完整订阅链路。
 
 ### 🔭 未来演进路线
 
@@ -542,6 +592,7 @@ location / { root /var/www/sciencex/dist; try_files $uri /index.html; }
 | 🔬 **真实科研沙箱** | DreamPaper 模拟执行器升级为 Docker/Wasm 隔离沙箱，一键复现 Baseline 指标 |
 | 🌐 **混合云私有化** | 高校一键单机/集群部署，集成国产大模型（Qwen/GLM）与本地 GPU 调度 |
 | 🗄️ **生产数据层** | JSON Store ➔ PostgreSQL 16 + Redis 7 + pgvector，落地真实 Embedding 与 Rerank |
+| 🧪 **质量门禁平台化** | Harness live 评测接入 CI 定时回归，基线漂移自动告警，评测集扩展至多模态与长文档场景 |
 | 🤖 **自主科研 Agent** | 给定假设自主检索前沿、生成实验代码、调度算力验证、撰写结论报告的自动化科研范式 |
 
 ---
