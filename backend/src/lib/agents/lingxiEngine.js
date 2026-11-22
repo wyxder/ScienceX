@@ -105,17 +105,30 @@ async function streamWithFallback(acc, send, opts, fallbackText) {
  * ========================================================================= */
 
 /**
- * 获取注入提示词的课题组记忆上下文
+ * 第三层长期事实库总开关：默认关闭，未显式开启时不注入长期事实与阶段摘要
  */
-function getMemoryContext(userId, projectId, convId) {
-  // 第三层：长期事实库 (Long-term Facts)
-  const facts = (store.researchMemories || [])
-    .filter((m) => m.active !== false && (m.user_id === userId || (!m.user_id && userId === 'u1')) && (!projectId || !m.project_id || m.project_id === projectId));
+function isMemoryFactsEnabled(userId) {
+  const user = (store.users || []).find((u) => u.id === userId);
+  return user?.memory_facts_enabled === true;
+}
+
+/**
+ * 获取课题组记忆上下文
+ * forInjection=true 时仅用于对话注入，受第三层总开关控制；
+ * includeInactive=true 时供记忆管理面板展示已挂起的事实。
+ */
+function getMemoryContext(userId, projectId, convId, { forInjection = false, includeInactive = false } = {}) {
+  const enabled = isMemoryFactsEnabled(userId);
+  let facts = (store.researchMemories || [])
+    .filter((m) => (m.user_id === userId || (!m.user_id && userId === 'u1')) && (!projectId || !m.project_id || m.project_id === projectId));
+  if (!includeInactive) facts = facts.filter((m) => m.active !== false);
+  if (forInjection && !enabled) facts = [];
 
   facts.sort((a, b) => (b.importance || 0.5) - (a.importance || 0.5));
   facts.splice(20);
-  facts.forEach((f) => { f.last_accessed_at = store.now(); });
-  // 第二层：会话动态摘要 (Rolling Summary)
+  if (forInjection) facts.forEach((f) => { f.last_accessed_at = store.now(); });
+
+  // 第二层：会话动态摘要 (Rolling Summary)，同样只在长期记忆开启时参与注入
   let rollingSummary = '';
   if (convId) {
     const conv = (store.conversations || []).find((c) => c.id === convId && (c.owner_id === userId || (!c.owner_id && userId === 'u1')));
@@ -123,11 +136,13 @@ function getMemoryContext(userId, projectId, convId) {
       rollingSummary = conv.rolling_summary;
     }
   }
+  if (forInjection && !enabled) rollingSummary = '';
 
   return {
     facts,
     rollingSummary,
-    injectedPrompt: buildMemoryPrompt(facts, rollingSummary),
+    enabled,
+    injectedPrompt: forInjection ? buildMemoryPrompt(facts, rollingSummary) : '',
   };
 }
 
@@ -191,8 +206,8 @@ async function executeAgentStream(res, {
   const lastUserMsg = [...messages].reverse().find((m) => m.role === 'user');
   const userQuery = lastUserMsg?.content || '';
 
-  // 1. 三层记忆提取与注入
-  const memoryCtx = getMemoryContext(userId, projectId, convId);
+  // 1. 三层记忆提取与注入（长期事实库默认关闭，未开启时不注入任何记忆与摘要）
+  const memoryCtx = getMemoryContext(userId, projectId, convId, { forInjection: true });
 
   // SSE 头部写入
   res.writeHead(200, {
@@ -780,6 +795,7 @@ async function streamDeltaText(send, text) {
 
 module.exports = {
   getMemoryContext,
+  isMemoryFactsEnabled,
   extractMemoriesFromConversation,
   searchArxiv,
   runCodeActSandbox,

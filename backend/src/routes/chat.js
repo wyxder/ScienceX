@@ -14,7 +14,7 @@ const lingxiEngine = require('../lib/agents/lingxiEngine');
 router.post('/chat/completions', auth, express.json({ limit: '2mb' }), asyncHandler(async (req, res) => {
   const { messages, model = 'DeepSeek V4.1 Flash', stream = true, skills = [], agent_mode = 'general', project_id = 'p1', conversation_id } = req.body || {};
   if (!Array.isArray(messages) || messages.length === 0) return errors.param(res, 'messages 不能为空');
-  
+
   if (!stream) {
     const result = await ai.generateResponse(messages, { model, userId: req.user.id });
     return ok(res, { content: result.text, model: result.model || model, usage: result.usage || {}, fallback: !!result.fallback, mode: result.fallback ? 'fallback' : 'live' });
@@ -180,11 +180,13 @@ router.post('/prompt/enhance', auth, asyncHandler(async (req, res) => {
 /* ---------- 课题组三层记忆引擎 (Three-Tier Memory) REQ-LINGXI-MEM ---------- */
 router.get('/chat/memories', auth, (req, res) => {
   const { project_id = 'p1', conversation_id } = req.query;
-  const ctx = lingxiEngine.getMemoryContext(req.user.id, project_id, conversation_id);
+  const ctx = lingxiEngine.getMemoryContext(req.user.id, project_id, conversation_id, { includeInactive: true });
   ok(res, {
     facts: ctx.facts,
     rolling_summary: ctx.rollingSummary,
     total: ctx.facts.length,
+    active_total: ctx.facts.filter((f) => f.active !== false).length,
+    facts_enabled: ctx.enabled,
   });
 });
 
@@ -204,6 +206,15 @@ router.post('/chat/memories', auth, (req, res) => {
   };
   store.researchMemories.unshift(fact);
   ok(res, fact, '科研记忆事实已沉淀');
+});
+
+router.patch('/chat/memories/settings', auth, (req, res) => {
+  const { facts_enabled } = req.body || {};
+  if (typeof facts_enabled !== 'boolean') return errors.param(res, 'facts_enabled 必须为布尔值');
+  const user = store.users.find((u) => u.id === req.user.id);
+  if (!user) return errors.notFound(res, '用户不存在');
+  user.memory_facts_enabled = facts_enabled;
+  ok(res, { facts_enabled }, facts_enabled ? '课题组长期记忆已开启' : '课题组长期记忆已关闭');
 });
 
 router.patch('/chat/memories/:id', auth, (req, res) => {

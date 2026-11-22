@@ -22,6 +22,7 @@ export const MemoryDrawer: React.FC<MemoryDrawerProps> = ({
   const isMobile = useIsMobile();
   const [facts, setFacts] = useState<ResearchMemoryFact[]>([]);
   const [summary, setSummary] = useState('');
+  const [factsEnabled, setFactsEnabled] = useState(false);
   const [loading, setLoading] = useState(false);
   const [extracting, setExtracting] = useState(false);
 
@@ -34,11 +35,12 @@ export const MemoryDrawer: React.FC<MemoryDrawerProps> = ({
   const loadMemories = async () => {
     try {
       setLoading(true);
-      const res = await api<{ facts: ResearchMemoryFact[]; rolling_summary: string }>('/chat/memories', {
+      const res = await api<{ facts: ResearchMemoryFact[]; rolling_summary: string; facts_enabled?: boolean }>('/chat/memories', {
         params: { conversation_id: convId || undefined },
       });
       setFacts(res.facts || []);
       setSummary(res.rolling_summary || '');
+      setFactsEnabled(!!res.facts_enabled);
     } catch {
       // 演示环境容错
     } finally {
@@ -51,6 +53,21 @@ export const MemoryDrawer: React.FC<MemoryDrawerProps> = ({
       loadMemories();
     }
   }, [open, convId]);
+
+  const toggleFactsEnabled = async () => {
+    const next = !factsEnabled;
+    try {
+      await api('/chat/memories/settings', {
+        method: 'PATCH',
+        body: { facts_enabled: next },
+      });
+      setFactsEnabled(next);
+      toast(next ? '长期事实库已开启，将参与对话记忆注入' : '长期事实库已关闭，对话中不再注入记忆与阶段摘要', next ? 'ok' : 'info');
+      onMemoryChanged?.();
+    } catch (err: any) {
+      toast(err.message || '更新失败', 'err');
+    }
+  };
 
   const toggleFact = async (id: string, current: boolean) => {
     try {
@@ -251,7 +268,11 @@ export const MemoryDrawer: React.FC<MemoryDrawerProps> = ({
             >
               {summary || '课题当前聚焦微表情识别 AU 先验注入与 LOSO 协议验证，已确立 up9 作为核心基线模型。'}
             </div>
+            <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 6, lineHeight: 1.5 }}>
+              {factsEnabled ? '阶段摘要会随长期事实库一并注入对话上下文。' : '长期事实库关闭时，阶段摘要同样不会注入对话。'}
+            </div>
           </div>
+
 
           {/* 第三层：长期事实库 */}
           <div>
@@ -261,10 +282,21 @@ export const MemoryDrawer: React.FC<MemoryDrawerProps> = ({
                   【第三层】长期事实库 (Long-term Facts)
                 </span>
                 <span style={{ fontSize: 11, color: 'var(--muted)', marginLeft: 6 }}>
-                  ({facts.filter((f) => f.active !== false).length}/{facts.length} 生效中)
+                  {factsEnabled
+                    ? `(${facts.filter((f) => f.active !== false).length}/${facts.length} 生效中)`
+                    : `已关闭 · ${facts.length} 条未注入`}
                 </span>
               </div>
               <div style={{ display: 'flex', gap: 6 }}>
+                <button
+                  type="button"
+                  className={`tag ${factsEnabled ? 'tag-green' : 'tag-gray'}`}
+                  style={{ fontSize: 11, padding: '4px 9px', cursor: 'pointer', border: 'none' }}
+                  onClick={toggleFactsEnabled}
+                  title={factsEnabled ? '点击关闭长期事实库（不再注入记忆与阶段摘要）' : '点击开启长期事实库（对话时注入活跃事实）'}
+                >
+                  {factsEnabled ? '已启用' : '已关闭'}
+                </button>
                 <button
                   type="button"
                   className="btn btn-ghost btn-sm"
@@ -355,7 +387,7 @@ export const MemoryDrawer: React.FC<MemoryDrawerProps> = ({
                       background: isActive ? '#ffffff' : '#f1f5f9',
                       border: isActive ? '1px solid #cbd5e1' : '1px dashed #cbd5e1',
                       boxShadow: isActive ? '0 2px 8px rgba(15, 23, 42, 0.04)' : 'none',
-                      opacity: isActive ? 1 : 0.65,
+                      opacity: factsEnabled ? (isActive ? 1 : 0.65) : 0.45,
                       display: 'flex',
                       alignItems: 'flex-start',
                       justifyContent: 'space-between',
@@ -425,9 +457,11 @@ export const MemoryDrawer: React.FC<MemoryDrawerProps> = ({
             textAlign: 'center',
           }}
         >
-          活跃的科研记忆将在每次对话时自动作为 System Prompt 注入，保持课题上下文连贯
+          {factsEnabled
+            ? '长期事实库已开启：活跃的科研记忆与阶段摘要会在每次对话时作为 System Prompt 注入。'
+            : '长期事实库已关闭：对话不会注入长期记忆与阶段摘要，点击「已关闭」可随时开启。'}
         </div>
       </div>
-    </div>
+    </div >
   );
 };

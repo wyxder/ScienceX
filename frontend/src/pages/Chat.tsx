@@ -34,6 +34,9 @@ const QUICK_PROMPTS: QuickPrompt[] = [
 const THINK_STAGE_OF = (p: number) =>
   p < 25 ? '解析问题意图与研究语境' : p < 48 ? '多路检索文献与知识证据' : p < 72 ? '交叉验证与证据整合' : '组织推理链并撰写回答';
 
+const DEFAULT_CHAT_MODEL = 'DeepSeek V4.1 Flash';
+const CHAT_MODEL_STORAGE_KEY = 'sciencex_chat_model_v2';
+
 const DEFAULT_MODELS = {
   builtin: [
     { id: 'm-deepseek-flash', name: 'DeepSeek V4.1 Flash', model_name: 'DeepSeek-Flash', provider: 'deepseek', tag: '极速推理 · 默认推荐', context: '64K', status: 'connected' },
@@ -58,18 +61,17 @@ export default function Chat() {
   const [models, setModels] = useState<{ builtin: any[]; custom: any[] }>(DEFAULT_MODELS);
   const [model, setModel] = useState<string>(() => {
     try {
-      const saved = localStorage.getItem('sciencex_chat_model');
-      if (saved && saved !== 'DeepSeek-V3') return saved;
-    } catch {}
-    // 移动端默认极速推理模型 DeepSeek V4.1 Flash，桌面端默认 GPT-6.1 Sol
-    return isMobile ? 'DeepSeek V4.1 Flash' : 'GPT-6.1 Sol';
+      const saved = localStorage.getItem(CHAT_MODEL_STORAGE_KEY);
+      if (saved) return saved;
+    } catch { }
+    return DEFAULT_CHAT_MODEL;
   });
   const [skills, setSkills] = useState<SkillItem[]>([]);
   const [keyword, setKeyword] = useState('');
   const [recording, setRecording] = useState(false);
   const [agentMode, setAgentMode] = useState<AgentMode>('plan_execute');
   const [showMemoryDrawer, setShowMemoryDrawer] = useState(false);
-  const [memoryCount, setMemoryCount] = useState<number>(4);
+  const [memoryCount, setMemoryCount] = useState<number>(0);
   const [sidebarOpen, setSidebarOpen] = useState(false); // 默认不显示，点击按钮才展开
   const [uploadProgress, setUploadProgress] = useState<UploadProgress | null>(null);
   const [enhanceProgress, setEnhanceProgress] = useState<DockTask | null>(null);
@@ -87,8 +89,8 @@ export default function Chat() {
   const handleSelectModel = useCallback((selectedModelName: string) => {
     setModel(selectedModelName);
     try {
-      localStorage.setItem('sciencex_chat_model', selectedModelName);
-    } catch {}
+      localStorage.setItem(CHAT_MODEL_STORAGE_KEY, selectedModelName);
+    } catch { }
     toast(`已切换至模型：${selectedModelName}`, 'ok');
   }, [toast]);
 
@@ -99,36 +101,34 @@ export default function Chat() {
         api<{ builtin: any[]; custom: any[] }>('/models'),
         api<any>('/dashboard/summary').catch(() => null), // 看板缺数据不应阻断整个工作台首屏
         api<{ items: SkillItem[] } | SkillItem[]>('/skills'),
-        api<{ total: number }>('/chat/memories').catch(() => ({ total: 4 })),
+        api<{ total: number; active_total?: number; facts_enabled?: boolean }>('/chat/memories').catch(() => ({ total: 0, active_total: 0, facts_enabled: false })),
       ]);
       setConvs((c as any)?.items || (Array.isArray(c) ? c : []));
       const loadedModels = (m && m.builtin && m.builtin.length > 0) ? m : DEFAULT_MODELS;
       setModels(loadedModels);
 
-      // 模型选择优先级：用户主动选择 > 端侧默认（移动端 DeepSeek V4.1 Flash / 桌面端 GPT-6.1 Sol）
+      // 模型选择优先级：用户主动切换过的模型 > 默认 DeepSeek V4.1 Flash
       const allModelNames = [
         ...(loadedModels.builtin || []).map((x: any) => x.name),
         ...(loadedModels.custom || []).map((x: any) => x.name),
       ];
-      const mobileNow = typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches;
-      const preferredName = mobileNow ? 'DeepSeek V4.1 Flash' : 'GPT-6.1 Sol';
-      const preferredId = mobileNow ? 'm-deepseek-flash' : 'm-gpt-sol';
       try {
-        const saved = localStorage.getItem('sciencex_chat_model');
-        if (saved && saved !== 'DeepSeek-V3' && allModelNames.includes(saved)) {
+        const saved = localStorage.getItem(CHAT_MODEL_STORAGE_KEY);
+        if (saved && allModelNames.includes(saved)) {
           setModel(saved);
         } else {
-          const defaultSol = loadedModels.builtin?.find((item: any) => item.name === preferredName || item.id === preferredId)?.name || allModelNames[0] || preferredName;
-          setModel(defaultSol);
-          localStorage.setItem('sciencex_chat_model', defaultSol);
+          const defaultModel = loadedModels.builtin?.find((item: any) => item.name === DEFAULT_CHAT_MODEL || item.id === 'm-deepseek-flash')?.name || allModelNames[0] || DEFAULT_CHAT_MODEL;
+          setModel(defaultModel);
         }
       } catch {
-        setModel(preferredName);
+        setModel(DEFAULT_CHAT_MODEL);
       }
 
       if (d) setDashboard(d);
       setSkills(Array.isArray(s) ? s : ((s as any)?.items || []));
-      if (mem && typeof mem.total === 'number') setMemoryCount(mem.total);
+      if (mem && typeof mem.total === 'number') {
+        setMemoryCount(mem.facts_enabled ? (mem.active_total ?? mem.total) : 0);
+      }
     } catch (err: any) {
       toast(err.message || '加载工作台数据失败', 'err');
     }
@@ -299,12 +299,12 @@ export default function Chat() {
         m.map((x) =>
           x.id === aiMsg.id && x.thinking
             ? {
-                ...x,
-                thinking: {
-                  percent: Math.min(92, x.thinking.percent + Math.max(0.5, (92 - x.thinking.percent) * 0.05)),
-                  label: THINK_STAGE_OF(x.thinking.percent),
-                },
-              }
+              ...x,
+              thinking: {
+                percent: Math.min(92, x.thinking.percent + Math.max(0.5, (92 - x.thinking.percent) * 0.05)),
+                label: THINK_STAGE_OF(x.thinking.percent),
+              },
+            }
             : x
         )
       );
@@ -359,12 +359,12 @@ export default function Chat() {
             m.map((x) =>
               x.id === aiMsg.id && x.plan
                 ? {
-                    ...x,
-                    plan: {
-                      ...x.plan,
-                      steps: x.plan.steps.map((s, idx) => (idx === step.step_index ? { ...s, status: 'running' } : s)),
-                    },
-                  }
+                  ...x,
+                  plan: {
+                    ...x.plan,
+                    steps: x.plan.steps.map((s, idx) => (idx === step.step_index ? { ...s, status: 'running' } : s)),
+                  },
+                }
                 : x
             )
           );
@@ -375,14 +375,14 @@ export default function Chat() {
             m.map((x) =>
               x.id === aiMsg.id && x.plan
                 ? {
-                    ...x,
-                    plan: {
-                      ...x.plan,
-                      steps: x.plan.steps.map((s, idx) =>
-                        idx === up.step_index ? { ...s, status: up.status || s.status, output: up.output } : s
-                      ),
-                    },
-                  }
+                  ...x,
+                  plan: {
+                    ...x.plan,
+                    steps: x.plan.steps.map((s, idx) =>
+                      idx === up.step_index ? { ...s, status: up.status || s.status, output: up.output } : s
+                    ),
+                  },
+                }
                 : x
             )
           );
@@ -399,11 +399,11 @@ export default function Chat() {
             m.map((x) =>
               x.id === aiMsg.id
                 ? {
-                    ...x,
-                    chart_data: tr.chart_data || x.chart_data,
-                    code: tr.code || x.code,
-                    papers: tr.papers || x.papers,
-                  }
+                  ...x,
+                  chart_data: tr.chart_data || x.chart_data,
+                  code: tr.code || x.code,
+                  papers: tr.papers || x.papers,
+                }
                 : x
             )
           );
@@ -419,11 +419,11 @@ export default function Chat() {
             m.map((x) =>
               x.id === aiMsg.id
                 ? {
-                    ...x,
-                    streaming: false,
-                    thinking: undefined,
-                    plan: x.plan ? { ...x.plan, percent: 100, status: 'completed' } : undefined,
-                  }
+                  ...x,
+                  streaming: false,
+                  thinking: undefined,
+                  plan: x.plan ? { ...x.plan, percent: 100, status: 'completed' } : undefined,
+                }
                 : x
             )
           );
