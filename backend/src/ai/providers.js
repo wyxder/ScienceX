@@ -1,5 +1,5 @@
 const { AIError } = require('./resilience');
-const PROVIDERS = ['openai', 'deepseek', 'custom', 'anthropic', 'gemini', 'ollama'];
+const PROVIDERS = ['openai', 'deepseek', 'custom', 'anthropic', 'gemini', 'ollama', 'huaweicloud'];
 function requestFor(provider, config, messages, options = {}) {
   const base = config.baseUrl.replace(/\/+$/, ''), model = options.model || config.model;
   const temperature = options.temperature ?? 0.3;

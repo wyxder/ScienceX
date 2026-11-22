@@ -30,7 +30,7 @@ body('post', '/auth/login', obj({ email, password: loginPassword }));
 body('post', '/auth/register', obj({ email, password: registerPassword, name: scholarName }));
 body('post', '/auth/refresh', obj({ refresh_token: z.string().min(1).max(4096) }));
 body('put', '/user/profile', obj({ name: short.optional(), title: text.optional(), avatar: z.string().max(500000).optional(), research_tags: tags.optional(), lang: z.enum(['zh', 'en']).optional() }));
-body('post', '/models', obj({ name: short.optional(), base_url: z.string().url().max(2048), model_name: short, provider: z.enum(['openai', 'deepseek', 'custom', 'anthropic', 'gemini', 'ollama']).optional(), api_key: z.string().max(4096).optional(), priority: z.number().int().min(1).max(100).optional() }));
+body('post', '/models', obj({ name: short.optional(), base_url: z.string().url().max(2048), model_name: short, provider: z.enum(['openai', 'deepseek', 'custom', 'anthropic', 'gemini', 'ollama', 'huaweicloud']).optional(), api_key: z.string().max(4096).optional(), priority: z.number().int().min(1).max(100).optional() }));
 body('post', '/orders', obj({ plan_id: z.enum(['free', 'pro', 'team']) }));
 body('post', '/pay/callback', obj({ order_no: short }));
 body('post', '/account/2fa', obj({ enabled: z.boolean() }));

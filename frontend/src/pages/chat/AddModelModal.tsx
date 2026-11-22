@@ -9,6 +9,7 @@ const PROVIDERS = [
   { id: 'anthropic', label: 'Anthropic', hint: 'Claude 原生协议', color: '#d97757' },
   { id: 'gemini', label: 'Google Gemini', hint: 'generateContent', color: '#4285f4' },
   { id: 'ollama', label: 'Ollama 本地', hint: '/api/chat', color: '#1e293b' },
+  { id: 'huaweicloud', label: '华为云', hint: 'ModelArts 兼容', color: '#c7000b' },
 ];
 
 interface AddModelModalProps {
@@ -71,7 +72,7 @@ export const AddModelModal: React.FC<AddModelModalProps> = ({ open, onClose, onA
       onClose();
     } catch (error: any) {
       // 测不通则回滚删除，避免未验证模型污染列表
-      if (createdId) await api(`/models/${createdId}`, { method: 'DELETE' }).catch(() => {});
+      if (createdId) await api(`/models/${createdId}`, { method: 'DELETE' }).catch(() => { });
       setPhase('failed');
       setFailMsg(error?.message || '连通失败，请检查 Base URL / 密钥 / 模型名');
     }
@@ -98,7 +99,7 @@ export const AddModelModal: React.FC<AddModelModalProps> = ({ open, onClose, onA
     >
       {/* 协议芯片 */}
       <div className="field-label">接口协议</div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 14 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(92px, 1fr))', gap: 8, marginBottom: 14 }}>
         {PROVIDERS.map((p) => {
           const active = form.provider === p.id;
           return (

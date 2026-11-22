@@ -64,7 +64,7 @@ test('整次请求 deadline 覆盖响应体读取', async () => {
   handler = (_req, res) => { res.writeHead(200); res.write('{'); };
   await assert.rejects(client().chatCompletion([], { timeoutMs: 20, retries: 0 }), { code: 'AI_TIMEOUT' });
 });
-test('四种 Provider 请求与响应字段映射', () => {
+test('多协议 Provider 请求与响应字段映射', () => {
   const cfg = { baseUrl: 'https://example.org/v1', model: 'model-x', apiKey: 'test' };
   const messages = [{ role: 'system', content: 'rules' }, { role: 'user', content: 'hi' }];
   const a = requestFor('anthropic', cfg, messages);
@@ -74,6 +74,9 @@ test('四种 Provider 请求与响应字段映射', () => {
   assert.equal(g.parse({ candidates: [{ content: { parts: [{ text: 'ok' }] } }] }).text, 'ok');
   const o = requestFor('ollama', cfg, messages); assert.match(o.url, /api\/chat$/); assert.equal(o.parse({ message: { content: 'ok' }, eval_count: 5 }).usage.completion_tokens, 5);
   const c = requestFor('openai', cfg, messages, { stream: true }); assert.equal(c.body.stream_options.include_usage, true);
+  const h = requestFor('huaweicloud', cfg, messages);
+  assert.match(h.url, /\/chat\/completions$/); assert.equal(h.headers.Authorization, 'Bearer test');
+  assert.equal(h.parse({ choices: [{ message: { content: 'ok' } }] }).text, 'ok');
 });
 test('真实 arXiv XML 映射与跨源 DOI 去重', () => {
   const { parseArxiv, deduplicate } = require('../src/ai/literature');
