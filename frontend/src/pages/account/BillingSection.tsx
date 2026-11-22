@@ -26,7 +26,7 @@ export const BillingSection: React.FC<BillingSectionProps> = ({
             </div>
             <div className="text-xs text-muted mt-1">
               ¥{subscription.price}/{subscription.period} · 到期{' '}
-              {String(subscription.expire_at).slice(0, 10)} ·{' '}
+              {subscription.expire_at ? String(subscription.expire_at).slice(0, 10) : '长期有效'} ·{' '}
               {subscription.auto_renew ? '自动续费已开启' : '自动续费已关闭'}
             </div>
           </div>
@@ -70,9 +70,8 @@ export const BillingSection: React.FC<BillingSectionProps> = ({
         {plans.map((p) => (
           <div
             key={p.id}
-            className={`card card-pad ${
-              subscription.plan === p.id ? 'plan-current' : 'card-hover'
-            }`}
+            className={`card card-pad ${subscription.plan === p.id ? 'plan-current' : 'card-hover'
+              }`}
             style={{
               display: 'flex',
               flexDirection: 'column',

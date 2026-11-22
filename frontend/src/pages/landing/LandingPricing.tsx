@@ -4,6 +4,16 @@ import Icon from '../../components/Icon';
 import { Modal, useToast } from '../../components/ui';
 import { useAuth } from '../../stores/auth';
 import { api } from '../../api/client';
+import {
+  buildPayReturnUrl,
+  clearPendingOrder,
+  isAbortError,
+  isPaidStatus,
+  openCashierWindow,
+  PAY_REQUEST_TIMEOUT_MS,
+  savePendingOrder,
+  submitPaymentHtml,
+} from '../../utils/alipay';
 
 const PLANS = [
   { id: 'free', name: '探索版', english: 'FREE', icon: 'bulb', description: '从好奇出发，迈出科研第一步', price: '0', period: '永久免费', audience: '本科毕设 · 科研启蒙', action: '免费开始探索', summary: '开启你的基础科研工具箱', features: ['每日 30 次基础 AI 对话', '文献阅读与思维导图，5 篇 / 月', '基础学术润色与翻译', '自定义接入 OpenAI 模型'] },
@@ -49,37 +59,39 @@ export const LandingPricing: React.FC = () => {
 
   const handleAlipayPay = async () => {
     if (!checkoutPlan) return;
+
+    // 收银台窗口必须在点击的同步阶段打开，等接口返回再开会被浏览器拦截
+    const cashierWindow = openCashierWindow();
     setPayLoading(true);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), PAY_REQUEST_TIMEOUT_MS);
+
     try {
-      const returnUrl = `${window.location.origin}/account?tab=billing&pay_result=success`;
       const res = await api<any>('/payment/alipay/page-pay', {
         method: 'POST',
-        body: { plan_id: checkoutPlan.id, return_url: returnUrl },
+        body: { plan_id: checkoutPlan.id, return_url: buildPayReturnUrl() },
+        signal: controller.signal,
       });
 
       if (!res?.payment_html) {
         throw new Error('未获取到支付表单，请稍后重试');
       }
 
+      savePendingOrder(res.out_trade_no);
       setPayingState({ outTradeNo: res.out_trade_no, isPolling: true });
-
-      const oldContainer = document.getElementById('sciencex-landing-alipay-form');
-      if (oldContainer) oldContainer.remove();
-
-      const formContainer = document.createElement('div');
-      formContainer.id = 'sciencex-landing-alipay-form';
-      formContainer.style.display = 'none';
-      formContainer.innerHTML = res.payment_html;
-      document.body.appendChild(formContainer);
-
-      const submitForm = formContainer.querySelector('form');
-      if (submitForm) {
-        submitForm.target = '_blank';
-        submitForm.submit();
-      }
+      submitPaymentHtml(res.payment_html, cashierWindow);
     } catch (err: any) {
-      toast(err?.message || '创建支付宝支付订单失败', 'err');
+      try {
+        cashierWindow?.close();
+      } catch (_) { }
+      clearPendingOrder();
+      if (isAbortError(err)) {
+        toast('创建收银台超时，请检查网络后重试', 'err');
+      } else {
+        toast(err?.message || '创建支付宝支付订单失败', 'err');
+      }
     } finally {
+      clearTimeout(timeoutId);
       setPayLoading(false);
     }
   };
@@ -99,8 +111,9 @@ export const LandingPricing: React.FC = () => {
       }
       try {
         const queryRes = await api<any>(`/payment/alipay/query?out_trade_no=${encodeURIComponent(payingState.outTradeNo)}`);
-        if (queryRes && (queryRes.trade_status === 'TRADE_SUCCESS' || queryRes.trade_status === 'TRADE_FINISHED')) {
+        if (queryRes && isPaidStatus(queryRes.trade_status)) {
           clearInterval(timer);
+          clearPendingOrder();
           toast('🎉 支付宝支付成功，已为您开通套餐！');
           setPayingState(null);
           setCheckoutPlan(null);
@@ -119,7 +132,8 @@ export const LandingPricing: React.FC = () => {
     if (!payingState?.outTradeNo) return;
     try {
       const queryRes = await api<any>(`/payment/alipay/query?out_trade_no=${encodeURIComponent(payingState.outTradeNo)}`);
-      if (queryRes && (queryRes.trade_status === 'TRADE_SUCCESS' || queryRes.trade_status === 'TRADE_FINISHED')) {
+      if (queryRes && isPaidStatus(queryRes.trade_status)) {
+        clearPendingOrder();
         toast('🎉 支付宝支付成功，已为您开通套餐！');
         setPayingState(null);
         setCheckoutPlan(null);
@@ -291,7 +305,7 @@ export const LandingPricing: React.FC = () => {
             </div>
 
             <p className="text-xs text-muted" style={{ lineHeight: 1.6, marginTop: 4 }}>
-              点击后将在新标签页中打开支付宝官方安全收银台完成付款。付款完成后系统将自动同步权益。
+              点击后将打开支付宝官方安全收银台完成付款；若浏览器拦截新窗口，会在当前标签页继续跳转。付款完成后系统将自动同步权益。
             </p>
           </div>
         )}

@@ -215,6 +215,7 @@ router.get('/usage', auth, (req, res) => {
 /* ---------- 订阅与订单 REQ-USER-04 ---------- */
 router.get('/billing/plans', auth, (req, res) => ok(res, store.plans));
 router.get('/billing/subscription', auth, (req, res) => {
+  if (req.user.subscription) return ok(res, req.user.subscription);
   if (req.user.id === 'u1') return ok(res, store.subscription);
   const plan = store.plans.find((item) => item.id === req.user.plan) || store.plans[0];
   return ok(res, {

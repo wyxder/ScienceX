@@ -5,6 +5,17 @@ import { api } from '../api/client';
 import Icon from '../components/Icon';
 import { Confirm, Modal, Tabs, Tag, useToast } from '../components/ui';
 import { useAuth } from '../stores/auth';
+import {
+  buildPayReturnUrl,
+  clearPendingOrder,
+  isAbortError,
+  isPaidStatus,
+  openCashierWindow,
+  PAY_REQUEST_TIMEOUT_MS,
+  readPendingOrder,
+  savePendingOrder,
+  submitPaymentHtml,
+} from '../utils/alipay';
 import { BillingSection } from './account/BillingSection';
 import { ModelsSection } from './account/ModelsSection';
 import { ProfileSection } from './account/ProfileSection';
@@ -71,7 +82,7 @@ export default function Account() {
 
   useEffect(() => {
     if (tab === 'usage') {
-      api<any>('/usage', { params: { range } }).then(setUsage).catch(() => {});
+      api<any>('/usage', { params: { range } }).then(setUsage).catch(() => { });
     }
   }, [tab, range]);
 
@@ -163,13 +174,15 @@ export default function Account() {
 
   /* 检查 URL 中的支付宝回跳结果与直达购买参数 */
   useEffect(() => {
-    const returnTradeNo = searchParams.get('out_trade_no');
+    const pendingTradeNo = readPendingOrder();
+    const returnTradeNo = searchParams.get('out_trade_no') || pendingTradeNo;
+    const payResult = searchParams.get('pay_result');
     const autoBuyPlan = searchParams.get('buy') || searchParams.get('plan');
 
     if (returnTradeNo) {
       api<any>(`/payment/alipay/query?out_trade_no=${encodeURIComponent(returnTradeNo)}`)
         .then(async (res) => {
-          if (res && (res.trade_status === 'TRADE_SUCCESS' || res.trade_status === 'TRADE_FINISHED')) {
+          if (res && isPaidStatus(res.trade_status)) {
             toast('🎉 支付宝支付成功，已为您开通套餐！');
             await loadBilling();
             await refresh();
@@ -177,14 +190,22 @@ export default function Account() {
             toast('正在核对支付宝付款结果，请稍候查看', 'info');
           }
         })
-        .catch(() => {})
+        .catch(() => { })
         .finally(() => {
+          clearPendingOrder();
           const newParams = new URLSearchParams(searchParams);
           newParams.delete('out_trade_no');
           newParams.delete('pay_result');
           newParams.delete('trade_no');
           setSearchParams(newParams, { replace: true });
         });
+    } else if (payResult) {
+      // 支付完成但未透传到订单号时，仍然刷新一次权益
+      clearPendingOrder();
+      Promise.all([loadBilling(), refresh()]).catch(() => { });
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete('pay_result');
+      setSearchParams(newParams, { replace: true });
     } else if (autoBuyPlan && plans.length > 0) {
       buy(autoBuyPlan);
       const newParams = new URLSearchParams(searchParams);
@@ -197,38 +218,39 @@ export default function Account() {
   /* 拉起支付宝官方收银台 */
   const handleAlipayPay = async () => {
     if (!checkoutPlan) return;
+
+    // 收银台窗口必须在点击的同步阶段打开，等接口返回再开会被浏览器拦截
+    const cashierWindow = openCashierWindow();
     setPayLoading(true);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), PAY_REQUEST_TIMEOUT_MS);
+
     try {
-      const returnUrl = `${window.location.origin}/account?tab=billing&pay_result=success`;
       const res = await api<any>('/payment/alipay/page-pay', {
         method: 'POST',
-        body: { plan_id: checkoutPlan.id, return_url: returnUrl },
+        body: { plan_id: checkoutPlan.id, return_url: buildPayReturnUrl() },
+        signal: controller.signal,
       });
 
       if (!res?.payment_html) {
         throw new Error('未获取到支付表单，请稍后重试');
       }
 
+      savePendingOrder(res.out_trade_no);
       setPayingState({ outTradeNo: res.out_trade_no, isPolling: true });
-
-      // 在页面创建隐藏容器提交表单，在新标签页打开支付宝官方收银台
-      const oldContainer = document.getElementById('sciencex-alipay-checkout-form');
-      if (oldContainer) oldContainer.remove();
-
-      const formContainer = document.createElement('div');
-      formContainer.id = 'sciencex-alipay-checkout-form';
-      formContainer.style.display = 'none';
-      formContainer.innerHTML = res.payment_html;
-      document.body.appendChild(formContainer);
-
-      const submitForm = formContainer.querySelector('form');
-      if (submitForm) {
-        submitForm.target = '_blank';
-        submitForm.submit();
-      }
+      submitPaymentHtml(res.payment_html, cashierWindow);
     } catch (err: any) {
-      toast(err?.message || '创建支付宝支付订单失败', 'err');
+      try {
+        cashierWindow?.close();
+      } catch (_) { }
+      clearPendingOrder();
+      if (isAbortError(err)) {
+        toast('创建收银台超时，请检查网络后重试', 'err');
+      } else {
+        toast(err?.message || '创建支付宝支付订单失败', 'err');
+      }
     } finally {
+      clearTimeout(timeoutId);
       setPayLoading(false);
     }
   };
@@ -248,8 +270,9 @@ export default function Account() {
       }
       try {
         const queryRes = await api<any>(`/payment/alipay/query?out_trade_no=${encodeURIComponent(payingState.outTradeNo)}`);
-        if (queryRes && (queryRes.trade_status === 'TRADE_SUCCESS' || queryRes.trade_status === 'TRADE_FINISHED')) {
+        if (queryRes && isPaidStatus(queryRes.trade_status)) {
           clearInterval(timer);
+          clearPendingOrder();
           toast('🎉 支付宝支付成功，已为您开通套餐！');
           setPayingState(null);
           setCheckoutPlan(null);
@@ -268,7 +291,8 @@ export default function Account() {
     if (!payingState?.outTradeNo) return;
     try {
       const queryRes = await api<any>(`/payment/alipay/query?out_trade_no=${encodeURIComponent(payingState.outTradeNo)}`);
-      if (queryRes && (queryRes.trade_status === 'TRADE_SUCCESS' || queryRes.trade_status === 'TRADE_FINISHED')) {
+      if (queryRes && isPaidStatus(queryRes.trade_status)) {
+        clearPendingOrder();
         toast('🎉 支付宝支付成功，已为您开通套餐！');
         setPayingState(null);
         setCheckoutPlan(null);
@@ -511,7 +535,7 @@ export default function Account() {
             </div>
 
             <p className="text-xs text-muted" style={{ lineHeight: 1.6, marginTop: 4 }}>
-              点击后将在新标签页中打开支付宝官方安全收银台完成付款。付款完成后系统将自动同步权益。
+              点击后将打开支付宝官方安全收银台完成付款；若浏览器拦截新窗口，会在当前标签页继续跳转。付款完成后系统将自动同步权益。
             </p>
           </div>
         )}
