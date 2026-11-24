@@ -1,5 +1,4 @@
-# AI软件赛道-ScienceX-ScienceX
-# 🧪 ScienceX-智能科研AI工作台
+# 🧪 ScienceX-Harness驱动的多智能体科研AI工作台
 
 ![React](https://img.shields.io/badge/React-18.3-61DAFB?style=flat-square&logo=react&logoColor=black) ![TypeScript](https://img.shields.io/badge/TypeScript-5.5-3178C6?style=flat-square&logo=typescript&logoColor=white) ![Vite](https://img.shields.io/badge/Vite-5.4-646CFF?style=flat-square&logo=vite&logoColor=white) ![Node.js](https://img.shields.io/badge/Node.js-18%2B-339933?style=flat-square&logo=node.js&logoColor=white) ![Express](https://img.shields.io/badge/Express-4.19-000000?style=flat-square&logo=express&logoColor=white) ![SSE](https://img.shields.io/badge/Stream-SSE-FF6B6B?style=flat-square) ![OpenAI](https://img.shields.io/badge/LLM-OpenAI_Compatible-412991?style=flat-square&logo=openai&logoColor=white) ![Zod](https://img.shields.io/badge/Validation-Zod-3E67B1?style=flat-square) ![MCP](https://img.shields.io/badge/Tools-MCP_SDK-8A2BE2?style=flat-square) ![Alipay](https://img.shields.io/badge/Payment-Alipay-1677FF?style=flat-square&logo=alipay&logoColor=white) ![Harness](https://img.shields.io/badge/Eval-Harness_%C2%B7_Baseline_Gate-5B8DEF?style=flat-square) ![Test](https://img.shields.io/badge/Tests-Node--test%20%C2%B7%20c8-CC3F34?style=flat-square) ![CI](https://img.shields.io/badge/CI-GitHub_Actions-2088FF?style=flat-square&logo=githubactions&logoColor=white) ![Deploy](https://img.shields.io/badge/Deploy-Vercel%20%C2%B7%20Docker-000000?style=flat-square&logo=vercel&logoColor=white) ![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
 
@@ -9,7 +8,7 @@
 <img width="1917" height="1055" alt="image" src="https://github.com/user-attachments/assets/ce8bb88b-9009-420f-8b4c-225ef54d23a9" />
 <img width="1917" height="1034" alt="image" src="https://github.com/user-attachments/assets/d44b639f-adb0-4013-805b-8e067e568f39" />
 
-**ScienceX（科研 AI 工作台）** 是一站式覆盖「选题 ➔ 文献 ➔ 复现 ➔ 实验 ➔ 分析 ➔ 写作 ➔ 投稿 ➔ 协作」科研全生命周期的 Agent工作台。它以 **智能体对话中枢** 为骨架，将 7 大科研工具与 2 大特色机制（组会汇报、多智能体专家评审团）咬合为数据自沉淀、上下文可追溯的科研闭环。
+**ScienceX（一站式科研 AI 工作台）** 是一站式覆盖「选题 ➔ 文献 ➔ 复现 ➔ 实验 ➔ 分析 ➔ 写作 ➔ 投稿 ➔ 协作」科研全生命周期的 Agent工作台。它以 **智能体对话中枢** 为骨架，将 7 大科研工具与 2 大特色机制（组会汇报、多智能体专家评审团）咬合为数据自沉淀、上下文可追溯的科研闭环。
 
 ### 🌟 核心价值主张
 
@@ -526,27 +525,9 @@ location / { root /var/www/sciencex/dist; try_files $uri /index.html; }
 
 ![评分维度自评表](docs/submissions/评分维度自评表.png)
 
-| 评分维度 | 分值 | 评分标准要点 | 项目实际情况与证据 | 自评得分 |
-| :--- | :---: | :--- | :--- | :---: |
-| **产品完成度** | 25 | 核心功能完整闭环、现场演示流畅无报错、交互流程清晰、异常兜底 | ✅ 覆盖「选题→文献→复现→实验→分析→写作→投稿→协作」全生命周期 13 个功能模块，并新增质量中心与支付宝订阅支付闭环；✅ 官网+登录+工作台闭环可演示；✅ 异常兜底完善：无密钥回退演示模板、端口占用自增适配、PDF 解析多级降级、SSE 断流 `error` 事件；✅ 九大界面 ≤768px 移动端适配；⚠️ 部分能力为高保真模拟，已如实标注 | **22** |
-| **技术实现** | 20 | Prompt 工程精细、代码结构清晰模块化、错误处理和性能优化意识 | ✅ Prompt 工程：`dp-prompts.js` 复现流水线模板、8 类 Agent 编排模式各有独立 Prompt 策略、5 角色评审团人设 Prompt；✅ 代码结构：后端约 8,300 行按 `ai/ harness/ lib/ routes/` 分层，前端约 21,400 行按 `pages/components/hooks/stores/api` 组织；✅ 错误处理：统一响应封装、400xx/401xx/500xx/600xx 错误码分级、`X-Request-Id` 全链路追踪；✅ 性能优化：滑动窗口限流、VirtualList 虚拟滚动、SSE 逐 Token 流式渲染、Suspense 懒加载 | **18** |
-| **商业价值** | 25 | 痛点来自真实企业/科研场景、明确付费方和目标用户、ROI 可量化、方案优于现有解决方式 | ✅ 痛点真实：科研工具割裂、重复粘贴、信息孤岛；✅ 付费方与定价明确：4 档订阅（免费 / Pro ¥19.9/月 / Team ¥199/月 / 企业定制）；✅ 差异化优势：支持 CAJ 中文文献解析、多 Agent 协同工作流、课题组三层记忆；✅ ROI 可量化口径见 PRD 与路演手册；⚠️ 尚无真实付费用户与收入数据 | **21** |
-| **创新** | 15 | Agent 架构、Prompt 策略、交互方式或行业切入角度有明显创新 | ✅ 灵犀引擎 8 类编排模式 + 三层记忆引擎跨会话沉淀；✅ 首创「多智能体专家评审团」5 角色并行盲审 + 主席对抗裁决；3D 力导向引用图谱、CodeAct 沙箱结果卡等科研专属交互；✅ 以「对话即工作台」中枢串联科研全周期；✅ 零依赖多格式解析引擎统一结构化 | **14** |
-| **网络投票** | 15 | 按得票排名区间折算 | 待比赛现场/线上投票结束后按实际排名折算，暂无法预估 | **待折算** |
-| **总分（不含网络投票与加/减分）** | 85 | — | — | **75 / 85** |
-
 ### 9.2 加分项与减分项对照
 
 ![加分项总览图（加分项 + 建议提交物核对清单，不含减分项）](docs/submissions/加分项核对表.png)
-
-| 类型 | 项目 | 分值 | 评分说明 | ScienceX 现状 | 判定 |
-| :--- | :--- | :---: | :--- | :--- | :---: |
-| 加分 | 产品可实际部署 | +3 | 提供在线可访问的 Demo 链接 | ✅ 已上线：**https://ci.playe.top/**（`vercel.json` 双 service + `/api/*` 重写；HMAC-SHA256 无状态令牌适配 Serverless 多实例；演示账号 demo@sciencex.cn / 123456） | **已满足 +3** |
-| 加分 | 代码开源且 License 合规 | +2 | 使用 MIT/Apache 2.0 等 OSI 认证 License | ✅ 根目录 `LICENSE` 为 MIT License（OSI 认证），README 徽章栏已标注 License-MIT | **已满足 +2** |
-| 加分 | 测试覆盖 | +2 | 提供测试用例及通过记录 | ✅ `backend/test/` 共 6 个套件 74 条用例（API 16 / 路由契约 15 / AI 服务 14 / AI 接入 5 / 持久化 5 / Harness 19）；✅ `.github/workflows/ci.yml` 每次 push/PR 自动执行测试、覆盖率与构建，GitHub Actions 记录即通过凭证 | **已满足 +2** |
-| 减分 | 超时 | -2 | 路演每超 30 秒扣 1 分 | ⚠️ 与现场发挥相关。已备 `ppt.md`（22 页）与 `路演.md`（30 问速查卡）辅助控时 | 现场控制 |
-| 减分 | 代码无提交历史 | -3 | Git 仓库无比赛期间的提交记录 | ✅ 近期 180+ 次提交（2026-08 以来），全部为中文语义化提交，持续覆盖比赛周期 | **无风险** |
-| 减分 | API 调用造假 | 直接取消 | 发现硬编码或人工替代 AI | ⚠️ **重点自查项**：项目为「真实调用 + 演示回退」双轨——配置密钥后经 Sophnet 网关真实调用大模型；未配置时回退模板并已明确声明。路演时务必现场使用已配置密钥的环境演示真实流式生成，并主动亮出边界声明 | **需现场规避风险** |
 
 **加分小计：+7 / +7 满分达成（开源 License +2、测试覆盖 +2、在线 Demo 已上线 +3），详见 [`docs/加分.md`](docs/加分.md)**
 
@@ -585,16 +566,16 @@ location / { root /var/www/sciencex/dist; try_files $uri /index.html; }
 
 ### 10.1 全流程使用概览
 
-| 开发环节 | 码道承担的工作 | 关键产物 | 证据 |
-| :--- | :--- | :--- | :--- |
-| 环境搭建 | 配置项梳理、端口自愈方案、Vite 代理联动、Docker/Nginx/CI 配置 | `backend/.env.example`、`server.js`、`vite.config.ts`、`Dockerfile` | 强 |
-| 需求拆解 | 把科研工作流拆成 13 模块与验收口径，识别中文文献/引用溯源等专业约束 | `docs/PRD.md`、`docs/fx1.md` | 强 |
-| 架构设计 | 六层架构、同步/流式/异步三类数据流、Zod↔OpenAPI 同源、HMAC 无状态鉴权 | `docs/TSD.md`、`docs/Harness.md`、架构图/流程图 SVG | 强 |
-| 代码生成 | 51 个后端源文件与 78 个前端源文件成批生成，按既有风格与统一报文约束 | `backend/src/**`、`frontend/src/**` | 强 |
-| 调试排错 | 10 个真实故障按「现象 → 根因 → 方案 → 验证」闭环修复 | `解决.md`、修复提交（如 `f2ba253`、`60dac48`） | 强 |
-| 测试生成 | 74 条自动化用例、12 条 AI 学术质量评测、Harness 基线与门禁 | `backend/test/**`、`backend/eval/**` | 强 |
-| 文档生成 | README、复现指南、评分自评、路演/答辩手册等 20 余份文档 | `README.md`、`docs/**` | 强 |
-| 交付部署 | 在线 Demo、Vercel 双服务、CI 六段卡口、License 合规、提交物汇总 | `vercel.json`、`.github/workflows/ci.yml`、`docs/加分.md` | 强 |
+| 开发环节 | 码道承担的工作 | 关键产物 |
+| :--- | :--- | :--- |
+| 环境搭建 | 配置项梳理、端口自愈方案、Vite 代理联动、Docker/Nginx/CI 配置 | `backend/.env.example`、`server.js`、`vite.config.ts`、`Dockerfile` |
+| 需求拆解 | 把科研工作流拆成 13 模块与验收口径，识别中文文献/引用溯源等专业约束 | `docs/PRD.md`、`docs/fx1.md` |
+| 架构设计 | 六层架构、同步/流式/异步三类数据流、Zod↔OpenAPI 同源、HMAC 无状态鉴权 | `docs/TSD.md`、`docs/Harness.md`、架构图/流程图 SVG |
+| 代码生成 | 51 个后端源文件与 78 个前端源文件成批生成，按既有风格与统一报文约束 | `backend/src/**`、`frontend/src/**` |
+| 调试排错 | 10 个真实故障按「现象 → 根因 → 方案 → 验证」闭环修复 | `解决.md`、修复提交（如 `f2ba253`、`60dac48`） |
+| 测试生成 | 74 条自动化用例、12 条 AI 学术质量评测、Harness 基线与门禁 | `backend/test/**`、`backend/eval/**` |
+| 文档生成 | README、复现指南、评分自评、路演/答辩手册等 20 余份文档 | `README.md`、`docs/**` |
+| 交付部署 | 在线 Demo、Vercel 双服务、CI 六段卡口、License 合规、提交物汇总 | `vercel.json`、`.github/workflows/ci.yml`、`docs/加分.md` |
 
 ### 10.2 工作方法：契约先行 + 最小验证 + 规则固化
 
